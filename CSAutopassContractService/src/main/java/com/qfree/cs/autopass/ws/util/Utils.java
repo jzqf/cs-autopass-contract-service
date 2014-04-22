@@ -1,6 +1,5 @@
 
-//package com.qfree.cs.autopass.ws.util
-package Common;
+package com.qfree.cs.autopass.ws.util;
 
 //import java.io.BufferedWriter;
 //import java.io.File;
@@ -8,7 +7,7 @@ package Common;
 //import java.util.Calendar;
 
 //public class Utils {
-public class Tools {
+public class Utils {
        
 /*    public static int tryParseInt(String value) {
         int test = -1;

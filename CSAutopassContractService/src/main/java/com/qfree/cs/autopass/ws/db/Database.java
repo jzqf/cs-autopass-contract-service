@@ -111,7 +111,7 @@ public class Database {
 			
 			logger.info("Attempting login to ServerCommon: username[{}] password[{}]", username, password);
 			dbConnection.setCatalog("ServerCommon");        
-			//            cs = dbConnection.prepareCall("{ call qp_WSC_Login }, ?, ?, ?, ?");
+			// cs = dbConnection.prepareCall("{ call qp_WSC_Login }, ?, ?, ?, ?");
 			cs = dbConnection.prepareCall("{call qp_WSC_Login(?, ?, ?, ?)}");
 			cs.setString("@ip_Username", username);           
 			cs.setString("@ip_Password", password);
@@ -127,16 +127,16 @@ public class Database {
 			logger.error("An exception was thrown:", e);
 		}
 		finally {   
-		//        	if (rs != null) {
-		//        		try { rs.close(); } catch (Exception e) { /* ignored */ }
-		//        	}
+			// if (rs != null) {
+			// try { rs.close(); } catch (Exception e) { /* ignored */ }
+			// }
 			if (cs != null) {
 				try { cs.close(); } catch (Exception e) { /* ignored */ }
 			}
 		}
 		return result;
 	}
-    
+
 	public void eventLog(
 			Connection dbConnection, 
 			String username, 
