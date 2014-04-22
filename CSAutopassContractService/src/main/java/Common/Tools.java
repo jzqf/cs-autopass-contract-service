@@ -1,0 +1,96 @@
+
+//package com.qfree.cs.autopass.ws.util
+package Common;
+
+//import java.io.BufferedWriter;
+//import java.io.File;
+//import java.io.FileWriter;
+//import java.util.Calendar;
+
+//public class Utils {
+public class Tools {
+       
+/*    public static int tryParseInt(String value) {
+        int test = -1;
+        try {
+            test = Integer.parseInt(value);
+            
+        } catch(NumberFormatException e) {
+            
+        }
+        return test;
+    }*/
+            
+/*    protected static String timeFix(int entity){
+        String value;
+        if(entity < 10) {
+            value = "0" + Integer.toString(entity);
+        }
+        else {
+            value = Integer.toString(entity);
+        }
+        return value;        
+    }*/
+    
+        // tall høyre justert, text venstre justert. 
+/*    protected String paddingFix(int Length, String data, String Align) {
+        
+        int i;
+        String fixed;
+        fixed = data;        
+        i = data.length();                
+        if(Align.equals("right") && i < Length) {
+            while(fixed.length() < Length) {
+                fixed = " " + fixed;
+            }
+        }
+        
+        else if(Align.equals("left") && i < Length) {
+            while(fixed.length() < Length) {
+                fixed = fixed + " ";
+            }
+        }        
+        return fixed;
+    }*/
+
+/*    public static void WriteLog(String Message) {
+        Calendar Cal = Calendar.getInstance();
+        int Time[] = new int[10]; 
+        
+        Time[0] = Cal.get(Calendar.DATE);
+        Time[1] = Cal.get(Calendar.MONTH) + 1;
+        Time[2] = Cal.get(Calendar.YEAR);
+        Time[3] = Cal.get(Calendar.HOUR_OF_DAY);
+        Time[4] = Cal.get(Calendar.MINUTE);
+        Time[5] = Cal.get(Calendar.SECOND);
+        String path = System.getenv("QFDIR");
+        String LogPath = path + "/log";
+        String temp = LogPath + "/PaymentMethodWS.log";
+        String DateStamp = "";
+        File LogFile = new File(temp);
+        
+        for(int i = 0; i < 6; i++) {
+            DateStamp += timeFix(Time[i]);
+        }
+               
+        try {
+            // create directory if it doesn't exist.
+            new File(LogPath).mkdir();
+            if(!LogFile.exists()) {
+                LogFile.createNewFile();
+            }
+            
+            FileWriter fstream = new FileWriter(LogFile, true);
+            BufferedWriter log = new BufferedWriter(fstream);
+            log.write("[" + DateStamp + "]\t" + Message + "\r\n");
+            
+            log.close();
+            
+        }
+        
+        catch (Exception e) {
+            
+        }
+    
+    }*/
+}
