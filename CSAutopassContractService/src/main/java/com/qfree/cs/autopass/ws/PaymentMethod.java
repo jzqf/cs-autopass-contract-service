@@ -1,8 +1,6 @@
 
 package com.qfree.cs.autopass.ws;
 
-import DataAccess.Data;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -16,6 +14,10 @@ import javax.xml.bind.annotation.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.qfree.cs.autopass.ws.db.Database;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodGet;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
 
 @WebService(serviceName = "PaymentMethod")
 public class PaymentMethod {
@@ -40,7 +42,7 @@ public class PaymentMethod {
 		logger.info("SystemActorID[{}]", SystemActorID);
 
 //        Database db = new Database();
-		Data data = new Data();       
+		Database data = new Database();       
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
 		PaymentMethodGet response = new PaymentMethodGet();
@@ -96,7 +98,7 @@ public class PaymentMethod {
 		logger.info("PaymentMethodID[{}]", PaymentMethodID);
 		
 		//     Database db = new Database();
-		Data data = new Data();
+		Database data = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
 		PaymentMethodUpdate response = new PaymentMethodUpdate();

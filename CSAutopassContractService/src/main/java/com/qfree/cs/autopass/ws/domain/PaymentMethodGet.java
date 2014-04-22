@@ -1,6 +1,5 @@
 
-//package com.qfree.cs.autopass.ws.domain
-package com.qfree.cs.autopass.ws;
+package com.qfree.cs.autopass.ws.domain;
 
 import javax.xml.bind.annotation.*;
 
@@ -16,7 +15,7 @@ public class PaymentMethodGet {
     @XmlElement(name="ErrorMessage", required=false)
     public String errorMessage;
     
-    PaymentMethodGet() {
+    public PaymentMethodGet() {
         
     }
     
