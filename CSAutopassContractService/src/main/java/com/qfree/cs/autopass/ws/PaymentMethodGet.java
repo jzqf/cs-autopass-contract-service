@@ -1,6 +1,6 @@
 
 //package com.qfree.cs.autopass.ws.domain
-package Main;
+package com.qfree.cs.autopass.ws;
 
 import javax.xml.bind.annotation.*;
 
