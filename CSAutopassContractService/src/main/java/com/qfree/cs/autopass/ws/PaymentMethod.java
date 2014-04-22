@@ -10,7 +10,7 @@ import java.util.Properties;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import com.qfree.cs.autopass.ws.db.Database;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGet;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
 
-@WebService(serviceName = "PaymentMethod")
+@WebService(serviceName = "PaymentMethodXXXXXXXX")
 public class PaymentMethod {
    
 	private static final Logger logger = LoggerFactory.getLogger(PaymentMethod.class);
