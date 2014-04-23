@@ -7,10 +7,7 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +31,9 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
 		serviceName = "ContractService-WebService_serviceName",
 		portName = "ContractServicePort-WebService_portName",
 		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
-public class PaymentMethod implements ContractServiceSEI {
+public class ContractService implements ContractServiceSEI {
    
-	private static final Logger logger = LoggerFactory.getLogger(PaymentMethod.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
 
 	@Override
 	public PaymentMethodGet paymentMethodGet(
@@ -95,15 +92,15 @@ public class PaymentMethod implements ContractServiceSEI {
 		return response;
 	}
 
-	@WebMethod(operationName = "PaymentMethodUpdate")
+	@Override
 	public PaymentMethodUpdate paymentMethodUpdate(
-    		@XmlElement(required=true) @WebParam(name = "Username") String Username,
-			@XmlElement(required=true) @WebParam(name = "Password") String Password,
-			@XmlElement(required=true) @WebParam(name = "SystemActorID") int SystemActorID,
-			@XmlElement(required=false) @WebParam(name = "ClientNumber") int ClientNumber,
-			@XmlElement(required=false) @WebParam(name = "AccountNumber") int AccountNumber,
-			@XmlElement(required=false) @WebParam(name = "InvoiceNumber") String InvoiceNumber,
-			@XmlElement(required=true) @WebParam(name = "PaymentMethodID") int PaymentMethodID) {
+			String Username,
+			String Password,
+			int SystemActorID,
+			int ClientNumber,
+			int AccountNumber,
+			String InvoiceNumber,
+			int PaymentMethodID) {
 
 		logger.info("Input parameters:");
 		logger.info("ClientNumber[{}]", ClientNumber);
