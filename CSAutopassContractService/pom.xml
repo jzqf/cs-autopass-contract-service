@@ -156,7 +156,7 @@
 	</dependencies>
 
     <build>
-		<finalName>CSAutopassContractService-pomfinalname</finalName>	<!-- otherwise web app will be deployed at /<artifactId>-<version> -->
+		<finalName>soap</finalName>	<!-- otherwise web app will be deployed at /<artifactId>-<version> -->
         <plugins>
 
             <!-- I don't see any need for this plugin, which is for generating Eclipse IDE files.

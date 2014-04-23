@@ -27,7 +27,7 @@
 		-->
 		<!-- On a default GlassFish 4 installation, this log file will be created in:
 			.../glassfish4/glassfish/domains/domain1/logs/ -->
-		<File>${catalina.base}/logs/payment-method/payment-method.log</File>
+		<File>${catalina.base}/logs/contract-service/contract-service.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>
 				<!-- Log file will be archived in "archive" directory at the beginning of each minute: -->

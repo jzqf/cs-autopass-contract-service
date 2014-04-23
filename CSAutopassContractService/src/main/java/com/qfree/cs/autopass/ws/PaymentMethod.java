@@ -19,43 +19,54 @@ import com.qfree.cs.autopass.ws.db.Database;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGet;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
 
-@WebService(serviceName = "PaymentMethodXXXXXXXX")
-public class PaymentMethod {
+/*
+ * serviceName:		Specifies the name of the published service. This property is 
+ * 					mapped to the name attribute of the wsdl:service element that 
+ * 					defines the published service. The default is to use the name
+ * 					of the service's implementation class. Not allowed on the SEI.
+ *
+ * portName:		Specifies the name of the endpoint at which the service is 
+ * 					published. This property is mapped to the name attribute of 
+ * 					the wsdl:port element that specifies the endpoint details for 
+ * 					a published service. Not allowed on the SEI
+ */
+@WebService(
+		serviceName = "ContractService-WebService_serviceName",
+		portName = "ContractServicePort-WebService_portName",
+		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
+public class PaymentMethod implements ContractServiceSEI {
    
 	private static final Logger logger = LoggerFactory.getLogger(PaymentMethod.class);
 
-    /**
-     * Web service operation
-     */
-	@WebMethod(operationName = "PaymentMethodGet")
+	@Override
 	public PaymentMethodGet paymentMethodGet(
-    		@XmlElement(required=true) @WebParam(name = "Username") String Username,				// stralfors
-    		@XmlElement(required=true) @WebParam(name = "Password") String Password,				// kF8szBp1lV7Q4SZg
-    		@XmlElement(required=true) @WebParam(name = "SystemActorID") int SystemActorID,			// 23
-    		@XmlElement(required=false) @WebParam(name = "ClientNumber") int ClientNumber,			// 79000001
-    		@XmlElement(required=false) @WebParam(name = "AccountNumber") int AccountNumber,		// 1
-    		@XmlElement(required=false) @WebParam(name = "InvoiceNumber") String InvoiceNumber) {
+			String Username,			// stralfors
+			String Password,			// kF8szBp1lV7Q4SZg
+			int SystemActorID,			// 23
+			int ClientNumber,			// 79000001
+			int AccountNumber,			// 1
+			String InvoiceNumber) {
         
 	    logger.info("Input parameters:");
 		logger.info("ClientNumber[{}]", ClientNumber);
 		logger.info("Avtalenummer[{}]", AccountNumber);
 		logger.info("SystemActorID[{}]", SystemActorID);
 
-//        Database db = new Database();
-		Database data = new Database();       
+		Database db = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
 		PaymentMethodGet response = new PaymentMethodGet();
 		        
 		try {
 		    
-		    data.registerDriver();
-		    dbConnection = data.getConnection(connectionString);
+			db.registerDriver();
+			dbConnection = db.getConnection(connectionString);
 		    logger.info("Setting catalog to ServerCommon");
 		    dbConnection.setCatalog("ServerCommon");
 		 
 		    Map result;
-		    result = data.paymentMethodGet(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, SystemActorID, Username, Password);
+			result = db.paymentMethodGet(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, SystemActorID,
+					Username, Password);
 		                  
 		    if(result.get("ErrorCode").toString().equals("0")) {
 		        response.paymentMethodID =  Integer.parseInt(result.get("PaymentMethodID").toString());
@@ -74,7 +85,10 @@ public class PaymentMethod {
 		}
 		
 		finally {
-		    try { data.deregisterDriver(); } catch (Exception e) { /* ignored */ }
+			try {
+				db.deregisterDriver();
+			} catch (Exception e) { /* ignored */
+			}
 		    try { dbConnection.close(); } catch (Exception e) { /* ignored */ }
 		}
 		
@@ -97,21 +111,21 @@ public class PaymentMethod {
 		logger.info("SystemActorID[{}]", SystemActorID);
 		logger.info("PaymentMethodID[{}]", PaymentMethodID);
 		
-		//     Database db = new Database();
-		Database data = new Database();
+		Database db = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
 		PaymentMethodUpdate response = new PaymentMethodUpdate();
 		
 		try {
 		    
-		    data.registerDriver();
-		    dbConnection = data.getConnection(connectionString);
+			db.registerDriver();
+			dbConnection = db.getConnection(connectionString);
 		    logger.info("Changing to ServerCommon");
 		    dbConnection.setCatalog("ServerCommon");
 		 
 		    Map result;
-		    result = data.paymentMethodUpdate(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, PaymentMethodID, SystemActorID, Username, Password);
+			result = db.paymentMethodUpdate(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, PaymentMethodID,
+					SystemActorID, Username, Password);
 		                  
 		    if(result.get("ErrorCode").toString().equals("0")) {
 		        response.errorCode = 0;
@@ -127,7 +141,10 @@ public class PaymentMethod {
 		}
 		
 		finally {
-		    try { data.deregisterDriver(); } catch (Exception e) { /* ignored */ }
+			try {
+				db.deregisterDriver();
+			} catch (Exception e) { /* ignored */
+			}
 		    try { dbConnection.close(); } catch (Exception e) { /* ignored */ }
 		}
 		
