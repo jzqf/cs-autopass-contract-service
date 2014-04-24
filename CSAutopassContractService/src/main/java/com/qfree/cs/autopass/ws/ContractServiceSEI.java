@@ -7,6 +7,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 
@@ -43,9 +44,17 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 @SOAPBinding(style = Style.DOCUMENT)
 public interface ContractServiceSEI {
 
-	@WebMethod(operationName = "PaymentMethodGet", exclude = false)
+	@WebMethod(operationName = "ContractCreateTest", exclude = false)
+	public ContractCreateTestResult contractCreateTest(
+			@XmlElement(required = true) @WebParam(name = "Username") String username,
+			@XmlElement(required = true) @WebParam(name = "Password") String password,
+			@XmlElement(required = true) @WebParam(name = "OBUID") String obuID,
+			@XmlElement(required = false) @WebParam(name = "LicencePlate") String licencePlate,
+			@XmlElement(required = false) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
+
+	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
 	public PaymentMethodGetResult paymentMethodGet(
-			@XmlElement(required = true) @WebParam(name = "Username") String Username,
+			@XmlElement(required = true) @WebParam(name = "Username") String Username,	// TODO: Rename all capitalized properties, also in ContractService.java & Database.java
 			@XmlElement(required = true) @WebParam(name = "Password") String Password,
 			@XmlElement(required = true) @WebParam(name = "SystemActorID") int SystemActorID,
 			@XmlElement(required = false) @WebParam(name = "ClientNumber") int ClientNumber,
