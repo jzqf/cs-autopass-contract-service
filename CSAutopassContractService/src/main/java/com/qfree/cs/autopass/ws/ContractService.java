@@ -44,55 +44,63 @@ public class ContractService implements ContractServiceSEI {
 			String licencePlate,
 			int licencePlateCountryID) {
 
-		logger.info("Input parameters:");
-		logger.info(" Username: {}", username);
-		logger.info(" Password: {}", password);
-		logger.info(" OBUID: {}", obuID);
+		logger.info("Input parameters:\n" +
+				" Username = {}\n" +
+				" Password = {}\n" +
+				" OBUID = {}\n" +
+				" LicencePlate = {}\n" +
+				" LicencePlateCountryID = {}",
+				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
 		Database db = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
-		response.setErrorCode(666);
-		response.setErrorMessage("How's it going, Hoser?");
+		try {
 
-		/*		try {
+			db.registerDriver();
+			dbConnection = db.getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
-					db.registerDriver();
-					dbConnection = db.getConnection(connectionString);
-					logger.info("Setting catalog to ServerCommon");
-					dbConnection.setCatalog("ServerCommon");
+			Map result;
+			result = db.contractCreateTest(
+					dbConnection,
+					username,
+					password,
+					obuID,
+					licencePlate,
+					licencePlateCountryID);
 
-					Map result;
-					result = db.paymentMethodGet(dbConnection, clientNumber, accountNumber, invoiceNumber, systemActorID,
-							username, password);
+			if (result.get("ErrorCode").toString().equals("0")) {
+				//				response.setPaymentMethodID(Integer.parseInt(result.get("paymentMethodID").toString()));
+				//				response.setPaymentMethodName(result.get("PaymentMethod").toString());
+				response.setErrorCode(0);
+			}
+			else {
+				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
+				response.setErrorMessage(result.get("ErrorMessage").toString());
+			}
 
-					if (result.get("ErrorCode").toString().equals("0")) {
-						response.setPaymentMethodID(Integer.parseInt(result.get("paymentMethodID").toString()));
-						response.setPaymentMethodName(result.get("PaymentMethod").toString());
-						response.setErrorCode(0);
-					}
-					else {
-						response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
-						response.setErrorMessage(result.get("ErrorMessage").toString());
-					}
+			logger.info("response = {}", response.toString());
 
-					logger.info("response = {}", response.toString());
-				} catch (Exception e) {
-					logger.error("An exception was thrown:", e);
-				}
+		} catch (Exception e) {
+			logger.error("An exception was thrown:", e);
+		}
 
-				finally {
-					try {
-						db.deregisterDriver();
-					} catch (Exception e) {  ignored 
-					}
-					try {
-						dbConnection.close();
-					} catch (Exception e) {  ignored 
-					}
-				}*/
+		finally {
+			try {
+				db.deregisterDriver();
+			} catch (Exception e) {
+				/* ignored */
+			}
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
 
 		return response;
 	}

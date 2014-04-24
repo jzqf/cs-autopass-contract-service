@@ -33,7 +33,7 @@ public class ContractCreateTestResult {
 		StringBuilder result = new StringBuilder();
 		String NEW_LINE = System.getProperty("line.separator");
 
-		result.append(this.getClass().getName() + " Object {" + NEW_LINE);
+		result.append(this.getClass().getName() + " object {" + NEW_LINE);
 		result.append(" ErrorCode: " + errorCode + NEW_LINE);
 		result.append(" ErrorMessage: " + errorMessage + NEW_LINE);
 		result.append("}");

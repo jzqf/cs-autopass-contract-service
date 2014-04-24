@@ -87,6 +87,150 @@ public class Database {
 		return dbConnection;
 	}
 
+	public Map contractCreateTest(
+			Connection dbConnection,
+			String username,
+			String password,
+			String obuID,
+			String licencePlate,
+			int licencePlateCountryID) {
+
+		Map result = new HashMap();
+		CallableStatement cs = null;
+		//ResultSet rs = null;
+
+		try {
+
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
+
+			logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
+					" @ip_Username = {}\n" +
+					" @ip_Password = {}\n" +
+					" @ip_OBUID = {}\n" +
+					" @ip_LicencePlate = {}\n" +
+					" @ip_LicencePlateCountryID = {}",
+					new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
+
+			cs = dbConnection.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}");
+
+			cs.setString("@ip_Username", username);
+			cs.setString("@ip_Password", password);
+			cs.setString("@ip_OBUID", obuID);
+			cs.setString("@ip_LicencePlate", licencePlate);
+
+			if (licencePlateCountryID >= 0) {
+				cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
+			}
+			else {
+				cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
+			}
+
+			//            cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);            
+			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+
+			cs.execute();
+
+			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+			//            result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
+
+			//			result.put("ErrorCode", 666666);
+			//			result.put("ErrorMessage", "Dummy error message");
+
+		} catch (Exception e) {
+			logger.error("An exception was thrown executing or processing results from qp_WSC_ContractCreateTest:", e);
+		} finally {
+			//        	if (rs != null) {
+			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			//    		}
+			if (cs != null) {
+				try {
+					cs.close();
+				} catch (Exception e) {
+					/* ignored */
+				}
+			}
+		}
+
+		return result;
+	}
+
+	public Map paymentMethodGet(
+			Connection dbConnection,
+			int clientNumber,
+			int accountNumber,
+			String invoiceNumber,
+			int systemActorID,
+			String username,
+			String password) {
+
+		Map result = new HashMap();
+		CallableStatement cs = null;
+		//ResultSet rs = null;
+
+        try {
+
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
+			logger.info("Attempting to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username, password);
+			cs = dbConnection.prepareCall("{call qp_WSC_PaymentMethodGet(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+			cs.setString("@ip_Username", username);
+			cs.setString("@ip_Password", password);
+            
+			if (clientNumber >= 0) {
+				cs.setInt("@ip_ClientNumber", clientNumber);
+            }
+            else {
+                cs.setNull("@ip_ClientNumber", Types.NUMERIC);
+            }
+            
+			if (accountNumber >= 0) {
+				cs.setInt("@ip_AccountNumber", accountNumber);
+            }
+            else {
+                cs.setNull("@ip_AccountNumber", Types.NUMERIC);
+            }
+			cs.setString("@ip_InvoiceNumber", invoiceNumber);
+            
+			if (systemActorID >= 0) {
+				cs.setInt("@ip_SystemActorID", systemActorID);
+            }
+            else {
+                cs.setNull("@ip_SystemActorID", Types.NUMERIC);
+            }
+            
+			cs.registerOutParameter("@op_PaymentMethodID", Types.TINYINT);
+			cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);
+            cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+            cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+            
+            cs.execute();
+            
+            result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+			result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
+			result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
+        }
+        catch (Exception e) {            
+			logger.error("An exception was thrown:", e);
+        }
+        finally {
+			//        	if (rs != null) {
+			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			//    		}
+			if (cs != null) {
+				try {
+					cs.close();
+				} catch (Exception e) { /* ignored */
+				}
+			}
+        }           
+        
+        return result;
+	}
+
 	public Map paymentMethodUpdate(
 			Connection dbConnection,
 			int clientNumber,
@@ -104,10 +248,10 @@ public class Database {
         try {
 
 			logger.info("Setting catalog to ServerCommon");
-            dbConnection.setCatalog("ServerCommon");        
+			dbConnection.setCatalog("ServerCommon");
 			logger.info("Attempting to execute qp_WSC_PaymentMethodUpdate: username[{}] password[{}]", username,
 					password);
-            cs = dbConnection.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?");
+			cs = dbConnection.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?");
             
 			if (clientNumber >= 0) {
 				cs.setInt("@ip_ClientNumber", clientNumber);
@@ -132,22 +276,22 @@ public class Database {
             
 			if (paymentMethodID >= 0) {
 				cs.setInt("@ip_PaymentMethodID", paymentMethodID);
-            }
-            else {
-                cs.setNull("@ip_PaymentMethodID", Types.TINYINT);
-            }
-            
-            cs.setString("@ip_Username", username);
-            cs.setString("@ip_Password", password);
+			}
+			else {
+				cs.setNull("@ip_PaymentMethodID", Types.TINYINT);
+			}
+
+			cs.setString("@ip_Username", username);
+			cs.setString("@ip_Password", password);
 			cs.setString("@ip_InvoiceNumber", invoiceNumber);
-            
+
             cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
             cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
             
             cs.execute();
             
             result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-            result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
         }
         catch (Exception e) {            
 			logger.error("An exception was thrown:", e);
@@ -166,78 +310,4 @@ public class Database {
         
         return result;
 	}
-
-	public Map paymentMethodGet(
-			Connection dbConnection,
-			int clientNumber,
-			int accountNumber,
-			String invoiceNumber,
-			int systemActorID,
-			String username,
-			String password) {
-
-        Map result = new HashMap();
-        CallableStatement cs = null;
-        //ResultSet rs = null;
-        
-        try {
-
-    		logger.info("Setting catalog to ServerCommon");
-    		dbConnection.setCatalog("ServerCommon");        
-    		logger.info("Attempting to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username, password);
-            cs = dbConnection.prepareCall("{call qp_WSC_PaymentMethodGet(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
-            cs.setString("@ip_Username", username);
-            cs.setString("@ip_Password", password);
-            
-			if (clientNumber >= 0) {
-				cs.setInt("@ip_ClientNumber", clientNumber);
-            }
-            else {
-                cs.setNull("@ip_ClientNumber", Types.NUMERIC);
-            }
-            
-			if (accountNumber >= 0) {
-				cs.setInt("@ip_AccountNumber", accountNumber);
-            }
-            else {
-                cs.setNull("@ip_AccountNumber", Types.NUMERIC);
-            }
-			cs.setString("@ip_InvoiceNumber", invoiceNumber);
-            
-			if (systemActorID >= 0) {
-				cs.setInt("@ip_SystemActorID", systemActorID);
-            }
-            else {
-                cs.setNull("@ip_SystemActorID", Types.NUMERIC);
-            }
-            
-            cs.registerOutParameter("@op_PaymentMethodID", Types.TINYINT);
-            cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);            
-            cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-            cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-            
-            cs.execute();
-            
-            result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-            result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));            
-            result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
-			result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
-        }
-        catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
-        }
-        finally {
-//        	if (rs != null) {
-//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
-//    		}
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) { /* ignored */
-				}
-			}
-        }           
-        
-        return result;
-    }    
 }
