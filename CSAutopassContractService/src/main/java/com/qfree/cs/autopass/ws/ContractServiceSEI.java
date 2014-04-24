@@ -54,21 +54,21 @@ public interface ContractServiceSEI {
 
 	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
 	public PaymentMethodGetResult paymentMethodGet(
-			@XmlElement(required = true) @WebParam(name = "Username") String Username,	// TODO: Rename all capitalized properties, also in ContractService.java & Database.java
-			@XmlElement(required = true) @WebParam(name = "Password") String Password,
-			@XmlElement(required = true) @WebParam(name = "SystemActorID") int SystemActorID,
-			@XmlElement(required = false) @WebParam(name = "ClientNumber") int ClientNumber,
-			@XmlElement(required = false) @WebParam(name = "AccountNumber") int AccountNumber,
-			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String InvoiceNumber);
+			@XmlElement(required = true) @WebParam(name = "Username") String username,
+			@XmlElement(required = true) @WebParam(name = "Password") String password,
+			@XmlElement(required = true) @WebParam(name = "SystemActorID") int systemActorID,
+			@XmlElement(required = false) @WebParam(name = "ClientNumber") int clientNumber,
+			@XmlElement(required = false) @WebParam(name = "AccountNumber") int accountNumber,
+			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String invoiceNumber);
 
 	@WebMethod(operationName = "PaymentMethodUpdate", exclude = true)
 	public PaymentMethodUpdateResult paymentMethodUpdate(
-			@XmlElement(required = true) @WebParam(name = "Username") String Username,
-			@XmlElement(required = true) @WebParam(name = "Password") String Password,
-			@XmlElement(required = true) @WebParam(name = "SystemActorID") int SystemActorID,
-			@XmlElement(required = false) @WebParam(name = "ClientNumber") int ClientNumber,
-			@XmlElement(required = false) @WebParam(name = "AccountNumber") int AccountNumber,
-			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String InvoiceNumber,
-			@XmlElement(required = true) @WebParam(name = "PaymentMethodID") int PaymentMethodID);
+			@XmlElement(required = true) @WebParam(name = "Username") String username,
+			@XmlElement(required = true) @WebParam(name = "Password") String password,
+			@XmlElement(required = true) @WebParam(name = "SystemActorID") int systemActorID,
+			@XmlElement(required = false) @WebParam(name = "ClientNumber") int clientNumber,
+			@XmlElement(required = false) @WebParam(name = "AccountNumber") int accountNumber,
+			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String invoiceNumber,
+			@XmlElement(required = true) @WebParam(name = "PaymentMethodID") int paymentMethodID);
 
 }

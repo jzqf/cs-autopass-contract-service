@@ -89,11 +89,11 @@ public class Database {
 
 	public Map paymentMethodUpdate(
 			Connection dbConnection,
-			int ClientNumber,
-			int Avtalenummer,
-			String InvoiceNumber,
-			int PaymentMethodID,
-			int SystemActorID,
+			int clientNumber,
+			int accountNumber,
+			String invoiceNumber,
+			int paymentMethodID,
+			int systemActorID,
 			String username,
 			String password) {
 
@@ -109,29 +109,29 @@ public class Database {
 					password);
             cs = dbConnection.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?");
             
-            if(ClientNumber >= 0) {
-                cs.setInt("@ip_ClientNumber", ClientNumber);          
+			if (clientNumber >= 0) {
+				cs.setInt("@ip_ClientNumber", clientNumber);
             }
             else {
                 cs.setNull("@ip_ClientNumber", Types.NUMERIC);
             }
             
-            if(Avtalenummer >= 0) {
-                cs.setInt("@ip_AccountNumber", Avtalenummer); 
+			if (accountNumber >= 0) {
+				cs.setInt("@ip_AccountNumber", accountNumber);
             }
             else {
                 cs.setNull("@ip_AccountNumber", Types.NUMERIC);
             }
             
-            if(SystemActorID >= 0) {
-                cs.setInt("@ip_SystemActorID", SystemActorID);                         
+			if (systemActorID >= 0) {
+				cs.setInt("@ip_SystemActorID", systemActorID);
             }
             else {
                 cs.setNull("@ip_SystemActorID", Types.NUMERIC);
             }
             
-            if(SystemActorID >= 0) {
-                cs.setInt("@ip_PaymentMethodID", PaymentMethodID);                         
+			if (paymentMethodID >= 0) {
+				cs.setInt("@ip_PaymentMethodID", paymentMethodID);
             }
             else {
                 cs.setNull("@ip_PaymentMethodID", Types.TINYINT);
@@ -139,7 +139,7 @@ public class Database {
             
             cs.setString("@ip_Username", username);
             cs.setString("@ip_Password", password);
-            cs.setString("@ip_InvoiceNumber", InvoiceNumber);     
+			cs.setString("@ip_InvoiceNumber", invoiceNumber);
             
             cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
             cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
@@ -169,10 +169,10 @@ public class Database {
 
 	public Map paymentMethodGet(
 			Connection dbConnection,
-			int ClientNumber,
-			int Avtalenummer,
-			String InvoiceNumber,
-			int SystemActorID,
+			int clientNumber,
+			int accountNumber,
+			String invoiceNumber,
+			int systemActorID,
 			String username,
 			String password) {
 
@@ -189,23 +189,23 @@ public class Database {
             cs.setString("@ip_Username", username);
             cs.setString("@ip_Password", password);
             
-            if(ClientNumber >= 0) {
-                cs.setInt("@ip_ClientNumber", ClientNumber);                  
+			if (clientNumber >= 0) {
+				cs.setInt("@ip_ClientNumber", clientNumber);
             }
             else {
                 cs.setNull("@ip_ClientNumber", Types.NUMERIC);
             }
             
-            if(Avtalenummer >= 0) {
-                cs.setInt("@ip_AccountNumber", Avtalenummer); 
+			if (accountNumber >= 0) {
+				cs.setInt("@ip_AccountNumber", accountNumber);
             }
             else {
                 cs.setNull("@ip_AccountNumber", Types.NUMERIC);
             }
-            cs.setString("@ip_InvoiceNumber", InvoiceNumber);
+			cs.setString("@ip_InvoiceNumber", invoiceNumber);
             
-            if(SystemActorID >= 0) {
-                cs.setInt("@ip_SystemActorID", SystemActorID);                  
+			if (systemActorID >= 0) {
+				cs.setInt("@ip_SystemActorID", systemActorID);
             }
             else {
                 cs.setNull("@ip_SystemActorID", Types.NUMERIC);
@@ -221,7 +221,7 @@ public class Database {
             result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
             result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));            
             result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
-            result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));            
+			result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
         }
         catch (Exception e) {            
 			logger.error("An exception was thrown:", e);

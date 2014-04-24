@@ -65,11 +65,11 @@ public class ContractService implements ContractServiceSEI {
 					dbConnection.setCatalog("ServerCommon");
 
 					Map result;
-					result = db.paymentMethodGet(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, SystemActorID,
-							Username, Password);
+					result = db.paymentMethodGet(dbConnection, clientNumber, accountNumber, invoiceNumber, systemActorID,
+							username, password);
 
 					if (result.get("ErrorCode").toString().equals("0")) {
-						response.setPaymentMethodID(Integer.parseInt(result.get("PaymentMethodID").toString()));
+						response.setPaymentMethodID(Integer.parseInt(result.get("paymentMethodID").toString()));
 						response.setPaymentMethodName(result.get("PaymentMethod").toString());
 						response.setErrorCode(0);
 					}
@@ -99,17 +99,17 @@ public class ContractService implements ContractServiceSEI {
 
 	@Override
 	public PaymentMethodGetResult paymentMethodGet(
-			String Username,			// stralfors
-			String Password,			// kF8szBp1lV7Q4SZg
-			int SystemActorID,			// 23
-			int ClientNumber,			// 79000001
-			int AccountNumber,			// 1
-			String InvoiceNumber) {
+			String username,			// stralfors
+			String password,			// kF8szBp1lV7Q4SZg
+			int systemActorID,			// 23
+			int clientNumber,			// 79000001
+			int accountNumber,			// 1
+			String invoiceNumber) {
 
 		logger.info("Input parameters:");
-		logger.info("ClientNumber[{}]", ClientNumber);
-		logger.info("Avtalenummer[{}]", AccountNumber);
-		logger.info("SystemActorID[{}]", SystemActorID);
+		logger.info("ClientNumber[{}]", clientNumber);
+		logger.info("Avtalenummer[{}]", accountNumber);
+		logger.info("SystemActorID[{}]", systemActorID);
 
 		Database db = new Database();
 		Connection dbConnection = null;
@@ -124,8 +124,8 @@ public class ContractService implements ContractServiceSEI {
 			dbConnection.setCatalog("ServerCommon");
 		 
 			Map result;
-			result = db.paymentMethodGet(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, SystemActorID,
-					Username, Password);
+			result = db.paymentMethodGet(dbConnection, clientNumber, accountNumber, invoiceNumber, systemActorID,
+					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setPaymentMethodID(Integer.parseInt(result.get("PaymentMethodID").toString()));
@@ -159,19 +159,19 @@ public class ContractService implements ContractServiceSEI {
 
 	@Override
 	public PaymentMethodUpdateResult paymentMethodUpdate(
-			String Username,
-			String Password,
-			int SystemActorID,
-			int ClientNumber,
-			int AccountNumber,
-			String InvoiceNumber,
-			int PaymentMethodID) {
+			String username,
+			String password,
+			int systemActorID,
+			int clientNumber,
+			int accountNumber,
+			String invoiceNumber,
+			int paymentMethodID) {
 
 		logger.info("Input parameters:");
-		logger.info("ClientNumber[{}]", ClientNumber);
-		logger.info("Avtalenummer[{}]", AccountNumber);
-		logger.info("SystemActorID[{}]", SystemActorID);
-		logger.info("PaymentMethodID[{}]", PaymentMethodID);
+		logger.info("ClientNumber[{}]", clientNumber);
+		logger.info("Avtalenummer[{}]", accountNumber);
+		logger.info("SystemActorID[{}]", systemActorID);
+		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
 		Database db = new Database();
 		Connection dbConnection = null;
@@ -186,8 +186,8 @@ public class ContractService implements ContractServiceSEI {
 			dbConnection.setCatalog("ServerCommon");
 		 
 			Map result;
-			result = db.paymentMethodUpdate(dbConnection, ClientNumber, AccountNumber, InvoiceNumber, PaymentMethodID,
-					SystemActorID, Username, Password);
+			result = db.paymentMethodUpdate(dbConnection, clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setErrorCode(0);
