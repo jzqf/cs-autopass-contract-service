@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.qfree.cs.autopass.ws.db.Database;
-import com.qfree.cs.autopass.ws.domain.PaymentMethodGet;
-import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 
 /*
  * serviceName:		Specifies the name of the published service. This property is 
@@ -36,7 +36,7 @@ public class ContractService implements ContractServiceSEI {
 	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
 
 	@Override
-	public PaymentMethodGet paymentMethodGet(
+	public PaymentMethodGetResult paymentMethodGet(
 			String Username,			// stralfors
 			String Password,			// kF8szBp1lV7Q4SZg
 			int SystemActorID,			// 23
@@ -52,7 +52,7 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
-		PaymentMethodGet response = new PaymentMethodGet();
+		PaymentMethodGetResult response = new PaymentMethodGetResult();
 		        
 		try {
 		    
@@ -66,13 +66,13 @@ public class ContractService implements ContractServiceSEI {
 					Username, Password);
 		                  
 		    if(result.get("ErrorCode").toString().equals("0")) {
-		        response.paymentMethodID =  Integer.parseInt(result.get("PaymentMethodID").toString());
-		        response.paymentMethodName = result.get("PaymentMethod").toString();
-		        response.errorCode = 0;
+				response.setPaymentMethodID(Integer.parseInt(result.get("PaymentMethodID").toString()));
+				response.setPaymentMethodName(result.get("PaymentMethod").toString());
+				response.setErrorCode(0);
 		    }            
 		    else {
-		        response.errorCode = Integer.parseInt(result.get("ErrorCode").toString());
-		        response.errorMessage = result.get("ErrorMessage").toString();
+				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
+				response.setErrorMessage(result.get("ErrorMessage").toString());
 		    }
 		    
 		    logger.info("response = {}", response.toString());
@@ -93,7 +93,7 @@ public class ContractService implements ContractServiceSEI {
 	}
 
 	@Override
-	public PaymentMethodUpdate paymentMethodUpdate(
+	public PaymentMethodUpdateResult paymentMethodUpdate(
 			String Username,
 			String Password,
 			int SystemActorID,
@@ -111,7 +111,7 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		Connection dbConnection = null;
 		String connectionString = getConnectionString();
-		PaymentMethodUpdate response = new PaymentMethodUpdate();
+		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 		
 		try {
 		    
@@ -125,11 +125,11 @@ public class ContractService implements ContractServiceSEI {
 					SystemActorID, Username, Password);
 		                  
 		    if(result.get("ErrorCode").toString().equals("0")) {
-		        response.errorCode = 0;
+				response.setErrorCode(0);
 		    }            
 		    else {
-		        response.errorCode = Integer.parseInt(result.get("ErrorCode").toString());
-		        response.errorMessage = result.get("ErrorMessage").toString();
+				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
+				response.setErrorMessage(result.get("ErrorMessage").toString());
 		    }
 		    logger.info("response = {}", response.toString());
 		}

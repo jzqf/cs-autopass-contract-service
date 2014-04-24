@@ -7,8 +7,8 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.qfree.cs.autopass.ws.domain.PaymentMethodGet;
-import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
+import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 
 /**
  * This is the SEI (Service Endpoint Interface) for the web service.
@@ -43,8 +43,8 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdate;
 @SOAPBinding(style = Style.DOCUMENT)
 public interface ContractServiceSEI {
 
-	@WebMethod(operationName = "PaymentMethodGet")
-	public PaymentMethodGet paymentMethodGet(
+	@WebMethod(operationName = "PaymentMethodGet", exclude = false)
+	public PaymentMethodGetResult paymentMethodGet(
 			@XmlElement(required = true) @WebParam(name = "Username") String Username,
 			@XmlElement(required = true) @WebParam(name = "Password") String Password,
 			@XmlElement(required = true) @WebParam(name = "SystemActorID") int SystemActorID,
@@ -53,7 +53,7 @@ public interface ContractServiceSEI {
 			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String InvoiceNumber);
 
 	@WebMethod(operationName = "PaymentMethodUpdate", exclude = true)
-	public PaymentMethodUpdate paymentMethodUpdate(
+	public PaymentMethodUpdateResult paymentMethodUpdate(
 			@XmlElement(required = true) @WebParam(name = "Username") String Username,
 			@XmlElement(required = true) @WebParam(name = "Password") String Password,
 			@XmlElement(required = true) @WebParam(name = "SystemActorID") int SystemActorID,
