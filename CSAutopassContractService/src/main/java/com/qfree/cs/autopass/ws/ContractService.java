@@ -432,14 +432,14 @@ public class ContractService implements ContractServiceSEI {
 		String dbPassword = null;
 		String dbUsername = null;
 		
-		try (InputStream in = this.getClass().getResourceAsStream("/PaymentMethod.properties")) {
+		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			server = configProps.getProperty("db.server");
 			port = configProps.getProperty("db.port");
 			dbPassword = configProps.getProperty("db.password");
 			dbUsername = configProps.getProperty("db.username");
 		} catch (IOException e) {
-			logger.error("An exception was thrown loading PaymentMethod.properties:", e);
+			logger.error("An exception was thrown loading config.properties:", e);
 		}
 		
 		//		server = "csnt02.csautopass.no";
