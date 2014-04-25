@@ -6,12 +6,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 //import java.sql.ResultSet;
 import java.sql.Types;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
 public class Database {
@@ -140,7 +142,9 @@ public class Database {
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
 		} catch (Exception e) {
-			logger.error("An exception was thrown executing or processing results from qp_WSC_ContractCreateTest:", e);
+			logger.error(
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest:",
+					e);
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
@@ -252,7 +256,8 @@ public class Database {
 			}
 			cs.setString("@ip_FirstName", firstName);
 			cs.setString("@ip_LastName", lastName);
-			cs.setString("@ip_BirthDate", birthDate);	//// DATE!!! ???????????????????????????????????????????????????
+			cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyy-MM-dd"));
+			//cs.setString("@ip_BirthDate", birthDate);
 			cs.setString("@ip_Company", company);
 			cs.setString("@ip_CompanyNumber", companyNumber);
 			cs.setString("@ip_Address1", address1);
@@ -267,7 +272,20 @@ public class Database {
 			}
 			cs.setString("@ip_EMail", eMail);
 			cs.setString("@ip_Phone", phone);
-			cs.setString("@ip_ValidFrom", validFrom);	//// DATETIME!!! ???????????????????????????????????????????????????
+
+			// This supports multiple datetime formats. The does not seem to be any simple
+			// way to implement this with a single format.
+			try {
+				cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd HH:mm:ss"));
+			} catch (ParseException e) {
+				try {
+					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd HH:mm"));
+				} catch (ParseException ee) {
+					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd"));
+				}
+			}
+			//cs.setString("@ip_ValidFrom", validFrom);
+
 			cs.setString("@ip_OBUID", obuID);
 			if (vehicleClassID >= 0) {
 				cs.setInt("@ip_VehicleClassID", vehicleClassID);
@@ -295,7 +313,8 @@ public class Database {
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
 		} catch (Exception e) {
-			logger.error("An exception was thrown executing or processing results from qp_WSC_ContractCreate:", e);
+			logger.error(
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate:", e);
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }

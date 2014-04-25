@@ -53,6 +53,31 @@ public interface ContractServiceSEI {
 			@XmlElement(required = false) @WebParam(name = "LicencePlate") String licencePlate,
 			@XmlElement(required = false) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
 
+	/**
+	 * Web service operation to create a new Client agreement.
+	 * 
+	 * @param username
+	 * @param password
+	 * @param clientTypeID
+	 * @param firstName
+	 * @param lastName
+	 * @param birthDate
+	 * @param company
+	 * @param companyNumber
+	 * @param address1
+	 * @param address2
+	 * @param postCode
+	 * @param postOffice
+	 * @param countryID
+	 * @param eMail
+	 * @param phone
+	 * @param validFrom
+	 * @param obuID
+	 * @param vehicleClassID
+	 * @param licencePlate
+	 * @param licencePlateCountryID
+	 * @return
+	 */
 	@WebMethod(operationName = "ContractCreate", exclude = false)
 	public ContractCreateResult contractCreate(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
@@ -76,6 +101,32 @@ public interface ContractServiceSEI {
 			@XmlElement(required = true) @WebParam(name = "LicencePlate") String licencePlate,
 			@XmlElement(required = true) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
 
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	//	@WebMethod(operationName = "ServiceTest", exclude = false)
+	//	public ServiceTestResult serviceTest(
+	//			@XmlElement(required = true) @WebParam(name = "Username") String username,
+	//			@XmlElement(required = true) @WebParam(name = "Password") String password);
+
+	/**
+	 * This is Roy's old WS operation,converted to use my new platform.
+	 * 
+	 * This operation is not exposed (exclude=false). It was used only for
+	 * testing during development, but I left it in, in case it  might be useful
+	 * in the future.
+	 * 
+	 * @param username
+	 * @param password
+	 * @param systemActorID
+	 * @param clientNumber
+	 * @param accountNumber
+	 * @param invoiceNumber
+	 * @return
+	 */
 	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
 	public PaymentMethodGetResult paymentMethodGet(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
@@ -85,6 +136,22 @@ public interface ContractServiceSEI {
 			@XmlElement(required = false) @WebParam(name = "AccountNumber") int accountNumber,
 			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String invoiceNumber);
 
+	/**
+	 * This is Roy's old WS operation,converted to use my new platform.
+	 * 
+	 * This operation is not exposed (exclude=false). It was used only for
+	 * testing during development, but I left it in, in case it  might be useful
+	 * in the future.
+	 * 
+	 * @param username
+	 * @param password
+	 * @param systemActorID
+	 * @param clientNumber
+	 * @param accountNumber
+	 * @param invoiceNumber
+	 * @param paymentMethodID
+	 * @return
+	 */
 	@WebMethod(operationName = "PaymentMethodUpdate", exclude = true)
 	public PaymentMethodUpdateResult paymentMethodUpdate(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,

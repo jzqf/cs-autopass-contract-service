@@ -1,12 +1,18 @@
 
 package com.qfree.cs.autopass.ws.util;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 //import java.io.BufferedWriter;
 //import java.io.File;
 //import java.io.FileWriter;
 //import java.util.Calendar;
 
 public class WsUtils {
+
 
 	/**
 	 * Returns True if the object is null or is an "empty" string.
@@ -24,6 +30,31 @@ public class WsUtils {
 		return object == null
 				|| object.toString().isEmpty()
 				|| " ".equals(object.toString());
+	}
+
+	/**
+	 * Returns a java.sql.Date object given a date string and format specifier.
+	 * 
+	 * @param dateString
+	 * @param format
+	 * @return java.sql.Date object corresponding to dateString and format
+	 * @throws ParseException
+	 */
+	public static Date parseStringToSqlDate(String dateString, String format) throws ParseException {
+		return new Date((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
+	}
+
+	/**
+	 * Returns a java.sql.Timestamp object given a datetime string and format 
+	 * specifier.
+	 * 
+	 * @param dateString
+	 * @param format
+	 * @return java.sql.Date object corresponding to dateString and format
+	 * @throws ParseException
+	 */
+	public static Timestamp parseStringToSqlTimestamp(String dateString, String format) throws ParseException {
+		return new Timestamp((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
 	}
        
 /*    public static int tryParseInt(String value) {
