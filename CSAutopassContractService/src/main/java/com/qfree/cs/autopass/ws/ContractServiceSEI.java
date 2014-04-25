@@ -33,8 +33,8 @@ import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
  * 					namespace is derived from the package name.
  */
 @WebService(
-		name = "ContractService-WebService_name",
-		targetNamespace = "http://WebService_targetNamespace.ws.autopass.qfree.com")
+		name = "ContractServicePortType",
+		targetNamespace = "http://ws.autopass.qfree.com")
 /*
  * When RPC style is used instead of DOCUMENT, no schema gets generated for 
  * types. Instead of referring to the schema in the WSDL document within the 

@@ -156,7 +156,9 @@
 	</dependencies>
 
     <build>
-		<finalName>soap</finalName>	<!-- otherwise web app will be deployed at /<artifactId>-<version> -->
+		<!-- "finalName" sets the context root of the deployed web application.
+			Otherwise, the web app will be deployed at /<artifactId>-<version> -->
+		<finalName>soap</finalName>
         <plugins>
 
             <!-- I don't see any need for this plugin, which is for generating Eclipse IDE files.

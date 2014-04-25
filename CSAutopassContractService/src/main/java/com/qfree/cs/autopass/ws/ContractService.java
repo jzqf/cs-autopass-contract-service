@@ -23,8 +23,11 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
 /*
  * serviceName:		Specifies the name of the published service. This property is 
  * 					mapped to the name attribute of the wsdl:service element that 
- * 					defines the published service. The default is to use the name
- * 					of the service's implementation class. Not allowed on the SEI.
+ * 					defines the published service. It represents the part of the
+ * 					URL for accessing the web service that comes after the 
+ * 					context root of the application. The default is to use the 
+ * 					name of the service's implementation class. Not allowed on 
+ * 					the SEI.
  *
  * portName:		Specifies the name of the endpoint at which the service is 
  * 					published. This property is mapped to the name attribute of 
@@ -32,8 +35,8 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
  * 					a published service. Not allowed on the SEI
  */
 @WebService(
-		serviceName = "ContractService-WebService_serviceName",
-		portName = "ContractServicePort-WebService_portName",
+		serviceName = "ContractService",
+		portName = "ContractServicePort",
 		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
 public class ContractService implements ContractServiceSEI {
    
