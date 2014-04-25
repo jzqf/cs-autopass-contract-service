@@ -17,7 +17,7 @@ import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
-import com.qfree.cs.autopass.ws.util.Utils;
+import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
  * serviceName:		Specifies the name of the published service. This property is 
@@ -77,7 +77,7 @@ public class ContractService implements ContractServiceSEI {
 
 			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setErrorCode(0);
-				if (!Utils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
+				if (!WsUtils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
 					response.setErrorMessage(result.get("ErrorMessage").toString());
 				}
 			}
@@ -213,7 +213,7 @@ public class ContractService implements ContractServiceSEI {
 			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setClientNumber(result.get("ClientNumber").toString());
 				response.setErrorCode(0);
-				if (!Utils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
+				if (!WsUtils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
 					response.setErrorMessage(result.get("ErrorMessage").toString());
 				}
 			}

@@ -6,8 +6,7 @@ package com.qfree.cs.autopass.ws.util;
 //import java.io.FileWriter;
 //import java.util.Calendar;
 
-//public class Utils {
-public class Utils {
+public class WsUtils {
 
 	/**
 	 * Returns True if the object is null or is an "empty" string.
@@ -19,7 +18,7 @@ public class Utils {
 	 * 
 	 * @param object
 	 * @return True if object is null or if it is an empty string or if it is a 
-	 * string consisting of a snple space
+	 * string consisting of a single space. false otherwise.
 	 */
 	public static boolean sybaseStringIsEmpty(Object object) {
 		return object == null
