@@ -8,6 +8,24 @@ package com.qfree.cs.autopass.ws.util;
 
 //public class Utils {
 public class Utils {
+
+	/**
+	 * Returns True if the object is null or is an "empty" string.
+	 * 
+	 * This method should be use to test if an object tht representsa a Sybase
+	 * string is empty. Sybase replaces empty strings "" with strings of a 
+	 * single character " ". I believe Sybase does this to avoid having truly
+	 * empty strings "" interpreted as null strings.
+	 * 
+	 * @param object
+	 * @return True if object is null or if it is an empty string or if it is a 
+	 * string consisting of a snple space
+	 */
+	public static boolean sybaseStringIsEmpty(Object object) {
+		return object == null
+				|| object.toString().isEmpty()
+				|| " ".equals(object.toString());
+	}
        
 /*    public static int tryParseInt(String value) {
         int test = -1;

@@ -13,9 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.qfree.cs.autopass.ws.db.Database;
+import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
+import com.qfree.cs.autopass.ws.util.Utils;
 
 /*
  * serviceName:		Specifies the name of the published service. This property is 
@@ -74,9 +76,146 @@ public class ContractService implements ContractServiceSEI {
 					licencePlateCountryID);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
-				//				response.setPaymentMethodID(Integer.parseInt(result.get("paymentMethodID").toString()));
-				//				response.setPaymentMethodName(result.get("PaymentMethod").toString());
 				response.setErrorCode(0);
+				if (!Utils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
+					response.setErrorMessage(result.get("ErrorMessage").toString());
+				}
+			}
+			else {
+				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
+				response.setErrorMessage(result.get("ErrorMessage").toString());
+			}
+
+			logger.info("response = {}", response.toString());
+
+		} catch (Exception e) {
+			logger.error("An exception was thrown:", e);
+		}
+
+		finally {
+			try {
+				db.deregisterDriver();
+			} catch (Exception e) {
+				/* ignored */
+			}
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
+		return response;
+	}
+
+	@Override
+	public ContractCreateResult contractCreate(
+			String username,
+			String password,
+			int clientTypeID,
+			String firstName,
+			String lastName,
+			String birthDate,
+			String company,
+			String companyNumber,
+			String address1,
+			String address2,
+			String postCode,
+			String postOffice,
+			int countryID,
+			String eMail,
+			String phone,
+			String validFrom,
+			String obuID,
+			int vehicleClassID,
+			String licencePlate,
+			int licencePlateCountryID) {
+
+		logger.info("Input parameters:\n" +
+				" Username = {}\n" +
+				" Password = {}\n" +
+				" ClientTypeID = {}\n" +
+				" FirstName = {}\n" +
+				" LastName = {}\n" +
+				" BirthDate = {}\n" +
+				" Company = {}\n" +
+				" CompanyNumber = {}\n" +
+				" Address1 = {}\n" +
+				" Address2 = {}\n" +
+				" PostCode = {}\n" +
+				" PostOffice = {}\n" +
+				" CountryID = {}\n" +
+				" EMail = {}\n" +
+				" Phone = {}\n" +
+				" ValidFrom = {}\n" +
+				" OBUID = {}\n" +
+				" VehicleClassID = {}\n" +
+				" LicencePlate = {}\n" +
+				" LicencePlateCountryID = {}",
+				new Object[] {
+						username,
+						password,
+						new Integer(clientTypeID),
+						firstName,
+						lastName,
+						birthDate,
+						company,
+						companyNumber,
+						address1,
+						address2,
+						postCode,
+						postOffice,
+						new Integer(countryID),
+						eMail,
+						phone,
+						validFrom,
+						obuID,
+						new Integer(vehicleClassID),
+						licencePlate,
+						new Integer(licencePlateCountryID) });
+
+		Database db = new Database();
+		Connection dbConnection = null;
+		String connectionString = getConnectionString();
+		ContractCreateResult response = new ContractCreateResult();
+
+		try {
+
+			db.registerDriver();
+			dbConnection = db.getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
+
+			Map result;
+			result = db.contractCreate(
+					dbConnection,
+					username,
+					password,
+					clientTypeID,
+					firstName,
+					lastName,
+					birthDate,
+					company,
+					companyNumber,
+					address1,
+					address2,
+					postCode,
+					postOffice,
+					countryID,
+					eMail,
+					phone,
+					validFrom,
+					obuID,
+					vehicleClassID,
+					licencePlate,
+					licencePlateCountryID);
+
+			if (result.get("ErrorCode").toString().equals("0")) {
+				response.setClientNumber(result.get("ClientNumber").toString());
+				response.setErrorCode(0);
+				if (!Utils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
+					response.setErrorMessage(result.get("ErrorMessage").toString());
+				}
 			}
 			else {
 				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));

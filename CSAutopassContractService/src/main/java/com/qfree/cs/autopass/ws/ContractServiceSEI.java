@@ -7,6 +7,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
@@ -51,6 +52,29 @@ public interface ContractServiceSEI {
 			@XmlElement(required = true) @WebParam(name = "OBUID") String obuID,
 			@XmlElement(required = false) @WebParam(name = "LicencePlate") String licencePlate,
 			@XmlElement(required = false) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
+
+	@WebMethod(operationName = "ContractCreate", exclude = false)
+	public ContractCreateResult contractCreate(
+			@XmlElement(required = true) @WebParam(name = "Username") String username,
+			@XmlElement(required = true) @WebParam(name = "Password") String password,
+			@XmlElement(required = true) @WebParam(name = "ClientTypeID") int clientTypeID,
+			@XmlElement(required = true) @WebParam(name = "FirstName") String firstName,
+			@XmlElement(required = true) @WebParam(name = "LastName") String lastName,
+			@XmlElement(required = false) @WebParam(name = "BirthDate") String birthDate,
+			@XmlElement(required = false) @WebParam(name = "Company") String company,
+			@XmlElement(required = false) @WebParam(name = "CompanyNumber") String companyNumber,
+			@XmlElement(required = true) @WebParam(name = "Address1") String address1,
+			@XmlElement(required = false) @WebParam(name = "Address2") String address2,
+			@XmlElement(required = true) @WebParam(name = "PostCode") String postCode,
+			@XmlElement(required = true) @WebParam(name = "PostOffice") String postOffice,
+			@XmlElement(required = true) @WebParam(name = "CountryID") int countryID,
+			@XmlElement(required = false) @WebParam(name = "EMail") String eMail,
+			@XmlElement(required = false) @WebParam(name = "Phone") String phone,
+			@XmlElement(required = true) @WebParam(name = "ValidFrom") String validFrom,
+			@XmlElement(required = true) @WebParam(name = "OBUID") String obuID,
+			@XmlElement(required = true) @WebParam(name = "VehicleClassID") int vehicleClassID,
+			@XmlElement(required = true) @WebParam(name = "LicencePlate") String licencePlate,
+			@XmlElement(required = true) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
 
 	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
 	public PaymentMethodGetResult paymentMethodGet(

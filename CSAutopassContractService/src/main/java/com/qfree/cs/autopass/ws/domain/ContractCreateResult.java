@@ -4,14 +4,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "ContractCreateTestResult")
-@XmlType(propOrder = { "errorCode", "errorMessage" })
-public class ContractCreateTestResult {
+@XmlRootElement(name = "ContractCreateResult")
+@XmlType(propOrder = { "clientNumber", "errorCode", "errorMessage" })
+public class ContractCreateResult {
 
+	private String clientNumber;
 	private int	errorCode;
 	private String errorMessage;
 
-	public ContractCreateTestResult() {
+	public ContractCreateResult() {
+	}
+
+	@XmlElement(name = "ClientNumber", required = false)
+	public String getClientNumber() {
+		return clientNumber;
+	}
+
+	public void setClientNumber(String clientNumber) {
+		this.clientNumber = clientNumber;
 	}
 
 	@XmlElement(name = "ErrorCode", required = false)
@@ -38,6 +48,7 @@ public class ContractCreateTestResult {
 		String NEW_LINE = System.getProperty("line.separator");
 
 		result.append(this.getClass().getName() + " object {" + NEW_LINE);
+		result.append(" ClientNumber: " + clientNumber + NEW_LINE);
 		result.append(" ErrorCode: " + errorCode + NEW_LINE);
 		result.append(" ErrorMessage: " + errorMessage + NEW_LINE);
 		result.append("}");
