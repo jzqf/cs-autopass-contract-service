@@ -136,7 +136,9 @@ public class Database {
 			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
 			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
+			logger.info("Executing stored procedure qp_WSC_ContractCreateTest on server...");
 			cs.execute();
+			logger.info("...Done. No exception thrown.");
 
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
@@ -300,7 +302,8 @@ public class Database {
 			else {
 				cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
 			}
-			cs.registerOutParameter("@op_ClientNumber", Types.NUMERIC, 12);		// @op_ClientNumber has Sybase type numeric(12)
+
+			cs.registerOutParameter("@op_ClientNumber", Types.NUMERIC);		// @op_ClientNumber has Sybase type numeric(12)
 			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
 			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
@@ -315,6 +318,63 @@ public class Database {
 		} catch (Exception e) {
 			logger.error(
 					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate:", e);
+		} finally {
+			//        	if (rs != null) {
+			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
+			//    		}
+			if (cs != null) {
+				try {
+					cs.close();
+				} catch (Exception e) {
+					/* ignored */
+				}
+			}
+		}
+
+		return result;
+	}
+
+	public Map ServiceTest(Connection dbConnection, String username, String password) {
+		Map result = new HashMap();
+
+		// In case an exception is thrown and we do not get so far below to set 
+		// the result error code.
+		result.put("ErrorCode", -1);
+		result.put("ErrorMessage", "");
+
+		CallableStatement cs = null;
+		//ResultSet rs = null;
+
+		try {
+
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
+
+			logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
+					" @ip_Username = {}\n" +
+					" @ip_Password = {}",
+					new Object[] { username, password });
+
+			// Here, we need one "?" for each input AND output parameter of the stored procedure.
+			cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");
+
+			cs.setString("@ip_Username", username);
+			cs.setString("@ip_Password", password);
+
+			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+
+			logger.info("Executing stored procedure qp_WSC_ServiceTest on server...");
+			cs.execute();
+			logger.info("...Done. No exception thrown.");
+
+			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+
+		} catch (Exception e) {
+			logger.error(
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest:",
+					e);
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }

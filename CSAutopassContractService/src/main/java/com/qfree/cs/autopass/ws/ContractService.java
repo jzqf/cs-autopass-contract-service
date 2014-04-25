@@ -17,6 +17,7 @@ import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
+import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
@@ -212,6 +213,62 @@ public class ContractService implements ContractServiceSEI {
 
 			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setClientNumber(result.get("ClientNumber").toString());
+				response.setErrorCode(0);
+				if (!WsUtils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
+					response.setErrorMessage(result.get("ErrorMessage").toString());
+				}
+			}
+			else {
+				response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
+				response.setErrorMessage(result.get("ErrorMessage").toString());
+			}
+
+			logger.info("response = {}", response.toString());
+
+		} catch (Exception e) {
+			logger.error("An exception was thrown:", e);
+		}
+
+		finally {
+			try {
+				db.deregisterDriver();
+			} catch (Exception e) {
+				/* ignored */
+			}
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
+		return response;
+	}
+
+	@Override
+	public ServiceTestResult serviceTest(String username, String password) {
+
+		logger.info("Input parameters:\n" +
+				" Username = {}\n" +
+				" Password = {}",
+				new Object[] { username, password });
+
+		Database db = new Database();
+		Connection dbConnection = null;
+		String connectionString = getConnectionString();
+		ServiceTestResult response = new ServiceTestResult();
+
+		try {
+
+			db.registerDriver();
+			dbConnection = db.getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
+
+			Map result;
+			result = db.ServiceTest(dbConnection, username, password);
+
+			if (result.get("ErrorCode").toString().equals("0")) {
 				response.setErrorCode(0);
 				if (!WsUtils.sybaseStringIsEmpty(result.get("ErrorMessage"))) {
 					response.setErrorMessage(result.get("ErrorMessage").toString());

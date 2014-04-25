@@ -11,6 +11,7 @@ import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
+import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
 
 /**
  * This is the SEI (Service Endpoint Interface) for the web service.
@@ -102,15 +103,16 @@ public interface ContractServiceSEI {
 			@XmlElement(required = true) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
 
 	/**
+	 * WS operation to test if the "CreateClient" WS is available.
 	 * 
 	 * @param username
 	 * @param password
 	 * @return
 	 */
-	//	@WebMethod(operationName = "ServiceTest", exclude = false)
-	//	public ServiceTestResult serviceTest(
-	//			@XmlElement(required = true) @WebParam(name = "Username") String username,
-	//			@XmlElement(required = true) @WebParam(name = "Password") String password);
+	@WebMethod(operationName = "ServiceTest", exclude = false)
+	public ServiceTestResult serviceTest(
+			@XmlElement(required = true) @WebParam(name = "Username") String username,
+			@XmlElement(required = true) @WebParam(name = "Password") String password);
 
 	/**
 	 * This is Roy's old WS operation,converted to use my new platform.
