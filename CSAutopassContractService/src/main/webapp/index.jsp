@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-<h1>CSAutopassContractService is running!</h1>
+<h1>CSAutopassContractService-GlassFish is running!</h1>
 </body>
 </html>
