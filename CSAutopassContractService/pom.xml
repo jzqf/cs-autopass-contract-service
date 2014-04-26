@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.qfree.cs.autopass.ws</groupId>
   <artifactId>cs-autopass-contract-service</artifactId>
@@ -199,7 +199,7 @@
 
 			<!-- The Tomcat7 Maven Plugin provides goals so that we can deploy the app  
 			     to my local private Tomcat7 instance using "mvn tomcat7:[re]reploy.
-			     The <url> element *must* be ".../manager/html", *not* .../manager/html
+			     The <url> element *must* be ".../manager/text", *not* .../manager/html
 			     The name "myTomcat" in the <server> element  must match the same name in:
 			         /home/jeffreyz/.m2/settings.xml-->
 			<!-- <plugin>
