@@ -3,12 +3,18 @@ package com.qfree.cs.autopass.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +48,9 @@ public class ContractService implements ContractServiceSEI {
    
 	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
 
+	@Resource
+	WebServiceContext		   webServiceContext;
+
 	@Override
 	public ContractCreateTestResult contractCreateTest(
 			String username,
@@ -57,6 +66,59 @@ public class ContractService implements ContractServiceSEI {
 				" LicencePlate = {}\n" +
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
+
+		// Basic authentication:
+
+		MessageContext messageContext = webServiceContext.getMessageContext();
+		// get request headers
+		Map<?, ?> requestHeaders = (Map<?, ?>) messageContext.get(MessageContext.HTTP_REQUEST_HEADERS);
+		logger.info("requestHeaders = {}", requestHeaders);
+		if (requestHeaders.containsKey("authorization")) {
+			
+			List<?> authHeaderList = (List<?>) requestHeaders.get("authorization");
+			String authHeader = "";
+			String userColonPasswordBase64 = "";
+			if (authHeaderList != null) {
+				authHeader = authHeaderList.get(0).toString();
+			}
+			logger.info("authHeader = {}", authHeader);
+			if (authHeader.indexOf("Basic ") == 0) {
+				userColonPasswordBase64 = authHeader.substring(6);
+			}
+			logger.info("userColonPasswordBase64 = {}", userColonPasswordBase64);
+
+			byte[] bytes = Base64.decodeBase64(userColonPasswordBase64);
+			String decoded = "";
+			try {
+				decoded = new String(bytes, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				logger.error("An exception was thrown converting a byte sequence to a string:", e);
+			}
+			logger.info("decoded = {}", decoded);
+
+		} else {
+			logger.warn("No Basic Authentication \"authorization\" header found in request");
+		}
+		
+//		List<?> usernameList = (List<?>) requestHeaders.get("username");
+//		List<?> passwordList = (List<?>) requestHeaders.get("password");
+//
+//		String wsUsername = "";
+//		String wsPassword = "";
+//
+//		if (usernameList != null) {
+//			wsUsername = usernameList.get(0).toString();
+//		}
+//
+//		if (passwordList != null) {
+//			wsPassword = passwordList.get(0).toString();
+//		}
+//
+//		if (wsUsername.equals("q") && wsPassword.equals("free")) {
+//			logger.info("Basic Authentication successful");
+//		} else {
+//			logger.warn("Basic Authentication failure. Username = {}  password = {}", wsUsername, wsPassword);
+//		}
 
 		Database db = new Database();
 		Connection dbConnection = null;
