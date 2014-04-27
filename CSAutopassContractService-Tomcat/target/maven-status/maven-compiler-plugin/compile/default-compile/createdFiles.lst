@@ -1,0 +1,10 @@
+com/qfree/cs/autopass/ws/domain/ContractCreateResult.class
+com/qfree/cs/autopass/ws/ContractServiceException.class
+com/qfree/cs/autopass/ws/domain/PaymentMethodUpdateResult.class
+com/qfree/cs/autopass/ws/domain/ServiceTestResult.class
+com/qfree/cs/autopass/ws/db/Database.class
+com/qfree/cs/autopass/ws/domain/ContractCreateTestResult.class
+com/qfree/cs/autopass/ws/ContractServiceSEI.class
+com/qfree/cs/autopass/ws/ContractService.class
+com/qfree/cs/autopass/ws/domain/PaymentMethodGetResult.class
+com/qfree/cs/autopass/ws/util/WsUtils.class
