@@ -100,9 +100,6 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("No Basic Authentication \"authorization\" header found in request");
 		}
 		
-//		List<?> usernameList = (List<?>) requestHeaders.get("username");
-//		List<?> passwordList = (List<?>) requestHeaders.get("password");
-//
 //		String wsUsername = "";
 //		String wsPassword = "";
 //
