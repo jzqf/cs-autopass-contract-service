@@ -31,11 +31,12 @@
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>
 				<!-- Log file will be archived in "archive" directory at the beginning of each minute: -->
-				<!-- ${catalina.base}/logs/DynamicWebGlassFishMaven-Testmart/archive/logFile.%d{yyyy-MM-dd_HH-mm}.log.zip -->
+				<!-- ${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM-dd_HH-mm}.log.zip -->
 				<!-- Default. Log file will be archived at midnight each day: -->
-				${catalina.base}/logs/DynamicWebGlassFishMaven-Testmart/archive/logFile.%d{yyyy-MM-dd}.log.zip
+				<!-- ${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM-dd}.log.zip -->
+				${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM}.log.zip
 			</FileNamePattern>
-			<maxHistory>4</maxHistory>	<!-- Maximum number of archive files to keep, deleting older files -->
+			<maxHistory>12</maxHistory>	<!-- Maximum number of archive files to keep, deleting older files -->
 		</rollingPolicy>
 		<encoder>
 			<Pattern>

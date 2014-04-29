@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+	<display-name>CSAutopassContractService-GlassFish</display-name>
+
+	<!-- The ...?Tester URL is not supported if you set <transport-guarantee> to
+		 CONFIDENTIAL.  If you do this, GlassFish returns displays the following
+		 message:
+		 
+			ContractServiceis a secured web service; Tester feature is not
+			supported for secured services
+			
+		 Therefore, you *must* set <transport-guarantee> to NONE below, instead
+		 of CONFIDENTIAL if you want to use the ...?Tester URL. You can still
+		 run the tester at port 8181 (HTTPS) even with the NONE setting. -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>HTTPSOnly</web-resource-name>
+			<url-pattern>/ContractService</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL -->
+		</user-data-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>HTTPSOrHTTP</web-resource-name>
+			<url-pattern>*.ico</url-pattern>
+			<url-pattern>/img/*</url-pattern>
+			<url-pattern>/css/*</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+	
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>
