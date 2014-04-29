@@ -198,7 +198,7 @@
             </plugin>
 
 			<!-- The Tomcat7 Maven Plugin provides goals so that we can deploy the app  
-			     to my local private Tomcat7 instance using "mvn tomcat7:[re]reploy.
+			     to my local private Tomcat7 instance using "mvn tomcat7:[re]deploy.
 			     The <url> element *must* be ".../manager/text", *not* .../manager/html
 			     The name "myTomcat" in the <server> element  must match the same name in:
 			         /home/jeffreyz/.m2/settings.xml-->
