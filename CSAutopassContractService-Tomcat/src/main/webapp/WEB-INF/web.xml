@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
 	<display-name>CSAutopassContractService-Tomcat</display-name>
 
-	<listener>
+	<!-- <listener>
 		<listener-class>
 			com.sun.xml.ws.transport.http.servlet.WSServletContextListener
 		</listener-class>
@@ -13,14 +13,78 @@
 			com.sun.xml.ws.transport.http.servlet.WSServlet
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
+	</servlet> -->
+	
+	<servlet>
+		<servlet-name>ContractService</servlet-name>
+		<servlet-class>
+			com.sun.xml.ws.transport.http.servlet.WSSpringServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
+  
 	<servlet-mapping>
 		<servlet-name>ContractService</servlet-name>
 		<url-pattern>/ContractService</url-pattern>
 	</servlet-mapping>
+	
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
+	
+	
+	
+	
+	<!-- Add Support for Spring: -->
+	
+	<!-- Configure ContextLoaderListener to use AnnotationConfigWebApplicationContext
+		 instead of the default XmlWebApplicationContext. This enables "JavaConfig". -->
+	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>
+			org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+		</param-value>
+	</context-param>
+
+	<!-- Configuration location for the root Spring container shared by all servlets
+		 and filters. I also specify ContractService so that its annotations will be
+		 processed by Spring. I could also specify a package and all classes within
+		 it will be candidates for Spring processing (I think the classes need to be
+		 annotated with @Component or a similar stereotype annotation. -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			com.qfree.cs.autopass.spring.config.RootConfig
+			
+		</param-value>	<!-- com.qfree.cs.autopass.ws.ContractService -->
+	</context-param>
+	
+	<!-- This is the bootstrap listener to start up and shut down Spring's root WebApplicationContext.
+		 It creates the Spring container shared by all servlets and filters. -->
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<!-- This listener is mainly for use with third-party servlets. -->
+	<!-- <listener>
+		<listener-class>
+			org.springframework.web.context.request.RequestContextListener
+		</listener-class>
+	</listener> -->
+
+	<!-- The webAppRootKey is a context parameter that exposes the webapp root as a system property 
+		 that can be used elsewhere. It will have a value of ${CATALINA_HOME}/webapp/<webapp-name>
+		 on Tomcat. -->
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>springmvcappname.root</param-value>
+	</context-param>
+	
+	
+	
+	
 
 	<security-constraint>
 		<web-resource-collection>
@@ -28,7 +92,7 @@
 			<url-pattern>/ContractService</url-pattern>
 		</web-resource-collection>
 		<user-data-constraint>
-			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL -->
 		</user-data-constraint>
 	</security-constraint>
 	<security-constraint>

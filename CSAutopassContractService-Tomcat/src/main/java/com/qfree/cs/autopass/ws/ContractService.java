@@ -7,11 +7,15 @@ import java.sql.Connection;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import com.qfree.cs.autopass.service.SpringInjectionTest;
 import com.qfree.cs.autopass.ws.db.Database;
 import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
@@ -38,10 +42,37 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
 		serviceName = "ContractService",
 		portName = "ContractServicePort",
 		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
-public class ContractService implements ContractServiceSEI {
-   
+//public class ContractService implements ContractServiceSEI {
+public class ContractService extends SpringBeanAutowiringSupport implements ContractServiceSEI {
+
 	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
 
+	//@Value("${db.server}")
+	// This is set in RootConfig.java
+	private String			  dbServer;
+
+	@WebMethod(exclude = true)
+	public String getDbServer() {
+		return dbServer;
+	}
+
+	@WebMethod(exclude = true)
+	public void setDbServer(String dbServer) {
+		this.dbServer = dbServer;
+	}
+
+	//@Inject
+	@Autowired
+	private SpringInjectionTest springInjectionTest;
+
+	/*	public SpringInjectionTest getSpringInjectionTest() {
+			return springInjectionTest;
+		}
+
+		public void setSpringInjectionTest(SpringInjectionTest springInjectionTest) {
+			this.springInjectionTest = springInjectionTest;
+		}
+	*/
 	@Override
 	public ContractCreateTestResult contractCreateTest(
 			String username,
@@ -250,6 +281,10 @@ public class ContractService implements ContractServiceSEI {
 
 	@Override
 	public ServiceTestResult serviceTest(String username, String password) {
+
+		logger.info("this.dbServer (@Value(\"${db.server}\")) = {}", this.dbServer);
+		logger.info("this.springInjectionTest = {}", this.springInjectionTest);
+		//logger.info("this.springInjectionTest.getDbServer() = {}", this.springInjectionTest.getDbServer());
 
 		logger.info("Input parameters:\n" +
 				" Username = {}\n" +
