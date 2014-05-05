@@ -12,6 +12,18 @@
 		 that are handled using XML-based configuration for the case when the
 		 root context is bootstrapped by a *Java-based* configuration class. -->
 
+	<!-- This block of XML is required to define the service mapping with the
+		 com.sun.xml.ws.transport.http.servlet.WSSpringServlet servlet.  Here,
+		 it states that the bean with id="contractService" should be used to 
+		 handle the web service at:
+		 
+		 	http[s]://<server:port>/<rootcontext>//ContractService
+		 	
+		 If, instead, the servlet:
+		 com.sun.xml.ws.transport.http.servlet.WSServletContextListener is used,
+		 then this mapping must be provided in the file "sun-jaxws.xml". Hence,
+		 if com.sun.xml.ws.transport.http.servlet.WSSpringServlet is used, then
+		 the file "sun-jaxws.xml" is not needed. -->
 	<wss:binding url="/ContractService">
 		<wss:service>
 			<ws:service bean="#contractService" />

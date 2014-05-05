@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.qfree.cs.autopass.service.SpringInjectionTest;
@@ -23,12 +22,12 @@ import com.qfree.cs.autopass.ws.ContractServiceSEI;
 @Configuration
 @ImportResource("/WEB-INF/spring/root-context.xml")
 // This is for a *single* properties file:
-//@PropertySource("classpath:config.properties")
+@PropertySource("classpath:config.properties")
 // This is for *multiple* properties files (Spring 4+). The @PropertySource 
 // elements must be comma-separated:
-@PropertySources({
-		@PropertySource("classpath:config.properties")
-})
+//@PropertySources({
+//		@PropertySource("classpath:config.properties")
+//})
 public class RootConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
