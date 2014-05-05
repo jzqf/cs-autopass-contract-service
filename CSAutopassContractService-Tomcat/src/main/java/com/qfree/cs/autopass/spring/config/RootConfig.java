@@ -7,10 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.qfree.cs.autopass.service.SpringInjectionTest;
 import com.qfree.cs.autopass.ws.ContractService;
+import com.qfree.cs.autopass.ws.ContractServiceSEI;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -21,11 +23,12 @@ import com.qfree.cs.autopass.ws.ContractService;
 @Configuration
 @ImportResource("/WEB-INF/spring/root-context.xml")
 // This is for a *single* properties file:
-@PropertySource("classpath:config.properties")
-// This is for *multiple* properties files:
-//@PropertySources({
-//		@PropertySource("classpath:config.properties")
-//})
+//@PropertySource("classpath:config.properties")
+// This is for *multiple* properties files (Spring 4+). The @PropertySource 
+// elements must be comma-separated:
+@PropertySources({
+		@PropertySource("classpath:config.properties")
+})
 public class RootConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
@@ -78,7 +81,7 @@ public class RootConfig {
 	//        PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
 	//        Resource[] resourceLocations = new Resource[] {
 	//                new ClassPathResource("propertyfile1.properties"),
-	//                new ClassPathResource("propertyfile2.properties"),
+	//                new ClassPathResource("propertyfile2.properties")
 	//        };
 	//        p.setLocations(resourceLocations);
 	//        return p;
@@ -94,14 +97,10 @@ public class RootConfig {
 		return s;
 	}
 
-	// USE INTERFACE????????????????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@Bean
-	public ContractService contractService() {
-		final ContractService c = new ContractService();
-
-		logger.info("this.dbServer = {}", this.dbServer);	// this works
-
-		c.setDbServer(this.dbServer);
+	public ContractServiceSEI contractService() {
+		final ContractServiceSEI c = new ContractService();
+		//		c.setDbServer(this.dbServer);
 		return c;
 	}
 
