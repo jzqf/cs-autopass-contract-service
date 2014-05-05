@@ -250,7 +250,7 @@ public class Database {
 
 			cs.setString("@ip_Username", username);
 			cs.setString("@ip_Password", password);
-			if (vehicleClassID >= 0) {
+			if (clientTypeID >= 0) {
 				cs.setInt("@ip_ClientTypeID", clientTypeID);
 			}
 			else {
@@ -266,7 +266,7 @@ public class Database {
 			cs.setString("@ip_Address2", address2);
 			cs.setString("@ip_PostCode", postCode);
 			cs.setString("@ip_PostOffice", postOffice);
-			if (vehicleClassID >= 0) {
+			if (countryID >= 0) {
 				cs.setInt("@ip_CountryID", countryID);
 			}
 			else {
