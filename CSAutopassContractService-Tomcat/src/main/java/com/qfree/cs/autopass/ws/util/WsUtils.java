@@ -40,8 +40,17 @@ public class WsUtils {
 	 * @return java.sql.Date object corresponding to dateString and format
 	 * @throws ParseException
 	 */
-	public static Date parseStringToSqlDate(String dateString, String format) throws ParseException {
-		return new Date((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
+	public static Date parseStringToSqlDate(String dateString, String formatString) throws ParseException {
+		SimpleDateFormat format = new SimpleDateFormat(formatString);
+		// If we do not set "lenient" to false here, then the dateString "1958-05-06"
+		// will be parsed without throwing an exception even if formatString is set
+		// to "yyyyMMdd". However, in this case it will not be parsed to the correct
+		// date!  This is terrible, because no error will be raised and execution will
+		// continue as if a different date was specified.  The setLenient(false) call
+		// here ensures that the date string strictly adheres to the specified format
+		// string.
+		format.setLenient(false);
+		return new Date(format.parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
 	}
 
 	/**
@@ -53,8 +62,11 @@ public class WsUtils {
 	 * @return java.sql.Date object corresponding to dateString and format
 	 * @throws ParseException
 	 */
-	public static Timestamp parseStringToSqlTimestamp(String dateString, String format) throws ParseException {
-		return new Timestamp((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
+	public static Timestamp parseStringToSqlTimestamp(String dateString, String formatString) throws ParseException {
+		SimpleDateFormat format = new SimpleDateFormat(formatString);
+		// See above for why we call setLenient(false) here.
+		format.setLenient(false);
+		return new Timestamp(format.parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
 	}
        
 /*    public static int tryParseInt(String value) {
