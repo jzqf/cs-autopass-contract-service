@@ -114,8 +114,8 @@ public class Database {
 
 		try {
 
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
 					" @ip_Username = {}\n" +
@@ -202,8 +202,8 @@ public class Database {
 
 		try {
 
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ContractCreate: with input parameters:\n" +
 					" @ip_Username = {}\n" +
@@ -357,8 +357,8 @@ public class Database {
 
 		try {
 
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
 					" @ip_Username = {}\n" +
