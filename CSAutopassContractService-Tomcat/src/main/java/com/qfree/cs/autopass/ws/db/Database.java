@@ -4,6 +4,7 @@ package com.qfree.cs.autopass.ws.db;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 //import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.ParseException;
@@ -23,7 +24,8 @@ public class Database {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
-	public void registerDriver() {
+	public void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
+			SQLException {
     	
 		try {
 		
@@ -47,9 +49,9 @@ public class Database {
 				logger.error("An exception was thrown on purpose (s is null):", e);
 			}*/
 		
-		}
-		catch (Exception e) {      
-			logger.error("An exception was thrown:", e);
+		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
+			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
+			throw e;
 		}
 	}
 	    
@@ -67,11 +69,11 @@ public class Database {
 		    
 		}
 		catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
+			logger.error("An exception was thrown deregistering the JDBC driver:", e);
 		}
 	}
     
-	public Connection getConnection(String connectionString) {
+	public Connection getConnection(String connectionString) throws SQLException {
 	    
 		Connection dbConnection = null;
 		
@@ -84,9 +86,9 @@ public class Database {
 			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
 			//details.
 			dbConnection = java.sql.DriverManager.getConnection(connectionString);            
-		}
-		catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
+		} catch (SQLException e) {
+			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
+			throw e;
 		}
 		
 		return dbConnection;
@@ -98,7 +100,7 @@ public class Database {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) {
+			int licencePlateCountryID) throws SQLException {
 
 		Map result = new HashMap();
 
@@ -146,10 +148,9 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
-			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest:",
-					e);
+		} catch ( SQLException e) {
+			logger.error("An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest. Rethrowing...", e);
+			throw e;
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
@@ -187,7 +188,7 @@ public class Database {
 			String obuID,
 			int vehicleClassID,
 			String licencePlate,
-			int licencePlateCountryID) {
+			int licencePlateCountryID) throws SQLException {
 
 		Map result = new HashMap();
 
@@ -322,9 +323,11 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate:", e);
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate. Rethrowing...",
+					e);
+			throw e;
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
@@ -341,7 +344,7 @@ public class Database {
 		return result;
 	}
 
-	public Map ServiceTest(Connection dbConnection, String username, String password) {
+	public Map ServiceTest(Connection dbConnection, String username, String password) throws SQLException {
 		Map result = new HashMap();
 
 		// In case an exception is thrown and we do not get so far below to set 
@@ -378,10 +381,11 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest:",
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest Rethrowing",
 					e);
+			throw e;
 		} finally {
 			//        	if (rs != null) {
 			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
