@@ -45,10 +45,10 @@ public class ContractService implements ContractServiceSEI {
 	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
 
 	private static final int DBACCESSPROBLEM_ERRORCODE = 101;
-	private static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig";
+	private static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig. Prøv senere.";
 
 	private static final int MAXCONNECTIONS_ERRORCODE = 102;
-	private static final String MAXCONNECTIONS_ERRORMESSAGE = "Maksimalt antall samtidige tilkoblinger overskredet";
+	private static final String MAXCONNECTIONS_ERRORMESSAGE = "Maksimalt antall samtidige tilkoblinger overskredet. Prøv senere.";
 
 	private static int concurrentCalls_permits = 0;
 	private static long concurrentCalls_timeoutsecs = 0;
