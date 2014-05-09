@@ -50,9 +50,18 @@ public class ContractService implements ContractServiceSEI {
 	private static final int MAXCONNECTIONS_ERRORCODE = 102;
 	private static final String MAXCONNECTIONS_ERRORMESSAGE = "Maksimalt antall samtidige tilkoblinger overskredet. Prøv senere.";
 
-	private static int concurrentCalls_permits = 0;
-	private static long concurrentCalls_timeoutsecs = 0;
-	private static Semaphore concurrentCalls_semaphore = null;  // to control number of concurrent database connections
+	// "concurrentCalls_semaphore" is used to limit the number of simultaneous 
+	// web service calls to a maximum that is set in the configuration 
+	// properties file for this application. 
+	//
+	// These are declared volatile because I will set them later and I want all
+	// threads to see the values. concurrentCalls_semaphore is set to null here
+	// as a flag to indicate that the semaphore has not yet been created, I need
+	// to load values from this application's configuration properties file 
+	// before I can create it.
+	private static volatile int concurrentCalls_permits = 0;
+	private static volatile long concurrentCalls_timeoutsecs = 0;
+	private static volatile Semaphore concurrentCalls_semaphore = null;  // to control number of concurrent database connections
 
 	@Override
 	public ContractCreateTestResult contractCreateTest(
