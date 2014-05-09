@@ -22,6 +22,10 @@
 		<session-timeout>30</session-timeout>
 	</session-config>
 
+	<!-- A transport-guarantee of CONFIDENTIAL means that if a web request comes
+		 in on an application server's HTTP Connector (defined in server.xml for
+		 Tomcat), then the request will be redirected to the TCP port specified
+		 by the "redirectPort" attribute for that connector, e.g., "8443".  -->
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>HTTPSOnly</web-resource-name>

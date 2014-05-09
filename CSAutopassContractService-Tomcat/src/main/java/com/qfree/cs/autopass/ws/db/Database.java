@@ -4,6 +4,7 @@ package com.qfree.cs.autopass.ws.db;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 //import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.ParseException;
@@ -23,8 +24,49 @@ public class Database {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
-	public void registerDriver() {
-    	
+	// This stsic initialization block ensures that the JDBC driver is loaded 
+	// and registered only once.
+	static {
+		try {
+
+			logger.info("Loading jConnect JDBC driver so it can be registered.");
+
+			final SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
+
+			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
+
+			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);	// probably not necessary
+
+			logger.info("Registering jConnect JDBC driver.");
+
+			DriverManager.registerDriver(sybDriver);
+
+			// Test to check how Java exceptions are logged:
+			/*try {
+				String s = null;
+				if (s.equals("anything")) {			
+				}
+			} 
+			catch(Exception e) {      
+				logger.error("An exception was thrown on purpose (s is null):", e);
+			}*/
+
+		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
+			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
+			try {
+				throw e;
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+
+	}
+
+	public void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
+			SQLException {
+		if (true) {
+			return;
+		}
 		try {
 		
 			logger.info("Loading jConnect JDBC driver so it can be registered.");
@@ -47,14 +89,16 @@ public class Database {
 				logger.error("An exception was thrown on purpose (s is null):", e);
 			}*/
 		
-		}
-		catch (Exception e) {      
-			logger.error("An exception was thrown:", e);
+		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
+			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
+			throw e;
 		}
 	}
 	    
 	public void deregisterDriver() {
-		
+		if (true) {
+			return;
+		}
 		try {
 		
 			logger.info("Loading jConnect JDBC driver so it can be deregistered.");
@@ -67,11 +111,11 @@ public class Database {
 		    
 		}
 		catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
+			logger.error("An exception was thrown deregistering the JDBC driver:", e);
 		}
 	}
     
-	public Connection getConnection(String connectionString) {
+	public Connection getConnection(String connectionString) throws SQLException {
 	    
 		Connection dbConnection = null;
 		
@@ -84,9 +128,9 @@ public class Database {
 			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
 			//details.
 			dbConnection = java.sql.DriverManager.getConnection(connectionString);            
-		}
-		catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
+		} catch (SQLException e) {
+			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
+			throw e;
 		}
 		
 		return dbConnection;
@@ -98,7 +142,7 @@ public class Database {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) {
+			int licencePlateCountryID) throws SQLException {
 
 		Map result = new HashMap();
 
@@ -107,13 +151,16 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		CallableStatement cs = null;
-		//ResultSet rs = null;
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(XXXXXXXXXXXXXXXXXXXXXXXXXX)) {
+		//
+		//		}
 
-		try {
+		// Here, we need one "?" for each input AND output parameter of the stored procedure.
+		// Any ResultSet objects opened for the statement will also be closed by this try block.
+		try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}")) {
 
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
 					" @ip_Username = {}\n" +
@@ -122,9 +169,6 @@ public class Database {
 					" @ip_LicencePlate = {}\n" +
 					" @ip_LicencePlateCountryID = {}",
 					new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
-
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			cs = dbConnection.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}");
 
 			cs.setString("@ip_Username", username);
 			cs.setString("@ip_Password", password);
@@ -146,21 +190,9 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
-			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest:",
-					e);
-		} finally {
-			//        	if (rs != null) {
-			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
-			//    		}
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
-			}
+		} catch ( SQLException e) {
+			logger.error("An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest. Rethrowing...", e);
+			throw e;
 		}
 
 		return result;
@@ -187,7 +219,7 @@ public class Database {
 			String obuID,
 			int vehicleClassID,
 			String licencePlate,
-			int licencePlateCountryID) {
+			int licencePlateCountryID) throws SQLException {
 
 		Map result = new HashMap();
 
@@ -196,13 +228,13 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		CallableStatement cs = null;
-		//ResultSet rs = null;
+		// Here, we need one "?" for each input AND output parameter of the stored procedure.
+		// Any ResultSet objects opened for the statement will also be closed by this try block.
+		try (CallableStatement cs = dbConnection.prepareCall(
+				"{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
 
-		try {
-
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ContractCreate: with input parameters:\n" +
 					" @ip_Username = {}\n" +
@@ -246,10 +278,6 @@ public class Database {
         					new Integer(vehicleClassID),
         					licencePlate,
         					new Integer(licencePlateCountryID) });
-
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			cs = dbConnection.prepareCall(
-					"{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
 
 			cs.setString("@ip_Username", username);
 			cs.setString("@ip_Password", password);
@@ -322,26 +350,17 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate:", e);
-		} finally {
-			//        	if (rs != null) {
-			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
-			//    		}
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
-			}
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate. Rethrowing...",
+					e);
+			throw e;
 		}
 
 		return result;
 	}
 
-	public Map ServiceTest(Connection dbConnection, String username, String password) {
+	public Map ServiceTest(Connection dbConnection, String username, String password) throws SQLException {
 		Map result = new HashMap();
 
 		// In case an exception is thrown and we do not get so far below to set 
@@ -349,21 +368,17 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		CallableStatement cs = null;
-		//ResultSet rs = null;
+		// Here, we need one "?" for each input AND output parameter of the stored procedure.
+		// Any ResultSet objects opened for the statement will also be closed by this try block.
+		try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");) {
 
-		try {
-
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.info("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
 					" @ip_Username = {}\n" +
 					" @ip_Password = {}",
 					new Object[] { username, password });
-
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");
 
 			cs.setString("@ip_Username", username);
 			cs.setString("@ip_Password", password);
@@ -378,21 +393,11 @@ public class Database {
 			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest:",
+					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest. Rethrowing",
 					e);
-		} finally {
-			//        	if (rs != null) {
-			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
-			//    		}
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
-			}
+			throw e;
 		}
 
 		return result;
