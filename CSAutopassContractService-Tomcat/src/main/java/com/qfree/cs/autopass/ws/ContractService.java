@@ -3,7 +3,6 @@ package com.qfree.cs.autopass.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -80,6 +79,7 @@ public class ContractService implements ContractServiceSEI {
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
 		Database db = new Database();	// eventually, inject this via Spring above as a singleton
+
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
 		if (concurrentCalls_semaphore != null) {
@@ -96,17 +96,9 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
-			Connection dbConnection = null;
-
 			try {
 
-				String connectionString = db.getConnectionString();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
-
 				Map result = db.contractCreateTest(
-						dbConnection,
 						username,
 						password,
 						obuID,
@@ -136,14 +128,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -244,18 +229,10 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
-			Connection dbConnection = null;
-
 			try {
-
-				String connectionString = db.getConnectionString();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
 
 				Map result;
 				result = db.contractCreate(
-						dbConnection,
 						username,
 						password,
 						clientTypeID,
@@ -289,7 +266,6 @@ public class ContractService implements ContractServiceSEI {
 					response.setErrorMessage(result.get("ErrorMessage").toString());
 				}
 
-				//				logger.info("response = {}", response.toString());
 				//
 				//				logger.info("\n*************************************************************\n"
 				//						+ "Thread sleeping for 2 seconds to test semaphore mechanism...");
@@ -301,14 +277,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -351,17 +320,10 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
-			Connection dbConnection = null;
-
 			try {
 
-				String connectionString = db.getConnectionString();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
-
 				Map result;
-				result = db.ServiceTest(dbConnection, username, password);
+				result = db.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);
@@ -386,14 +348,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -428,17 +383,10 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
-		Connection dbConnection = null;
-
 		try {
-
-			String connectionString = db.getConnectionString();
-			dbConnection = db.getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
 		 
 			Map result;
-			result = db.paymentMethodGet(dbConnection, clientNumber, accountNumber, invoiceNumber, systemActorID,
+			result = db.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
 					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -454,14 +402,7 @@ public class ContractService implements ContractServiceSEI {
 			logger.info("response = {}", response.toString());
 		}
 		catch(Exception e) {
-			logger.error("An exception was thrown:", e);
-		}
-		
-		finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) { /* ignored */
-			}
+			logger.error("An exception was thrown accessing the database:", e);
 		}
 		
 		return response;
@@ -486,17 +427,10 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 
-		Connection dbConnection = null;
-
 		try {
-
-			String connectionString = db.getConnectionString();
-			dbConnection = db.getConnection(connectionString);
-			logger.info("Changing to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
 		 
 			Map result;
-			result = db.paymentMethodUpdate(dbConnection, clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+			result = db.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
 					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -509,16 +443,9 @@ public class ContractService implements ContractServiceSEI {
 			logger.info("response = {}", response.toString());
 		}
 		catch(Exception e) {
-			logger.error("An exception was thrown:", e);
+			logger.error("An exception was thrown accessing the database:", e);
 		}
-		
-		finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) { /* ignored */
-			}
-		}
-		
+
 		return response;
 	}
 

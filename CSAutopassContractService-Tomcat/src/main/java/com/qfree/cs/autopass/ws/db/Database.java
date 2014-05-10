@@ -66,7 +66,7 @@ public class Database {
 	}
 
 	public Map contractCreateTest(
-			Connection dbConnection,
+			//			Connection dbConnection,
 			String username,
 			String password,
 			String obuID,
@@ -79,6 +79,15 @@ public class Database {
 		// the result error code.
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
+
+		Connection dbConnection = null;
+
+		try {
+
+			String connectionString = getConnectionString();
+			dbConnection = getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
 		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(XXXXXXXXXXXXXXXXXXXXXXXXXX)) {
 		//
@@ -124,11 +133,19 @@ public class Database {
 			throw e;
 		}
 
+		} finally {
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
 		return result;
 	}
 
 	public Map contractCreate(
-			Connection dbConnection,
+			//			Connection dbConnection,
 			String username,
 			String password,
 			int clientTypeID,
@@ -156,6 +173,15 @@ public class Database {
 		// the result error code.
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
+
+		Connection dbConnection = null;
+
+		try {
+
+			String connectionString = getConnectionString();
+			dbConnection = getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
 		// Here, we need one "?" for each input AND output parameter of the stored procedure.
 		// Any ResultSet objects opened for the statement will also be closed by this try block.
@@ -286,16 +312,34 @@ public class Database {
 			throw e;
 		}
 
+		} finally {
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
 		return result;
 	}
 
-	public Map ServiceTest(Connection dbConnection, String username, String password) throws SQLException {
+	//	public Map ServiceTest(Connection dbConnection, String username, String password) throws SQLException {
+	public Map ServiceTest(String username, String password) throws SQLException {
 		Map result = new HashMap();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
+
+		Connection dbConnection = null;
+
+		try {
+
+			String connectionString = getConnectionString();
+			dbConnection = getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
 		// Here, we need one "?" for each input AND output parameter of the stored procedure.
 		// Any ResultSet objects opened for the statement will also be closed by this try block.
@@ -329,21 +373,38 @@ public class Database {
 			throw e;
 		}
 
+		} finally {
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
 		return result;
 	}
 
 	public Map paymentMethodGet(
-			Connection dbConnection,
+			//			Connection dbConnection,
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
 			int systemActorID,
 			String username,
-			String password) {
+			String password) throws SQLException {
 
 		Map result = new HashMap();
 		CallableStatement cs = null;
 		//ResultSet rs = null;
+
+		Connection dbConnection = null;
+
+		try {
+
+			String connectionString = getConnectionString();
+			dbConnection = getConnection(connectionString);
+			logger.info("Setting catalog to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
         try {
 
@@ -392,33 +453,46 @@ public class Database {
 			logger.error("An exception was thrown:", e);
         }
         finally {
-			//        	if (rs != null) {
-			//    			try { rs.close(); } catch (Exception e) { /* ignored */ }
-			//    		}
 			if (cs != null) {
 				try {
 					cs.close();
 				} catch (Exception e) { /* ignored */
 				}
 			}
-        }           
+			}
         
+		} finally {
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
         return result;
 	}
 
 	public Map paymentMethodUpdate(
-			Connection dbConnection,
+			//			Connection dbConnection,
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
 			int paymentMethodID,
 			int systemActorID,
 			String username,
-			String password) {
+			String password) throws SQLException {
 
 		Map result = new HashMap();
 		CallableStatement cs = null;
-		// ResultSet rs = null;
+
+		Connection dbConnection = null;
+
+		try {
+
+			String connectionString = getConnectionString();
+			dbConnection = getConnection(connectionString);
+			logger.info("Changing to ServerCommon");
+			dbConnection.setCatalog("ServerCommon");
 
         try {
 
@@ -472,9 +546,6 @@ public class Database {
 			logger.error("An exception was thrown:", e);
         }
         finally {
-			// if (rs != null) {
-			// try { rs.close(); } catch (Exception e) { /* ignored */ }
-			// }
 			if (cs != null) {
 				try {
 					cs.close();
@@ -483,6 +554,14 @@ public class Database {
 			}
         }           
         
+		} finally {
+			try {
+				dbConnection.close();
+			} catch (Exception e) {
+				/* ignored */
+			}
+		}
+
         return result;
 	}
 
