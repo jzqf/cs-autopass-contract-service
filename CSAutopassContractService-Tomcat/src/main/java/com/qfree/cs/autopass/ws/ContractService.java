@@ -231,8 +231,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				Map result;
-				result = db.contractCreate(
+				Map result = db.contractCreate(
 						username,
 						password,
 						clientTypeID,
@@ -265,6 +264,8 @@ public class ContractService implements ContractServiceSEI {
 					response.setErrorCode(Integer.parseInt(result.get("ErrorCode").toString()));
 					response.setErrorMessage(result.get("ErrorMessage").toString());
 				}
+
+				logger.info("response = {}", response.toString());
 
 				//
 				//				logger.info("\n*************************************************************\n"
@@ -322,8 +323,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				Map result;
-				result = db.ServiceTest(username, password);
+				Map result = db.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);

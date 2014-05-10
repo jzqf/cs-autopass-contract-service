@@ -7,7 +7,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-//import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -33,15 +32,12 @@ public class Database {
 		try {
 
 			logger.info("Loading jConnect JDBC driver so it can be registered.");
-
 			final SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
 
 			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
-
 			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);	// probably not necessary
 
 			logger.info("Registering jConnect JDBC driver.");
-
 			DriverManager.registerDriver(sybDriver);
 
 			// Test to check how Java exceptions are logged:
@@ -66,7 +62,6 @@ public class Database {
 	}
 
 	public Map contractCreateTest(
-			//			Connection dbConnection,
 			String username,
 			String password,
 			String obuID,
@@ -80,72 +75,62 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		Connection dbConnection = null;
+		//		try (Connection dbConnection = getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
 
-		try {
-
-			String connectionString = getConnectionString();
-			dbConnection = getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
+			logger.debug("Setting catalog to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
 
-		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(XXXXXXXXXXXXXXXXXXXXXXXXXX)) {
-		//
-		//		}
+			// Here, we need one "?" for each input AND output parameter of the stored procedure.
+			// Any ResultSet objects opened for the statement will also be closed by this try block.
+			try (CallableStatement cs = dbConnection
+					.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}")) {
 
-		// Here, we need one "?" for each input AND output parameter of the stored procedure.
-		// Any ResultSet objects opened for the statement will also be closed by this try block.
-		try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}")) {
+				logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
+						" @ip_Username = {}\n" +
+						" @ip_Password = {}\n" +
+						" @ip_OBUID = {}\n" +
+						" @ip_LicencePlate = {}\n" +
+						" @ip_LicencePlateCountryID = {}",
+						new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-			//			logger.info("Setting catalog to ServerCommon");
-			//			dbConnection.setCatalog("ServerCommon");
+				cs.setString("@ip_Username", username);
+				cs.setString("@ip_Password", password);
+				cs.setString("@ip_OBUID", obuID);
+				cs.setString("@ip_LicencePlate", licencePlate);
+				if (licencePlateCountryID >= 0) {
+					cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
+				}
+				else {
+					cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
+				}
+				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
-			logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
-					" @ip_Username = {}\n" +
-					" @ip_Password = {}\n" +
-					" @ip_OBUID = {}\n" +
-					" @ip_LicencePlate = {}\n" +
-					" @ip_LicencePlateCountryID = {}",
-					new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
+				logger.debug("Executing stored procedure qp_WSC_ContractCreateTest on server...");
+				cs.execute();
+				logger.debug("...Done. No exception thrown.");
 
-			cs.setString("@ip_Username", username);
-			cs.setString("@ip_Password", password);
-			cs.setString("@ip_OBUID", obuID);
-			cs.setString("@ip_LicencePlate", licencePlate);
-			if (licencePlateCountryID >= 0) {
-				cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
+				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+
+			} catch (SQLException e) {
+				logger.error(
+						"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest. Rethrowing...",
+						e);
+				throw e;
 			}
-			else {
-				cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
-			}
-			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
-			logger.info("Executing stored procedure qp_WSC_ContractCreateTest on server...");
-			cs.execute();
-			logger.info("...Done. No exception thrown.");
-
-			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-
-		} catch ( SQLException e) {
-			logger.error("An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest. Rethrowing...", e);
+		} catch (SQLException e) {
+			logger.error(
+					"An exception was creating or using the conection for qp_WSC_ContractCreateTest. Rethrowing...", e);
 			throw e;
-		}
-
-		} finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) {
-				/* ignored */
-			}
 		}
 
 		return result;
 	}
 
 	public Map contractCreate(
-			//			Connection dbConnection,
 			String username,
 			String password,
 			int clientTypeID,
@@ -174,156 +159,148 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		Connection dbConnection = null;
+		//		try (Connection dbConnection = getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
 
-		try {
-
-			String connectionString = getConnectionString();
-			dbConnection = getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
+			logger.debug("Setting catalog to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
 
-		// Here, we need one "?" for each input AND output parameter of the stored procedure.
-		// Any ResultSet objects opened for the statement will also be closed by this try block.
-		try (CallableStatement cs = dbConnection.prepareCall(
-				"{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
+			// Here, we need one "?" for each input AND output parameter of the stored procedure.
+			// Any ResultSet objects opened for the statement will also be closed by this try block.
+			try (CallableStatement cs = dbConnection
+					.prepareCall(
+					"{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
 
-			//			logger.info("Setting catalog to ServerCommon");
-			//			dbConnection.setCatalog("ServerCommon");
+				logger.info("Attempting to execute qp_WSC_ContractCreate: with input parameters:\n" +
+						" @ip_Username = {}\n" +
+						" @ip_Password = {}\n" +
+						" @ip_ClientTypeID = {}\n" +
+						" @ip_FirstName = {}\n" +
+						" @ip_LastName = {}\n" +
+						" @ip_BirthDate = {}\n" +
+						" @ip_Company = {}\n" +
+						" @ip_CompanyNumber = {}\n" +
+						" @ip_Address1 = {}\n" +
+						" @ip_Address2 = {}\n" +
+						" @ip_PostCode = {}\n" +
+						" @ip_PostOffice = {}\n" +
+						" @ip_CountryID = {}\n" +
+						" @ip_EMail = {}\n" +
+						" @ip_Phone = {}\n" +
+						" @ip_ValidFrom = {}\n" +
+						" @ip_OBUID = {}\n" +
+						" @ip_VehicleClassID tinyint = {}\n" +
+						" @ip_LicencePlate = {}\n" +
+						" @ip_LicencePlateCountryID = {}",
+						new Object[] {
+								username,
+								password,
+								new Integer(clientTypeID),
+								firstName,
+								lastName,
+								birthDate,
+								company,
+								companyNumber,
+								address1,
+								address2,
+								postCode,
+								postOffice,
+								new Integer(countryID),
+								eMail,
+								phone,
+								validFrom,
+								obuID,
+								new Integer(vehicleClassID),
+								licencePlate,
+								new Integer(licencePlateCountryID) });
 
-			logger.info("Attempting to execute qp_WSC_ContractCreate: with input parameters:\n" +
-					" @ip_Username = {}\n" +
-					" @ip_Password = {}\n" +
-					" @ip_ClientTypeID = {}\n" +
-					" @ip_FirstName = {}\n" +
-					" @ip_LastName = {}\n" +
-					" @ip_BirthDate = {}\n" +
-					" @ip_Company = {}\n" +
-					" @ip_CompanyNumber = {}\n" +
-					" @ip_Address1 = {}\n" +
-					" @ip_Address2 = {}\n" +
-					" @ip_PostCode = {}\n" +
-					" @ip_PostOffice = {}\n" +
-					" @ip_CountryID = {}\n" +
-					" @ip_EMail = {}\n" +
-					" @ip_Phone = {}\n" +
-					" @ip_ValidFrom = {}\n" +
-					" @ip_OBUID = {}\n" +
-					" @ip_VehicleClassID tinyint = {}\n" +
-					" @ip_LicencePlate = {}\n" +
-					" @ip_LicencePlateCountryID = {}",
-				    new Object[] {
-        					username,
-        					password,
-        					new Integer(clientTypeID),
-        					firstName,
-        					lastName,
-        					birthDate,
-        					company,
-        					companyNumber,
-        					address1,
-        					address2,
-        					postCode,
-        					postOffice,
-        					new Integer(countryID),
-        					eMail,
-        					phone,
-        					validFrom,
-        					obuID,
-        					new Integer(vehicleClassID),
-        					licencePlate,
-        					new Integer(licencePlateCountryID) });
+				cs.setString("@ip_Username", username);
+				cs.setString("@ip_Password", password);
+				if (clientTypeID >= 0) {
+					cs.setInt("@ip_ClientTypeID", clientTypeID);
+				}
+				else {
+					cs.setNull("@ip_ClientTypeID", Types.NUMERIC);
+				}
+				cs.setString("@ip_FirstName", firstName);
+				cs.setString("@ip_LastName", lastName);
+				try {
+					cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd"));
+				} catch (ParseException e) {
+					result.put("ErrorCode", VALIDATION_ERRORCODE);
+					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+					return result;
+				}
+				//cs.setString("@ip_BirthDate", birthDate);
+				cs.setString("@ip_Company", company);
+				cs.setString("@ip_CompanyNumber", companyNumber);
+				cs.setString("@ip_Address1", address1);
+				cs.setString("@ip_Address2", address2);
+				cs.setString("@ip_PostCode", postCode);
+				cs.setString("@ip_PostOffice", postOffice);
+				if (countryID >= 0) {
+					cs.setInt("@ip_CountryID", countryID);
+				}
+				else {
+					cs.setNull("@ip_CountryID", Types.NUMERIC);
+				}
+				cs.setString("@ip_EMail", eMail);
+				cs.setString("@ip_Phone", phone);
 
-			cs.setString("@ip_Username", username);
-			cs.setString("@ip_Password", password);
-			if (clientTypeID >= 0) {
-				cs.setInt("@ip_ClientTypeID", clientTypeID);
-			}
-			else {
-				cs.setNull("@ip_ClientTypeID", Types.NUMERIC);
-			}
-			cs.setString("@ip_FirstName", firstName);
-			cs.setString("@ip_LastName", lastName);
-			try {
-				cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd"));
-			} catch (ParseException e) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
-				return result;
-			}
-			//cs.setString("@ip_BirthDate", birthDate);
-			cs.setString("@ip_Company", company);
-			cs.setString("@ip_CompanyNumber", companyNumber);
-			cs.setString("@ip_Address1", address1);
-			cs.setString("@ip_Address2", address2);
-			cs.setString("@ip_PostCode", postCode);
-			cs.setString("@ip_PostOffice", postOffice);
-			if (countryID >= 0) {
-				cs.setInt("@ip_CountryID", countryID);
-			}
-			else {
-				cs.setNull("@ip_CountryID", Types.NUMERIC);
-			}
-			cs.setString("@ip_EMail", eMail);
-			cs.setString("@ip_Phone", phone);
+				// This supports multiple datetime formats. The does not seem to be any simple
+				// way to implement this with a single format.
+				try {
+					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd"));
+				} catch (ParseException e) {
+					result.put("ErrorCode", VALIDATION_ERRORCODE);
+					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+					return result;
+				}
+				//cs.setString("@ip_ValidFrom", validFrom);
 
-			// This supports multiple datetime formats. The does not seem to be any simple
-			// way to implement this with a single format.
-			try {
-				cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd"));
-			} catch (ParseException e) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
-				return result;
-			}
-			//cs.setString("@ip_ValidFrom", validFrom);
+				cs.setString("@ip_OBUID", obuID);
+				if (vehicleClassID >= 0) {
+					cs.setInt("@ip_VehicleClassID", vehicleClassID);
+				}
+				else {
+					cs.setNull("@ip_VehicleClassID", Types.NUMERIC);
+				}
+				cs.setString("@ip_LicencePlate", licencePlate);
+				if (licencePlateCountryID >= 0) {
+					cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
+				}
+				else {
+					cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
+				}
 
-			cs.setString("@ip_OBUID", obuID);
-			if (vehicleClassID >= 0) {
-				cs.setInt("@ip_VehicleClassID", vehicleClassID);
-			}
-			else {
-				cs.setNull("@ip_VehicleClassID", Types.NUMERIC);
-			}
-			cs.setString("@ip_LicencePlate", licencePlate);
-			if (licencePlateCountryID >= 0) {
-				cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
-			}
-			else {
-				cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
-			}
+				cs.registerOutParameter("@op_ClientNumber", Types.NUMERIC);		// @op_ClientNumber has Sybase type numeric(12)
+				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
-			cs.registerOutParameter("@op_ClientNumber", Types.NUMERIC);		// @op_ClientNumber has Sybase type numeric(12)
-			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+				logger.debug("Executing stored procedure qp_WSC_ContractCreate on server...");
+				cs.execute();
+				logger.debug("...Done. No exception thrown.");
 
-			logger.info("Executing stored procedure qp_WSC_ContractCreate on server...");
-			cs.execute();
-			logger.info("...Done. No exception thrown.");
+				result.put("ClientNumber", Long.toString(cs.getLong("@op_ClientNumber")));		// @op_ClientNumber has Sybase type numeric(12)
+				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-			result.put("ClientNumber", Long.toString(cs.getLong("@op_ClientNumber")));		// @op_ClientNumber has Sybase type numeric(12)
-			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+			} catch (SQLException e) {
+				logger.error(
+						"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate. Rethrowing...",
+						e);
+				throw e;
+			}
 
 		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate. Rethrowing...",
-					e);
+					"An exception was creating or using the conection for qp_WSC_ContractCreate. Rethrowing...", e);
 			throw e;
-		}
-
-		} finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) {
-				/* ignored */
-			}
 		}
 
 		return result;
 	}
 
-	//	public Map ServiceTest(Connection dbConnection, String username, String password) throws SQLException {
 	public Map ServiceTest(String username, String password) throws SQLException {
 		Map result = new HashMap();
 
@@ -332,60 +309,51 @@ public class Database {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		Connection dbConnection = null;
+		//		try (Connection dbConnection = getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
 
-		try {
-
-			String connectionString = getConnectionString();
-			dbConnection = getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
+			logger.debug("Setting catalog to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
 
-		// Here, we need one "?" for each input AND output parameter of the stored procedure.
-		// Any ResultSet objects opened for the statement will also be closed by this try block.
-		try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");) {
+			// Here, we need one "?" for each input AND output parameter of the stored procedure.
+			// Any ResultSet objects opened for the statement will also be closed by this try block.
+			try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");) {
 
-			//			logger.info("Setting catalog to ServerCommon");
-			//			dbConnection.setCatalog("ServerCommon");
+				logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
+						" @ip_Username = {}\n" +
+						" @ip_Password = {}",
+						new Object[] { username, password });
 
-			logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
-					" @ip_Username = {}\n" +
-					" @ip_Password = {}",
-					new Object[] { username, password });
+				cs.setString("@ip_Username", username);
+				cs.setString("@ip_Password", password);
 
-			cs.setString("@ip_Username", username);
-			cs.setString("@ip_Password", password);
+				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
 
-			cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-			cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+				logger.debug("Executing stored procedure qp_WSC_ServiceTest on server...");
+				cs.execute();
+				logger.debug("...Done. No exception thrown.");
 
-			logger.info("Executing stored procedure qp_WSC_ServiceTest on server...");
-			cs.execute();
-			logger.info("...Done. No exception thrown.");
+				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
 
-			result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+			} catch (SQLException e) {
+				logger.error(
+						"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest. Rethrowing",
+						e);
+				throw e;
+			}
 
 		} catch (SQLException e) {
 			logger.error(
-					"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest. Rethrowing",
-					e);
+					"An exception was creating or using the conection for qp_WSC_ServiceTest. Rethrowing...", e);
 			throw e;
-		}
-
-		} finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) {
-				/* ignored */
-			}
 		}
 
 		return result;
 	}
 
 	public Map paymentMethodGet(
-			//			Connection dbConnection,
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -394,86 +362,72 @@ public class Database {
 			String password) throws SQLException {
 
 		Map result = new HashMap();
-		CallableStatement cs = null;
-		//ResultSet rs = null;
 
-		Connection dbConnection = null;
+		//		try (Connection dbConnection = getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
 
-		try {
-
-			String connectionString = getConnectionString();
-			dbConnection = getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
+			logger.debug("Setting catalog to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
 
-        try {
+			logger.info("creating stateent to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username,
+					password);
+			try (CallableStatement cs = dbConnection
+					.prepareCall("{call qp_WSC_PaymentMethodGet(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
 
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
-			logger.info("Attempting to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username, password);
-			cs = dbConnection.prepareCall("{call qp_WSC_PaymentMethodGet(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
-			cs.setString("@ip_Username", username);
-			cs.setString("@ip_Password", password);
-            
-			if (clientNumber >= 0) {
-				cs.setInt("@ip_ClientNumber", clientNumber);
-            }
-            else {
-                cs.setNull("@ip_ClientNumber", Types.NUMERIC);
-            }
-            
-			if (accountNumber >= 0) {
-				cs.setInt("@ip_AccountNumber", accountNumber);
-            }
-            else {
-                cs.setNull("@ip_AccountNumber", Types.NUMERIC);
-            }
-			cs.setString("@ip_InvoiceNumber", invoiceNumber);
-            
-			if (systemActorID >= 0) {
-				cs.setInt("@ip_SystemActorID", systemActorID);
-            }
-            else {
-                cs.setNull("@ip_SystemActorID", Types.NUMERIC);
-            }
-            
-			cs.registerOutParameter("@op_PaymentMethodID", Types.TINYINT);
-			cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);
-            cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-            cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-            
-            cs.execute();
-            
-            result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-			result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
-			result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
-        }
-        catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
-        }
-        finally {
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) { /* ignored */
+				cs.setString("@ip_Username", username);
+				cs.setString("@ip_Password", password);
+
+				if (clientNumber >= 0) {
+					cs.setInt("@ip_ClientNumber", clientNumber);
 				}
-			}
-			}
+				else {
+					cs.setNull("@ip_ClientNumber", Types.NUMERIC);
+				}
+
+				if (accountNumber >= 0) {
+					cs.setInt("@ip_AccountNumber", accountNumber);
+				}
+				else {
+					cs.setNull("@ip_AccountNumber", Types.NUMERIC);
+				}
+				cs.setString("@ip_InvoiceNumber", invoiceNumber);
+
+				if (systemActorID >= 0) {
+					cs.setInt("@ip_SystemActorID", systemActorID);
+				}
+				else {
+					cs.setNull("@ip_SystemActorID", Types.NUMERIC);
+				}
+
+				cs.registerOutParameter("@op_PaymentMethodID", Types.TINYINT);
+				cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);
+				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
+				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
+
+				cs.execute();
+
+				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
+				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+				result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
+				result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
+
+			} catch (SQLException e) {
+				logger.error(
+						"An exception was thrown preparing, executing or processing results from qp_WSC_PaymentMethodGet. Rethrowing",
+						e);
+				throw e;
+            }
         
-		} finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) {
-				/* ignored */
-			}
+		} catch (SQLException e) {
+			logger.error(
+					"An exception was creating or using the conection for qp_WSC_PaymentMethodGet. Rethrowing...", e);
+			throw e;
 		}
 
         return result;
 	}
 
 	public Map paymentMethodUpdate(
-			//			Connection dbConnection,
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -483,24 +437,18 @@ public class Database {
 			String password) throws SQLException {
 
 		Map result = new HashMap();
-		CallableStatement cs = null;
 
-		Connection dbConnection = null;
+		//		try (Connection dbConnection = getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
 
-		try {
-
-			String connectionString = getConnectionString();
-			dbConnection = getConnection(connectionString);
-			logger.info("Changing to ServerCommon");
+			logger.debug("Changing to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
 
-        try {
-
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
-			logger.info("Attempting to execute qp_WSC_PaymentMethodUpdate: username[{}] password[{}]", username,
+			logger.info("Creating statement to execute qp_WSC_PaymentMethodUpdate: username[{}] password[{}]",
+					username,
 					password);
-			cs = dbConnection.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?");
+			try (CallableStatement cs = dbConnection
+					.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?")) {
             
 			if (clientNumber >= 0) {
 				cs.setInt("@ip_ClientNumber", clientNumber);
@@ -541,59 +489,51 @@ public class Database {
             
             result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
 			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+
+			} catch (SQLException e) {
+				logger.error(
+						"An exception was thrown preparing, executing or processing results from qp_WSC_PaymentMethodUpdate. Rethrowing",
+						e);
+				throw e;
         }
-        catch (Exception e) {            
-			logger.error("An exception was thrown:", e);
-        }
-        finally {
-			if (cs != null) {
-				try {
-					cs.close();
-				} catch (Exception e) { /* ignored */
-				}
-			}
-        }           
         
-		} finally {
-			try {
-				dbConnection.close();
-			} catch (Exception e) {
-				/* ignored */
-			}
+		} catch (SQLException e) {
+			logger.error(
+					"An exception was creating or using the conection for qp_WSC_PaymentMethodUpdate. Rethrowing...", e);
+			throw e;
 		}
 
         return result;
 	}
 
-	// TODO public --> private
-	public String getConnectionString() {
+	private String getConnectionString() {
 
 		Properties configProps = new Properties();
 
 		String server = null;
 		String port = null;
-		String dbPassword = null;
 		String dbUsername = null;
+		String dbPassword = null;
 
 		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			server = configProps.getProperty("db.server");
 			port = configProps.getProperty("db.port");
-			dbPassword = configProps.getProperty("db.password");
 			dbUsername = configProps.getProperty("db.username");
+			dbPassword = configProps.getProperty("db.password");
 		} catch (IOException e) {
 			logger.error("An exception was thrown loading config.properties:", e);
 		}
 
 		//		server = "csnt02.csautopass.no";
 		//		port = "5000";
-		//		passwordDB = "qfreet02";
 		//		usernameDB = "adam";
+		//		passwordDB = "qfreet02";
 
 		logger.info("server = {}", server);
 		logger.info("port = {}", port);
-		logger.info("dbPassword = {}", dbPassword);
 		logger.info("dbUsername = {}", dbUsername);
+		logger.info("dbPassword = {}", dbPassword);
 
 		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD="
 				+ dbPassword;
@@ -604,8 +544,15 @@ public class Database {
 
 	}
 
-	// TODO public --> private
-	public Connection getConnection(String connectionString) throws SQLException {
+	/**
+	 * This method is not currently used because I have inlined this code, but I
+	 * will keep this method for now in case it is useful in the future.
+	 * 
+	 * @param connectionString
+	 * @return
+	 * @throws SQLException
+	 */
+	private Connection getConnection(String connectionString) throws SQLException {
 
 		Connection dbConnection = null;
 
