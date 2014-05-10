@@ -79,9 +79,7 @@ public class ContractService implements ContractServiceSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
+		Database db = new Database();	// eventually, inject this via Spring above as a singleton
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
 		if (concurrentCalls_semaphore != null) {
@@ -98,15 +96,16 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
+			Connection dbConnection = null;
+
 			try {
 
-				db.registerDriver();
+				String connectionString = db.getConnectionString();
 				dbConnection = db.getConnection(connectionString);
 				logger.info("Setting catalog to ServerCommon");
 				dbConnection.setCatalog("ServerCommon");
 
-				Map result;
-				result = db.contractCreateTest(
+				Map result = db.contractCreateTest(
 						dbConnection,
 						username,
 						password,
@@ -140,11 +139,6 @@ public class ContractService implements ContractServiceSEI {
 			}
 
 			finally {
-				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
 				try {
 					dbConnection.close();
 				} catch (Exception e) {
@@ -234,8 +228,6 @@ public class ContractService implements ContractServiceSEI {
 						new Integer(licencePlateCountryID) });
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		ContractCreateResult response = new ContractCreateResult();
 
 		if (concurrentCalls_semaphore != null) {
@@ -252,9 +244,11 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
+			Connection dbConnection = null;
+
 			try {
 
-				db.registerDriver();
+				String connectionString = db.getConnectionString();
 				dbConnection = db.getConnection(connectionString);
 				logger.info("Setting catalog to ServerCommon");
 				dbConnection.setCatalog("ServerCommon");
@@ -311,11 +305,6 @@ public class ContractService implements ContractServiceSEI {
 
 			finally {
 				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
-				try {
 					dbConnection.close();
 				} catch (Exception e) {
 					/* ignored */
@@ -346,8 +335,6 @@ public class ContractService implements ContractServiceSEI {
 				new Object[] { username, password });
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		ServiceTestResult response = new ServiceTestResult();
 
 		if (concurrentCalls_semaphore != null) {
@@ -364,9 +351,11 @@ public class ContractService implements ContractServiceSEI {
 
 			logger.info("Call allowed.");
 
+			Connection dbConnection = null;
+
 			try {
 
-				db.registerDriver();
+				String connectionString = db.getConnectionString();
 				dbConnection = db.getConnection(connectionString);
 				logger.info("Setting catalog to ServerCommon");
 				dbConnection.setCatalog("ServerCommon");
@@ -400,11 +389,6 @@ public class ContractService implements ContractServiceSEI {
 			}
 
 			finally {
-				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
 				try {
 					dbConnection.close();
 				} catch (Exception e) {
@@ -442,13 +426,13 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
+
+		Connection dbConnection = null;
 
 		try {
 
-			db.registerDriver();
+			String connectionString = db.getConnectionString();
 			dbConnection = db.getConnection(connectionString);
 			logger.info("Setting catalog to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
@@ -475,10 +459,6 @@ public class ContractService implements ContractServiceSEI {
 		
 		finally {
 			try {
-				db.deregisterDriver();
-			} catch (Exception e) { /* ignored */
-			}
-			try {
 				dbConnection.close();
 			} catch (Exception e) { /* ignored */
 			}
@@ -504,13 +484,13 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
-		
+
+		Connection dbConnection = null;
+
 		try {
 
-			db.registerDriver();
+			String connectionString = db.getConnectionString();
 			dbConnection = db.getConnection(connectionString);
 			logger.info("Changing to ServerCommon");
 			dbConnection.setCatalog("ServerCommon");
@@ -534,53 +514,12 @@ public class ContractService implements ContractServiceSEI {
 		
 		finally {
 			try {
-				db.deregisterDriver();
-			} catch (Exception e) { /* ignored */
-			}
-			try {
 				dbConnection.close();
 			} catch (Exception e) { /* ignored */
 			}
 		}
 		
 		return response;
-	}
-
-	private String getConnectionString() {
-
-		Properties configProps = new Properties(); 
-		
-		String server = null;
-		String port = null;
-		String dbPassword = null;
-		String dbUsername = null;
-		
-		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-			configProps.load(in);
-			server = configProps.getProperty("db.server");
-			port = configProps.getProperty("db.port");
-			dbPassword = configProps.getProperty("db.password");
-			dbUsername = configProps.getProperty("db.username");
-		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties:", e);
-		}
-		
-		//		server = "csnt02.csautopass.no";
-		//		port = "5000";
-		//		passwordDB = "qfreet02";
-		//		usernameDB = "adam";
-		
-		logger.info("server = {}", server);
-		logger.info("port = {}", port);
-		logger.info("dbPassword = {}", dbPassword);
-		logger.info("dbUsername = {}", dbUsername);
-
-		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD=" + dbPassword;
-		
-		logger.info("connectionString = {}", connectionString);
-		
-		return connectionString;
-
 	}
 
 	/**

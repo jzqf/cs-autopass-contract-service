@@ -1,6 +1,8 @@
 
 package com.qfree.cs.autopass.ws.db;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,6 +12,7 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +27,7 @@ public class Database {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
-	// This stsic initialization block ensures that the JDBC driver is loaded 
+	// This static initialization block ensures that the JDBC driver is loaded 
 	// and registered only once.
 	static {
 		try {
@@ -60,80 +63,6 @@ public class Database {
 			}
 		}
 
-	}
-
-	public void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
-			SQLException {
-		if (true) {
-			return;
-		}
-		try {
-		
-			logger.info("Loading jConnect JDBC driver so it can be registered.");
-			
-			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
-			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
-			
-			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
-			logger.info("Registering jConnect JDBC driver.");
-			
-			DriverManager.registerDriver(sybDriver);
-			
-			// Test to check how Java exceptions are logged:
-			/*try {
-				String s = null;
-				if (s.equals("anything")) {			
-				}
-			} 
-			catch(Exception e) {      
-				logger.error("An exception was thrown on purpose (s is null):", e);
-			}*/
-		
-		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
-			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
-			throw e;
-		}
-	}
-	    
-	public void deregisterDriver() {
-		if (true) {
-			return;
-		}
-		try {
-		
-			logger.info("Loading jConnect JDBC driver so it can be deregistered.");
-			
-			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
-			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
-			
-			logger.info("Deregistering jConnect JDBC driver.");
-			DriverManager.deregisterDriver(sybDriver);
-		    
-		}
-		catch (Exception e) {            
-			logger.error("An exception was thrown deregistering the JDBC driver:", e);
-		}
-	}
-    
-	public Connection getConnection(String connectionString) throws SQLException {
-	    
-		Connection dbConnection = null;
-		
-		try {
-			logger.info("Establishing a database connection for connection string: {}.", connectionString);
-			// Instead of including the user name and password in the connection
-			// string, as we do here, it is also possible to pass a second
-			// parameter that is a Properties object that contains those 
-			// details, and possibly additional details such as "proxy".  See
-			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
-			//details.
-			dbConnection = java.sql.DriverManager.getConnection(connectionString);            
-		} catch (SQLException e) {
-			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
-			throw e;
-		}
-		
-		return dbConnection;
 	}
 
 	public Map contractCreateTest(
@@ -556,4 +485,116 @@ public class Database {
         
         return result;
 	}
+
+	// TODO public --> private
+	public String getConnectionString() {
+
+		Properties configProps = new Properties();
+
+		String server = null;
+		String port = null;
+		String dbPassword = null;
+		String dbUsername = null;
+
+		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
+			configProps.load(in);
+			server = configProps.getProperty("db.server");
+			port = configProps.getProperty("db.port");
+			dbPassword = configProps.getProperty("db.password");
+			dbUsername = configProps.getProperty("db.username");
+		} catch (IOException e) {
+			logger.error("An exception was thrown loading config.properties:", e);
+		}
+
+		//		server = "csnt02.csautopass.no";
+		//		port = "5000";
+		//		passwordDB = "qfreet02";
+		//		usernameDB = "adam";
+
+		logger.info("server = {}", server);
+		logger.info("port = {}", port);
+		logger.info("dbPassword = {}", dbPassword);
+		logger.info("dbUsername = {}", dbUsername);
+
+		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD="
+				+ dbPassword;
+
+		logger.info("connectionString = {}", connectionString);
+
+		return connectionString;
+
+	}
+
+	// TODO public --> private
+	public Connection getConnection(String connectionString) throws SQLException {
+
+		Connection dbConnection = null;
+
+		try {
+			logger.info("Establishing a database connection for connection string: {}.", connectionString);
+			// Instead of including the user name and password in the connection
+			// string, as we do here, it is also possible to pass a second
+			// parameter that is a Properties object that contains those 
+			// details, and possibly additional details such as "proxy".  See
+			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
+			//details.
+			dbConnection = java.sql.DriverManager.getConnection(connectionString);
+		} catch (SQLException e) {
+			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
+			throw e;
+		}
+
+		return dbConnection;
+	}
+
+	/**
+	 * Not used - this is from Roy's old code.
+	 * 
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	private void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
+			SQLException {
+		try {
+
+			logger.info("Loading jConnect JDBC driver so it can be registered.");
+
+			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
+			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
+
+			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
+			logger.info("Registering jConnect JDBC driver.");
+
+			DriverManager.registerDriver(sybDriver);
+
+		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
+			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
+			throw e;
+		}
+	}
+
+	/**
+	 * Not used - this is from Roy's old code.
+	 */
+	private void deregisterDriver() {
+		if (true) {
+			return;
+		}
+		try {
+
+			logger.info("Loading jConnect JDBC driver so it can be deregistered.");
+
+			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
+			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
+
+			logger.info("Deregistering jConnect JDBC driver.");
+			DriverManager.deregisterDriver(sybDriver);
+
+		} catch (Exception e) {
+			logger.error("An exception was thrown deregistering the JDBC driver:", e);
+		}
+	}
+
 }
