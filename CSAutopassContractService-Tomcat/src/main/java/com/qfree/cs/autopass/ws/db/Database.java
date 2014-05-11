@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
@@ -25,6 +26,29 @@ public class Database {
 
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
+
+	private static volatile AppConfigParams staticAppConfigParams;
+
+	static {
+		Properties configProps = new Properties();
+		staticAppConfigParams = new AppConfigParams();
+
+		try (InputStream in = Database.class.getResourceAsStream("/config.properties")) {
+			configProps.load(in);
+			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
+			staticAppConfigParams.setPort(configProps.getProperty("db.port"));
+			staticAppConfigParams.setDbUsername(configProps.getProperty("db.username"));
+			staticAppConfigParams.setDbPassword(configProps.getProperty("db.password"));
+			staticAppConfigParams.setConcurrentCalls_permits(Integer.parseInt(configProps
+					.getProperty("db.concurrent-call.maxcalls")));
+			staticAppConfigParams.setConcurrentCalls_timeoutsecs(Long.parseLong(configProps
+					.getProperty("db.concurrent-call.waitsecs")));
+		} catch (IOException e) {
+			logger.error("An exception was thrown loading config.properties:", e);
+		}
+
+		logger.info("Loaded config.properties: {}", staticAppConfigParams);
+	}
 
 	// This static initialization block ensures that the JDBC driver is loaded 
 	// and registered only once.
@@ -59,6 +83,28 @@ public class Database {
 			}
 		}
 
+	}
+
+	private AppConfigParams appConfigParams;
+
+	public static AppConfigParams getStaticAppConfigParams() {
+		return staticAppConfigParams;
+	}
+
+	public static void setStaticAppConfigParams(AppConfigParams staticAppConfigParams) {
+		Database.staticAppConfigParams = staticAppConfigParams;
+	}
+
+	public AppConfigParams getAppConfigParams() {
+		if (appConfigParams != null) {
+			return appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
+		} else {
+			return staticAppConfigParams;	// defined in a static initialization block above.
+		}
+	}
+
+	public void setAppConfigParams(AppConfigParams appConfigParams) {
+		this.appConfigParams = appConfigParams;
 	}
 
 	public Map contractCreateTest(
@@ -508,35 +554,43 @@ public class Database {
 
 	private String getConnectionString() {
 
-		Properties configProps = new Properties();
+		logger.debug("Executing getAppConfigParams() to get the application configuration parameters.");
+		AppConfigParams appConfigParams = getAppConfigParams();
 
-		String server = null;
-		String port = null;
-		String dbUsername = null;
-		String dbPassword = null;
+		logger.debug("appConfigParams: {}", appConfigParams);
 
-		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-			configProps.load(in);
-			server = configProps.getProperty("db.server");
-			port = configProps.getProperty("db.port");
-			dbUsername = configProps.getProperty("db.username");
-			dbPassword = configProps.getProperty("db.password");
-		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties:", e);
-		}
+		//		Properties configProps = new Properties();
+		//
+		//		String server = null;
+		//		String port = null;
+		//		String dbUsername = null;
+		//		String dbPassword = null;
+		//
+		//		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
+		//			configProps.load(in);
+		//			server = configProps.getProperty("db.server");
+		//			port = configProps.getProperty("db.port");
+		//			dbUsername = configProps.getProperty("db.username");
+		//			dbPassword = configProps.getProperty("db.password");
+		//		} catch (IOException e) {
+		//			logger.error("An exception was thrown loading config.properties:", e);
+		//		}
+		//
+		//		//		server = "csnt02.csautopass.no";
+		//		//		port = "5000";
+		//		//		usernameDB = "adam";
+		//		//		passwordDB = "qfreet02";
+		//
+		//		logger.info("Loaded config.properties:\n server = {}\n port = {}\n dbUsername = {}\n dbPassword = {}",
+		//				new Object[] { server, port, dbUsername, dbPassword });
+		//
+		//		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD="
+		//				+ dbPassword;
 
-		//		server = "csnt02.csautopass.no";
-		//		port = "5000";
-		//		usernameDB = "adam";
-		//		passwordDB = "qfreet02";
-
-		logger.info("server = {}", server);
-		logger.info("port = {}", port);
-		logger.info("dbUsername = {}", dbUsername);
-		logger.info("dbPassword = {}", dbPassword);
-
-		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD="
-				+ dbPassword;
+		String connectionString =
+				"jdbc:sybase:Tds:" + appConfigParams.getServer() + ":" + appConfigParams.getPort()
+						+ "?USER=" + appConfigParams.getDbUsername()
+						+ "&PASSWORD=" + appConfigParams.getDbPassword();
 
 		logger.info("connectionString = {}", connectionString);
 

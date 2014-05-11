@@ -54,13 +54,32 @@ public class ContractService implements ContractServiceSEI {
 	// properties file for this application. 
 	//
 	// These are declared volatile because I will set them later and I want all
-	// threads to see the values. concurrentCalls_semaphore is set to null here
-	// as a flag to indicate that the semaphore has not yet been created, I need
-	// to load values from this application's configuration properties file 
-	// before I can create it.
-	private static volatile int concurrentCalls_permits = 0;
-	private static volatile long concurrentCalls_timeoutsecs = 0;
-	private static volatile Semaphore concurrentCalls_semaphore = null;  // to control number of concurrent database connections
+	// threads to see the values.
+	private static volatile int concurrentCalls_permits;
+	private static volatile long concurrentCalls_timeoutsecs;
+	private static volatile Semaphore concurrentCalls_semaphore;  // to control number of concurrent database connections
+
+	// Create the counting semaphore that will limit the number of simultaneous
+	// database connections.
+	static {
+		Properties configProps = new Properties();
+		// In case the try block does not successfully set these static members:
+		ContractService.concurrentCalls_permits = 5;
+		ContractService.concurrentCalls_timeoutsecs = 10;
+		try (InputStream in = ContractService.class.getResourceAsStream("/config.properties")) {
+			configProps.load(in);
+			ContractService.concurrentCalls_permits = Integer.parseInt(configProps
+					.getProperty("db.concurrent-call.maxcalls"));
+			ContractService.concurrentCalls_timeoutsecs = Long.parseLong(configProps
+					.getProperty("db.concurrent-call.waitsecs"));
+		} catch (IOException e) {
+			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
+		}
+		logger.info(
+				"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
+				ContractService.concurrentCalls_permits, ContractService.concurrentCalls_timeoutsecs);
+		ContractService.concurrentCalls_semaphore = new Semaphore(ContractService.concurrentCalls_permits, true);  // to control number of concurrent database connections
+	}
 
 	@Override
 	public ContractCreateTestResult contractCreateTest(
@@ -82,10 +101,8 @@ public class ContractService implements ContractServiceSEI {
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -138,10 +155,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -215,10 +230,8 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		ContractCreateResult response = new ContractCreateResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -288,10 +301,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -307,10 +318,8 @@ public class ContractService implements ContractServiceSEI {
 		Database db = new Database();
 		ServiceTestResult response = new ServiceTestResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -358,10 +367,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -454,25 +461,6 @@ public class ContractService implements ContractServiceSEI {
 	 * @return true if a permit was acquired to allow the current web service call to proceed.
 	 */
 	private boolean attemptAccess() {
-
-		// If the semaphore has not yet been created, we load the semaphore details 
-		// from a properties file and then create the semaphore.
-		if (concurrentCalls_semaphore == null) {
-			Properties configProps = new Properties();
-			concurrentCalls_permits = 2;
-			concurrentCalls_timeoutsecs = 0;
-			try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-				configProps.load(in);
-				concurrentCalls_permits = Integer.parseInt(configProps.getProperty("db.concurrent-call.maxcalls"));
-				concurrentCalls_timeoutsecs = Long.parseLong(configProps.getProperty("db.concurrent-call.waitsecs"));
-			} catch (IOException e) {
-				logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
-			}
-			logger.info(
-					"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
-					concurrentCalls_permits, concurrentCalls_timeoutsecs);
-			concurrentCalls_semaphore = new Semaphore(concurrentCalls_permits, true);  // to control number of concurrent database connections
-		}
 
 		boolean acquired = false;
 		try {
