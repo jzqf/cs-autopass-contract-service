@@ -3,7 +3,6 @@ package com.qfree.cs.autopass.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -55,13 +54,32 @@ public class ContractService implements ContractServiceSEI {
 	// properties file for this application. 
 	//
 	// These are declared volatile because I will set them later and I want all
-	// threads to see the values. concurrentCalls_semaphore is set to null here
-	// as a flag to indicate that the semaphore has not yet been created, I need
-	// to load values from this application's configuration properties file 
-	// before I can create it.
-	private static volatile int concurrentCalls_permits = 0;
-	private static volatile long concurrentCalls_timeoutsecs = 0;
-	private static volatile Semaphore concurrentCalls_semaphore = null;  // to control number of concurrent database connections
+	// threads to see the values.
+	private static volatile int concurrentCalls_permits;
+	private static volatile long concurrentCalls_timeoutsecs;
+	private static volatile Semaphore concurrentCalls_semaphore;  // to control number of concurrent database connections
+
+	// Create the counting semaphore that will limit the number of simultaneous
+	// database connections.
+	static {
+		Properties configProps = new Properties();
+		// In case the try block does not successfully set these static members:
+		ContractService.concurrentCalls_permits = 5;
+		ContractService.concurrentCalls_timeoutsecs = 10;
+		try (InputStream in = ContractService.class.getResourceAsStream("/config.properties")) {
+			configProps.load(in);
+			ContractService.concurrentCalls_permits = Integer.parseInt(configProps
+					.getProperty("db.concurrent-call.maxcalls"));
+			ContractService.concurrentCalls_timeoutsecs = Long.parseLong(configProps
+					.getProperty("db.concurrent-call.waitsecs"));
+		} catch (IOException e) {
+			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
+		}
+		logger.info(
+				"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
+				ContractService.concurrentCalls_permits, ContractService.concurrentCalls_timeoutsecs);
+		ContractService.concurrentCalls_semaphore = new Semaphore(ContractService.concurrentCalls_permits, true);  // to control number of concurrent database connections
+	}
 
 	@Override
 	public ContractCreateTestResult contractCreateTest(
@@ -79,15 +97,12 @@ public class ContractService implements ContractServiceSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
+		Database db = new Database();	// eventually, inject this via Spring above as a singleton
+
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -100,14 +115,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				db.registerDriver();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
-
-				Map result;
-				result = db.contractCreateTest(
-						dbConnection,
+				Map result = db.contractCreateTest(
 						username,
 						password,
 						obuID,
@@ -137,19 +145,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -159,10 +155,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -234,14 +228,10 @@ public class ContractService implements ContractServiceSEI {
 						new Integer(licencePlateCountryID) });
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		ContractCreateResult response = new ContractCreateResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -254,14 +244,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				db.registerDriver();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
-
-				Map result;
-				result = db.contractCreate(
-						dbConnection,
+				Map result = db.contractCreate(
 						username,
 						password,
 						clientTypeID,
@@ -295,7 +278,8 @@ public class ContractService implements ContractServiceSEI {
 					response.setErrorMessage(result.get("ErrorMessage").toString());
 				}
 
-				//				logger.info("response = {}", response.toString());
+				logger.info("response = {}", response.toString());
+
 				//
 				//				logger.info("\n*************************************************************\n"
 				//						+ "Thread sleeping for 2 seconds to test semaphore mechanism...");
@@ -307,19 +291,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -329,10 +301,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -346,14 +316,10 @@ public class ContractService implements ContractServiceSEI {
 				new Object[] { username, password });
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		ServiceTestResult response = new ServiceTestResult();
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
 		// simultaneous web service calls to a maximum that is set in the 
@@ -366,13 +332,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				db.registerDriver();
-				dbConnection = db.getConnection(connectionString);
-				logger.info("Setting catalog to ServerCommon");
-				dbConnection.setCatalog("ServerCommon");
-
-				Map result;
-				result = db.ServiceTest(dbConnection, username, password);
+				Map result = db.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);
@@ -397,19 +357,7 @@ public class ContractService implements ContractServiceSEI {
 				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
 				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
-			}
-
-			finally {
-				try {
-					db.deregisterDriver();
-				} catch (Exception e) {
-					/* ignored */
-				}
-				try {
-					dbConnection.close();
-				} catch (Exception e) {
-					/* ignored */
-				}
+			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
@@ -419,10 +367,8 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		if (concurrentCalls_semaphore != null) {
-			logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
-					concurrentCalls_semaphore.availablePermits());
-		}
+		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+				concurrentCalls_semaphore.availablePermits());
 
 		return response;
 	}
@@ -442,19 +388,12 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
 		try {
-
-			db.registerDriver();
-			dbConnection = db.getConnection(connectionString);
-			logger.info("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
 		 
 			Map result;
-			result = db.paymentMethodGet(dbConnection, clientNumber, accountNumber, invoiceNumber, systemActorID,
+			result = db.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
 					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -470,18 +409,7 @@ public class ContractService implements ContractServiceSEI {
 			logger.info("response = {}", response.toString());
 		}
 		catch(Exception e) {
-			logger.error("An exception was thrown:", e);
-		}
-		
-		finally {
-			try {
-				db.deregisterDriver();
-			} catch (Exception e) { /* ignored */
-			}
-			try {
-				dbConnection.close();
-			} catch (Exception e) { /* ignored */
-			}
+			logger.error("An exception was thrown accessing the database:", e);
 		}
 		
 		return response;
@@ -504,19 +432,12 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
 		Database db = new Database();
-		Connection dbConnection = null;
-		String connectionString = getConnectionString();
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
-		
-		try {
 
-			db.registerDriver();
-			dbConnection = db.getConnection(connectionString);
-			logger.info("Changing to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+		try {
 		 
 			Map result;
-			result = db.paymentMethodUpdate(dbConnection, clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+			result = db.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
 					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -529,58 +450,10 @@ public class ContractService implements ContractServiceSEI {
 			logger.info("response = {}", response.toString());
 		}
 		catch(Exception e) {
-			logger.error("An exception was thrown:", e);
+			logger.error("An exception was thrown accessing the database:", e);
 		}
-		
-		finally {
-			try {
-				db.deregisterDriver();
-			} catch (Exception e) { /* ignored */
-			}
-			try {
-				dbConnection.close();
-			} catch (Exception e) { /* ignored */
-			}
-		}
-		
+
 		return response;
-	}
-
-	private String getConnectionString() {
-
-		Properties configProps = new Properties(); 
-		
-		String server = null;
-		String port = null;
-		String dbPassword = null;
-		String dbUsername = null;
-		
-		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-			configProps.load(in);
-			server = configProps.getProperty("db.server");
-			port = configProps.getProperty("db.port");
-			dbPassword = configProps.getProperty("db.password");
-			dbUsername = configProps.getProperty("db.username");
-		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties:", e);
-		}
-		
-		//		server = "csnt02.csautopass.no";
-		//		port = "5000";
-		//		passwordDB = "qfreet02";
-		//		usernameDB = "adam";
-		
-		logger.info("server = {}", server);
-		logger.info("port = {}", port);
-		logger.info("dbPassword = {}", dbPassword);
-		logger.info("dbUsername = {}", dbUsername);
-
-		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD=" + dbPassword;
-		
-		logger.info("connectionString = {}", connectionString);
-		
-		return connectionString;
-
 	}
 
 	/**
@@ -588,25 +461,6 @@ public class ContractService implements ContractServiceSEI {
 	 * @return true if a permit was acquired to allow the current web service call to proceed.
 	 */
 	private boolean attemptAccess() {
-
-		// If the semaphore has not yet been created, we load the semaphore details 
-		// from a properties file and then create the semaphore.
-		if (concurrentCalls_semaphore == null) {
-			Properties configProps = new Properties();
-			concurrentCalls_permits = 2;
-			concurrentCalls_timeoutsecs = 0;
-			try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-				configProps.load(in);
-				concurrentCalls_permits = Integer.parseInt(configProps.getProperty("db.concurrent-call.maxcalls"));
-				concurrentCalls_timeoutsecs = Long.parseLong(configProps.getProperty("db.concurrent-call.waitsecs"));
-			} catch (IOException e) {
-				logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
-			}
-			logger.info(
-					"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
-					concurrentCalls_permits, concurrentCalls_timeoutsecs);
-			concurrentCalls_semaphore = new Semaphore(concurrentCalls_permits, true);  // to control number of concurrent database connections
-		}
 
 		boolean acquired = false;
 		try {
