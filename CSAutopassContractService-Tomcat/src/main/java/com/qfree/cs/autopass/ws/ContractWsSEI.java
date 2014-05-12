@@ -44,7 +44,7 @@ import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
  * might include, e.g., minOccurs="..." & maxOccurs="..." attributes).
  */
 @SOAPBinding(style = Style.DOCUMENT)
-public interface ContractServiceSEI {
+public interface ContractWsSEI {
 
 	@WebMethod(operationName = "ContractCreateTest", exclude = false)
 	public ContractCreateTestResult contractCreateTest(

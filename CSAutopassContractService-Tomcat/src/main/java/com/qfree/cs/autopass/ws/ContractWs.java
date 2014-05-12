@@ -13,12 +13,13 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.qfree.cs.autopass.ws.db.Database;
 import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
+import com.qfree.cs.autopass.ws.service.ContractService;
+import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
@@ -38,10 +39,10 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
 @WebService(
 		serviceName = "ContractService",
 		portName = "ContractServicePort",
-		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
-public class ContractService implements ContractServiceSEI {
+		endpointInterface = "com.qfree.cs.autopass.ws.ContractWsSEI")
+public class ContractWs implements ContractWsSEI {
    
-	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractWs.class);
 
 	private static final int DBACCESSPROBLEM_ERRORCODE = 101;
 	private static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig. Prøv senere.";
@@ -64,21 +65,31 @@ public class ContractService implements ContractServiceSEI {
 	static {
 		Properties configProps = new Properties();
 		// In case the try block does not successfully set these static members:
-		ContractService.concurrentCalls_permits = 5;
-		ContractService.concurrentCalls_timeoutsecs = 10;
-		try (InputStream in = ContractService.class.getResourceAsStream("/config.properties")) {
+		ContractWs.concurrentCalls_permits = 5;
+		ContractWs.concurrentCalls_timeoutsecs = 10;
+		try (InputStream in = ContractWs.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
-			ContractService.concurrentCalls_permits = Integer.parseInt(configProps
+			ContractWs.concurrentCalls_permits = Integer.parseInt(configProps
 					.getProperty("db.concurrent-call.maxcalls"));
-			ContractService.concurrentCalls_timeoutsecs = Long.parseLong(configProps
+			ContractWs.concurrentCalls_timeoutsecs = Long.parseLong(configProps
 					.getProperty("db.concurrent-call.waitsecs"));
 		} catch (IOException e) {
 			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
 		}
 		logger.info(
 				"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
-				ContractService.concurrentCalls_permits, ContractService.concurrentCalls_timeoutsecs);
-		ContractService.concurrentCalls_semaphore = new Semaphore(ContractService.concurrentCalls_permits, true);  // to control number of concurrent database connections
+				ContractWs.concurrentCalls_permits, ContractWs.concurrentCalls_timeoutsecs);
+		ContractWs.concurrentCalls_semaphore = new Semaphore(ContractWs.concurrentCalls_permits, true);  // to control number of concurrent database connections
+	}
+
+	ContractService contractService;	// to be injected by Spring
+
+	public ContractService getContractService() {
+		return contractService;
+	}
+
+	public void setContractService(ContractService contractService) {
+		this.contractService = contractService;
 	}
 
 	@Override
@@ -97,11 +108,18 @@ public class ContractService implements ContractServiceSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		Database db = new Database();	// eventually, inject this via Spring above as a singleton
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -115,7 +133,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				Map result = db.contractCreateTest(
+				Map result = contractService.contractCreateTest(
 						username,
 						password,
 						obuID,
@@ -155,7 +173,7 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;
@@ -227,10 +245,18 @@ public class ContractService implements ContractServiceSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		Database db = new Database();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		ContractCreateResult response = new ContractCreateResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -244,7 +270,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				Map result = db.contractCreate(
+				Map result = contractService.contractCreate(
 						username,
 						password,
 						clientTypeID,
@@ -301,7 +327,7 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;
@@ -315,10 +341,18 @@ public class ContractService implements ContractServiceSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		Database db = new Database();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		ServiceTestResult response = new ServiceTestResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -332,7 +366,7 @@ public class ContractService implements ContractServiceSEI {
 
 			try {
 
-				Map result = db.ServiceTest(username, password);
+				Map result = contractService.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);
@@ -367,7 +401,7 @@ public class ContractService implements ContractServiceSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;
@@ -387,13 +421,21 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		Database db = new Database();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
 		try {
 		 
 			Map result;
-			result = db.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
+			result = contractService.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
 					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -431,13 +473,21 @@ public class ContractService implements ContractServiceSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		Database db = new Database();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 
 		try {
 		 
 			Map result;
-			result = db.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+			result = contractService.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
 					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {

@@ -51,12 +51,12 @@
 	<logger name="com.qfree.cs.autopass"><level value="DEBUG" /></logger>
 	
 	<!-- 3rdparty Loggers -->
-	<logger name="org.springframework.core"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.beans"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.context"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.web"><level value="DEBUG" /></logger>
+	<logger name="org.springframework.core"><level value="INFO" /></logger>
+	<logger name="org.springframework.beans"><level value="INFO" /></logger>
+	<logger name="org.springframework.context"><level value="INFO" /></logger>
+	<logger name="org.springframework.web"><level value="INFO" /></logger>
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT"/>
 		<appender-ref ref="FILE"/>
 	</root>

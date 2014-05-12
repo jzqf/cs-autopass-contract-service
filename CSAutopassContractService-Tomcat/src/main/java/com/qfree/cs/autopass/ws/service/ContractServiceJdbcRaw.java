@@ -1,5 +1,5 @@
 
-package com.qfree.cs.autopass.ws.db;
+package com.qfree.cs.autopass.ws.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +20,9 @@ import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
-public class Database {
+public class ContractServiceJdbcRaw implements ContractService {
 
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);
 
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
@@ -33,7 +33,7 @@ public class Database {
 		Properties configProps = new Properties();
 		staticAppConfigParams = new AppConfigParams();
 
-		try (InputStream in = Database.class.getResourceAsStream("/config.properties")) {
+		try (InputStream in = ContractServiceJdbcRaw.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
 			staticAppConfigParams.setPort(configProps.getProperty("db.port"));
@@ -44,7 +44,12 @@ public class Database {
 			staticAppConfigParams.setConcurrentCalls_timeoutsecs(Long.parseLong(configProps
 					.getProperty("db.concurrent-call.waitsecs")));
 		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties:", e);
+			logger.error("An exception was thrown loading config.properties. Rethrowing...", e);
+			try {
+				throw e;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 		logger.info("Loaded config.properties: {}", staticAppConfigParams);
@@ -92,21 +97,35 @@ public class Database {
 	}
 
 	public static void setStaticAppConfigParams(AppConfigParams staticAppConfigParams) {
-		Database.staticAppConfigParams = staticAppConfigParams;
+		ContractServiceJdbcRaw.staticAppConfigParams = staticAppConfigParams;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
+	 */
+	@Override
 	public AppConfigParams getAppConfigParams() {
 		if (appConfigParams != null) {
+			logger.debug("Returning instance field appConfigParams");
 			return appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
 		} else {
+			logger.debug("Returning static field staticAppConfigParams");
 			return staticAppConfigParams;	// defined in a static initialization block above.
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#setAppConfigParams(com.qfree.cs.autopass.ws.config.AppConfigParams)
+	 */
+	@Override
 	public void setAppConfigParams(AppConfigParams appConfigParams) {
 		this.appConfigParams = appConfigParams;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreateTest(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int)
+	 */
+	@Override
 	public Map contractCreateTest(
 			String username,
 			String password,
@@ -176,6 +195,10 @@ public class Database {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreate(java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, int)
+	 */
+	@Override
 	public Map contractCreate(
 			String username,
 			String password,
@@ -347,6 +370,10 @@ public class Database {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#ServiceTest(java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map ServiceTest(String username, String password) throws SQLException {
 		Map result = new HashMap();
 
@@ -399,6 +426,10 @@ public class Database {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodGet(int, int, java.lang.String, int, java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map paymentMethodGet(
 			int clientNumber,
 			int accountNumber,
@@ -473,6 +504,10 @@ public class Database {
         return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodUpdate(int, int, java.lang.String, int, int, java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map paymentMethodUpdate(
 			int clientNumber,
 			int accountNumber,
@@ -592,7 +627,7 @@ public class Database {
 						+ "?USER=" + appConfigParams.getDbUsername()
 						+ "&PASSWORD=" + appConfigParams.getDbPassword();
 
-		logger.info("connectionString = {}", connectionString);
+		logger.debug("connectionString = {}", connectionString);
 
 		return connectionString;
 
