@@ -20,7 +20,7 @@ import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
-public class ContractServiceJdbcRaw {
+public class ContractServiceJdbcRaw implements ContractService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);
 
@@ -100,18 +100,32 @@ public class ContractServiceJdbcRaw {
 		ContractServiceJdbcRaw.staticAppConfigParams = staticAppConfigParams;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
+	 */
+	@Override
 	public AppConfigParams getAppConfigParams() {
 		if (appConfigParams != null) {
+			logger.debug("Returning instance field appConfigParams");
 			return appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
 		} else {
+			logger.debug("Returning static field staticAppConfigParams");
 			return staticAppConfigParams;	// defined in a static initialization block above.
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#setAppConfigParams(com.qfree.cs.autopass.ws.config.AppConfigParams)
+	 */
+	@Override
 	public void setAppConfigParams(AppConfigParams appConfigParams) {
 		this.appConfigParams = appConfigParams;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreateTest(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int)
+	 */
+	@Override
 	public Map contractCreateTest(
 			String username,
 			String password,
@@ -181,6 +195,10 @@ public class ContractServiceJdbcRaw {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreate(java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, int)
+	 */
+	@Override
 	public Map contractCreate(
 			String username,
 			String password,
@@ -352,6 +370,10 @@ public class ContractServiceJdbcRaw {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#ServiceTest(java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map ServiceTest(String username, String password) throws SQLException {
 		Map result = new HashMap();
 
@@ -404,6 +426,10 @@ public class ContractServiceJdbcRaw {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodGet(int, int, java.lang.String, int, java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map paymentMethodGet(
 			int clientNumber,
 			int accountNumber,
@@ -478,6 +504,10 @@ public class ContractServiceJdbcRaw {
         return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodUpdate(int, int, java.lang.String, int, int, java.lang.String, java.lang.String)
+	 */
+	@Override
 	public Map paymentMethodUpdate(
 			int clientNumber,
 			int accountNumber,

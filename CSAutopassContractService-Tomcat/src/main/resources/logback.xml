@@ -48,7 +48,7 @@
 	</appender>
 
 	<!-- Application Loggers -->
-	<logger name="com.qfree.cs.autopass"><level value="INFO" /></logger>
+	<logger name="com.qfree.cs.autopass"><level value="DEBUG" /></logger>
 	
 	<!-- 3rdparty Loggers -->
 	<logger name="org.springframework.core"><level value="INFO" /></logger>

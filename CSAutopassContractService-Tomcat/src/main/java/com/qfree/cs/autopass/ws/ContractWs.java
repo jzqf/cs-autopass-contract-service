@@ -18,6 +18,7 @@ import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
+import com.qfree.cs.autopass.ws.service.ContractService;
 import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
@@ -97,7 +98,7 @@ public class ContractWs implements ContractWsSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();	// eventually, inject this via Spring above as a singleton
+		ContractService db = new ContractServiceJdbcRaw();	// eventually, inject this via Spring above as a singleton
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
@@ -227,7 +228,7 @@ public class ContractWs implements ContractWsSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
+		ContractService db = new ContractServiceJdbcRaw();
 		ContractCreateResult response = new ContractCreateResult();
 
 		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
@@ -315,7 +316,7 @@ public class ContractWs implements ContractWsSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
+		ContractService db = new ContractServiceJdbcRaw();
 		ServiceTestResult response = new ServiceTestResult();
 
 		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
@@ -387,7 +388,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
+		ContractService db = new ContractServiceJdbcRaw();
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
 		try {
@@ -431,7 +432,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
+		ContractService db = new ContractServiceJdbcRaw();
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 
 		try {
