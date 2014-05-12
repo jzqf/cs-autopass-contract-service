@@ -82,6 +82,16 @@ public class ContractWs implements ContractWsSEI {
 		ContractWs.concurrentCalls_semaphore = new Semaphore(ContractWs.concurrentCalls_permits, true);  // to control number of concurrent database connections
 	}
 
+	ContractService contractService;	// to be injected by Spring
+
+	public ContractService getContractService() {
+		return contractService;
+	}
+
+	public void setContractService(ContractService contractService) {
+		this.contractService = contractService;
+	}
+
 	@Override
 	public ContractCreateTestResult contractCreateTest(
 			String username,
@@ -98,7 +108,14 @@ public class ContractWs implements ContractWsSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		ContractService db = new ContractServiceJdbcRaw();	// eventually, inject this via Spring above as a singleton
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
@@ -116,7 +133,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = db.contractCreateTest(
+				Map result = contractService.contractCreateTest(
 						username,
 						password,
 						obuID,
@@ -228,7 +245,15 @@ public class ContractWs implements ContractWsSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		ContractService db = new ContractServiceJdbcRaw();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		ContractCreateResult response = new ContractCreateResult();
 
 		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
@@ -245,7 +270,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = db.contractCreate(
+				Map result = contractService.contractCreate(
 						username,
 						password,
 						clientTypeID,
@@ -316,7 +341,15 @@ public class ContractWs implements ContractWsSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		ContractService db = new ContractServiceJdbcRaw();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		ServiceTestResult response = new ServiceTestResult();
 
 		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
@@ -333,7 +366,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = db.ServiceTest(username, password);
+				Map result = contractService.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);
@@ -388,13 +421,21 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		ContractService db = new ContractServiceJdbcRaw();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
 		try {
 		 
 			Map result;
-			result = db.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
+			result = contractService.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
 					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -432,13 +473,21 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		ContractService db = new ContractServiceJdbcRaw();
+		ContractService contractService;
+		if (this.contractService != null) {
+			logger.debug("Using this.contractService injected by Spring.");
+			contractService = this.contractService;		// injected by Spring as a singleton
+		} else {
+			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
+			contractService = new ContractServiceJdbcRaw();
+		}
+
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 
 		try {
 		 
 			Map result;
-			result = db.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+			result = contractService.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
 					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
