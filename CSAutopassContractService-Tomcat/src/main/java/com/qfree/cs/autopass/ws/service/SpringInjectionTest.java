@@ -1,4 +1,4 @@
-package com.qfree.cs.autopass.service;
+package com.qfree.cs.autopass.ws.service;
 
 public class SpringInjectionTest {
 

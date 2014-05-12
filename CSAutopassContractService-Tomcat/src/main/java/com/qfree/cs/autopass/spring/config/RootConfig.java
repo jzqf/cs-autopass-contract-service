@@ -9,9 +9,9 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
-import com.qfree.cs.autopass.service.SpringInjectionTest;
-import com.qfree.cs.autopass.ws.ContractService;
-import com.qfree.cs.autopass.ws.ContractServiceSEI;
+import com.qfree.cs.autopass.ws.ContractWs;
+import com.qfree.cs.autopass.ws.ContractWsSEI;
+import com.qfree.cs.autopass.ws.service.SpringInjectionTest;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -97,8 +97,8 @@ public class RootConfig {
 	}
 
 	@Bean
-	public ContractServiceSEI contractService() {
-		final ContractServiceSEI c = new ContractService();
+	public ContractWsSEI contractWs() {
+		final ContractWsSEI c = new ContractWs();
 		//		c.setDbServer(this.dbServer);
 		return c;
 	}

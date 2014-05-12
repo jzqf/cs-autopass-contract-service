@@ -44,7 +44,7 @@ import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
  * might include, e.g., minOccurs="..." & maxOccurs="..." attributes).
  */
 @SOAPBinding(style = Style.DOCUMENT)
-public interface ContractServiceSEI {
+public interface ContractWsSEI {
 
 	@WebMethod(operationName = "ContractCreateTest", exclude = false)
 	public ContractCreateTestResult contractCreateTest(
@@ -129,7 +129,7 @@ public interface ContractServiceSEI {
 	 * @param invoiceNumber
 	 * @return
 	 */
-	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
+	@WebMethod(operationName = "PaymentMethodGet", exclude = false)
 	public PaymentMethodGetResult paymentMethodGet(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
 			@XmlElement(required = true) @WebParam(name = "Password") String password,
@@ -154,7 +154,7 @@ public interface ContractServiceSEI {
 	 * @param paymentMethodID
 	 * @return
 	 */
-	@WebMethod(operationName = "PaymentMethodUpdate", exclude = true)
+	@WebMethod(operationName = "PaymentMethodUpdate", exclude = false)
 	public PaymentMethodUpdateResult paymentMethodUpdate(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
 			@XmlElement(required = true) @WebParam(name = "Password") String password,

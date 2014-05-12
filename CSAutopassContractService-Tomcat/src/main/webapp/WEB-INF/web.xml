@@ -60,7 +60,7 @@
 		<param-value>
 			com.qfree.cs.autopass.spring.config.RootConfig
 			
-		</param-value>	<!-- com.qfree.cs.autopass.ws.ContractService -->
+		</param-value>	<!-- com.qfree.cs.autopass.ws.ContractWs -->
 	</context-param>
 
 	<!-- The webAppRootKey is a context parameter that exposes the webapp root 
@@ -71,13 +71,17 @@
 		<param-value>contractservice.root</param-value>
 	</context-param>
 
+	<!-- A transport-guarantee of CONFIDENTIAL means that if a web request comes
+		 in on an application server's HTTP Connector (defined in server.xml for
+		 Tomcat), then the request will be redirected to the TCP port specified
+		 by the "redirectPort" attribute for that connector, e.g., "8443".  -->
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>HTTPSOnly</web-resource-name>
 			<url-pattern>/ContractService</url-pattern>
 		</web-resource-collection>
 		<user-data-constraint>
-			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL -->
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>  <!-- CONFIDENTIAL -->
 		</user-data-constraint>
 	</security-constraint>
 	<security-constraint>
