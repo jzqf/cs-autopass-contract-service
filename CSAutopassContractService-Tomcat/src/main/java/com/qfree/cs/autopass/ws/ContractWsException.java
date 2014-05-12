@@ -1,11 +1,11 @@
 package com.qfree.cs.autopass.ws;
 
-public class ContractServiceException extends Exception {
+public class ContractWsException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	private String			errorDetails;
 
-	public ContractServiceException(String reason, String errorDetails) {
+	public ContractWsException(String reason, String errorDetails) {
 		super(reason);
 		this.errorDetails = errorDetails;
 	}

@@ -13,12 +13,12 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.qfree.cs.autopass.ws.db.Database;
 import com.qfree.cs.autopass.ws.domain.ContractCreateResult;
 import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
+import com.qfree.cs.autopass.ws.service.Database;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
@@ -38,10 +38,10 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
 @WebService(
 		serviceName = "ContractService",
 		portName = "ContractServicePort",
-		endpointInterface = "com.qfree.cs.autopass.ws.ContractServiceSEI")
-public class ContractService implements ContractServiceSEI {
+		endpointInterface = "com.qfree.cs.autopass.ws.ContractWsSEI")
+public class ContractWs implements ContractWsSEI {
    
-	private static final Logger logger = LoggerFactory.getLogger(ContractService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractWs.class);
 
 	private static final int DBACCESSPROBLEM_ERRORCODE = 101;
 	private static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig. Prøv senere.";
@@ -64,21 +64,21 @@ public class ContractService implements ContractServiceSEI {
 	static {
 		Properties configProps = new Properties();
 		// In case the try block does not successfully set these static members:
-		ContractService.concurrentCalls_permits = 5;
-		ContractService.concurrentCalls_timeoutsecs = 10;
-		try (InputStream in = ContractService.class.getResourceAsStream("/config.properties")) {
+		ContractWs.concurrentCalls_permits = 5;
+		ContractWs.concurrentCalls_timeoutsecs = 10;
+		try (InputStream in = ContractWs.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
-			ContractService.concurrentCalls_permits = Integer.parseInt(configProps
+			ContractWs.concurrentCalls_permits = Integer.parseInt(configProps
 					.getProperty("db.concurrent-call.maxcalls"));
-			ContractService.concurrentCalls_timeoutsecs = Long.parseLong(configProps
+			ContractWs.concurrentCalls_timeoutsecs = Long.parseLong(configProps
 					.getProperty("db.concurrent-call.waitsecs"));
 		} catch (IOException e) {
 			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
 		}
 		logger.info(
 				"Creating semaphore to control conncurrent calls:\nconcurrentCalls_permits = {}\nconcurrentCalls_timeoutsecs = {}",
-				ContractService.concurrentCalls_permits, ContractService.concurrentCalls_timeoutsecs);
-		ContractService.concurrentCalls_semaphore = new Semaphore(ContractService.concurrentCalls_permits, true);  // to control number of concurrent database connections
+				ContractWs.concurrentCalls_permits, ContractWs.concurrentCalls_timeoutsecs);
+		ContractWs.concurrentCalls_semaphore = new Semaphore(ContractWs.concurrentCalls_permits, true);  // to control number of concurrent database connections
 	}
 
 	@Override

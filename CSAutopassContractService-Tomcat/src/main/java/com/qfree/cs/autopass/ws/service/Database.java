@@ -1,5 +1,5 @@
 
-package com.qfree.cs.autopass.ws.db;
+package com.qfree.cs.autopass.ws.service;
 
 import java.io.IOException;
 import java.io.InputStream;
