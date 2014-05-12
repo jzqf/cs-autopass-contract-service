@@ -101,7 +101,7 @@ public class ContractWs implements ContractWsSEI {
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -155,7 +155,7 @@ public class ContractWs implements ContractWsSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;
@@ -230,7 +230,7 @@ public class ContractWs implements ContractWsSEI {
 		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
 		ContractCreateResult response = new ContractCreateResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -301,7 +301,7 @@ public class ContractWs implements ContractWsSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;
@@ -318,7 +318,7 @@ public class ContractWs implements ContractWsSEI {
 		ContractServiceJdbcRaw db = new ContractServiceJdbcRaw();
 		ServiceTestResult response = new ServiceTestResult();
 
-		logger.debug("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** Before: concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		// Check if permit is available. This mechanism limits the number of
@@ -367,7 +367,7 @@ public class ContractWs implements ContractWsSEI {
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
-		logger.debug("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
+		logger.info("***** After:  concurrentCalls_semaphore.availablePermits() = {}",
 				concurrentCalls_semaphore.availablePermits());
 
 		return response;

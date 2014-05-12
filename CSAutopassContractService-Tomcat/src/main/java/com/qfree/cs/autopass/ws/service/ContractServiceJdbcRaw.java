@@ -44,7 +44,12 @@ public class ContractServiceJdbcRaw {
 			staticAppConfigParams.setConcurrentCalls_timeoutsecs(Long.parseLong(configProps
 					.getProperty("db.concurrent-call.waitsecs")));
 		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties:", e);
+			logger.error("An exception was thrown loading config.properties. Rethrowing...", e);
+			try {
+				throw e;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 		logger.info("Loaded config.properties: {}", staticAppConfigParams);
@@ -592,7 +597,7 @@ public class ContractServiceJdbcRaw {
 						+ "?USER=" + appConfigParams.getDbUsername()
 						+ "&PASSWORD=" + appConfigParams.getDbPassword();
 
-		logger.info("connectionString = {}", connectionString);
+		logger.debug("connectionString = {}", connectionString);
 
 		return connectionString;
 
