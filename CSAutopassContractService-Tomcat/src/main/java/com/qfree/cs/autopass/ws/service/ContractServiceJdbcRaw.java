@@ -20,9 +20,9 @@ import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
-public class Database {
+public class ContractServiceJdbcRaw {
 
-	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);
 
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
@@ -33,7 +33,7 @@ public class Database {
 		Properties configProps = new Properties();
 		staticAppConfigParams = new AppConfigParams();
 
-		try (InputStream in = Database.class.getResourceAsStream("/config.properties")) {
+		try (InputStream in = ContractServiceJdbcRaw.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
 			staticAppConfigParams.setPort(configProps.getProperty("db.port"));
@@ -92,7 +92,7 @@ public class Database {
 	}
 
 	public static void setStaticAppConfigParams(AppConfigParams staticAppConfigParams) {
-		Database.staticAppConfigParams = staticAppConfigParams;
+		ContractServiceJdbcRaw.staticAppConfigParams = staticAppConfigParams;
 	}
 
 	public AppConfigParams getAppConfigParams() {
