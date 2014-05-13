@@ -2,6 +2,7 @@ package com.qfree.cs.autopass.spring.config;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +13,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.qfree.cs.autopass.ws.ContractWs;
 import com.qfree.cs.autopass.ws.ContractWsSEI;
@@ -121,9 +121,19 @@ public class RootConfig {
 		return object;
 	}
 
+	//	@Bean
+	//	public DataSource dataSource() {
+	//		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+	//		dataSource.setDriverClassName(this.jdbcDriverClass);
+	//		dataSource.setUrl(this.jdbcUrl);
+	//		dataSource.setUsername(this.dbUsername);
+	//		dataSource.setPassword(this.dbPassword);
+	//		return dataSource;
+	//	}
+
 	@Bean
 	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		BasicDataSource dataSource = new BasicDataSource();
 		dataSource.setDriverClassName(this.jdbcDriverClass);
 		dataSource.setUrl(this.jdbcUrl);
 		dataSource.setUsername(this.dbUsername);
