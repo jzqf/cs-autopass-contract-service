@@ -108,6 +108,7 @@ public class RootConfig {
 	//        return p;
 	//    }
 
+	// Only used with ContractServiceJdbcRaw:
 	@Bean
 	public AppConfigParams appConfigParams() {
 		final AppConfigParams object = new AppConfigParams();
@@ -142,7 +143,7 @@ public class RootConfig {
 
 	@Bean
 	public ContractService contractService() {
-		//		return new ContractServiceJdbcRaw(this.appConfigParams());
+		//		return new ContractServiceJdbcRaw(this.appConfigParams())	// only for ContractServiceJdbcRaw
 		return new ContractServiceJdbcSpring(
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),

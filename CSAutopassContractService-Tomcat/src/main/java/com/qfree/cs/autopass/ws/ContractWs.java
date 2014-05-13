@@ -19,7 +19,6 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
 import com.qfree.cs.autopass.ws.service.ContractService;
-import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
@@ -86,18 +85,12 @@ public class ContractWs implements ContractWsSEI {
 
 	@Override
 	public ContractService getContractService() {
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			return this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			return new ContractServiceJdbcRaw();
-		}
+		return this.contractService;
 	}
 
 	@Override
 	public void setContractService(ContractService contractService) {
-		this.contractService = contractService;
+		this.contractService = contractService;		// injected by Spring as a singleton
 	}
 
 	@Override
