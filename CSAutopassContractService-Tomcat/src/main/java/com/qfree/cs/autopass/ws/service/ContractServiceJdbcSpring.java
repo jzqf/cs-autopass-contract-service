@@ -1,13 +1,11 @@
 
 package com.qfree.cs.autopass.ws.service;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +35,8 @@ public class ContractServiceJdbcSpring implements ContractService {
 	private SimpleJdbcCall procContractCreateTest;
 	private SimpleJdbcCall procContractCreate;
 	private SimpleJdbcCall procServiceTest;
+	private SimpleJdbcCall procPaymentMethodGet;
+	private SimpleJdbcCall procPaymentMethodUpdate;
 
 	private AppConfigParams appConfigParams;
 
@@ -63,11 +63,15 @@ public class ContractServiceJdbcSpring implements ContractService {
 	public ContractServiceJdbcSpring(
 			SimpleJdbcCall procContractCreateTest,
 			SimpleJdbcCall procContractCreate,
-			SimpleJdbcCall procServiceTest) {
+			SimpleJdbcCall procServiceTest,
+			SimpleJdbcCall procPaymentMethodGet,
+			SimpleJdbcCall procPaymentMethodUpdate) {
 		super();
 		this.procContractCreateTest = procContractCreateTest;
 		this.procContractCreate = procContractCreate;
 		this.procServiceTest = procServiceTest;
+		this.procPaymentMethodGet = procPaymentMethodGet;
+		this.procPaymentMethodUpdate = procPaymentMethodUpdate;
 	}
 
 	/* (non-Javadoc)
@@ -259,68 +263,36 @@ public class ContractServiceJdbcSpring implements ContractService {
 
 		Map result = new HashMap();
 
-		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		// In case an exception is thrown and we do not get so far below to set 
+		// the result error code.
+		result.put("ErrorCode", -1);
+		result.put("ErrorMessage", "");
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+		MapSqlParameterSource in = new MapSqlParameterSource()
+				.addValue("ip_Username", username)
+				.addValue("ip_Password", password)
+				.addValue("ip_ClientNumber", (clientNumber >= 0) ? clientNumber : null)
+				.addValue("ip_AccountNumber", (accountNumber >= 0) ? accountNumber : null)
+				.addValue("ip_SystemActorID", (systemActorID >= 0) ? systemActorID : null)
+				.addValue("ip_InvoiceNumber", invoiceNumber);
 
-			logger.info("creating stateent to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username,
-					password);
-			try (CallableStatement cs = dbConnection
-					.prepareCall("{call qp_WSC_PaymentMethodGet(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
+		// I add entries for the output parameters in the input parameter
+		// map. It works without this, but warnings are logged that these
+		// parameters do not appear in the input parameter map.
+		in.addValue("op_PaymentMethodID", null).addValue("op_PaymentMethod", null)
+				.addValue("op_ErrorMessage", null).addValue("op_ErrorMessage", null);
 
-				cs.setString("@ip_Username", username);
-				cs.setString("@ip_Password", password);
+		logger.debug("Calling procPaymentMethodGet with input parameters:\n{}", in.getValues());
+		Map out = procPaymentMethodGet.execute(in);	// run stored procedure
+		logger.debug("Stored procedure output : {}", out);
 
-				if (clientNumber >= 0) {
-					cs.setInt("@ip_ClientNumber", clientNumber);
-				}
-				else {
-					cs.setNull("@ip_ClientNumber", Types.NUMERIC);
-				}
+		result.put("PaymentMethodID", out.get("op_PaymentMethodID"));
+		result.put("PaymentMethod", out.get("op_PaymentMethod"));
+		result.put("ErrorCode", out.get("op_ErrorCode"));
+		result.put("ErrorMessage", out.get("op_ErrorMessage"));
 
-				if (accountNumber >= 0) {
-					cs.setInt("@ip_AccountNumber", accountNumber);
-				}
-				else {
-					cs.setNull("@ip_AccountNumber", Types.NUMERIC);
-				}
-				cs.setString("@ip_InvoiceNumber", invoiceNumber);
+		return result;
 
-				if (systemActorID >= 0) {
-					cs.setInt("@ip_SystemActorID", systemActorID);
-				}
-				else {
-					cs.setNull("@ip_SystemActorID", Types.NUMERIC);
-				}
-
-				cs.registerOutParameter("@op_PaymentMethodID", Types.TINYINT);
-				cs.registerOutParameter("@op_PaymentMethod", Types.VARCHAR, 50);
-				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-
-				cs.execute();
-
-				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-				result.put("PaymentMethod", cs.getString("@op_PaymentMethod"));
-				result.put("PaymentMethodID", cs.getInt("@op_PaymentMethodID"));
-
-			} catch (SQLException e) {
-				logger.error(
-						"An exception was thrown preparing, executing or processing results from qp_WSC_PaymentMethodGet. Rethrowing",
-						e);
-				throw e;
-            }
-        
-		} catch (SQLException e) {
-			logger.error(
-					"An exception was creating or using the conection for qp_WSC_PaymentMethodGet. Rethrowing...", e);
-			throw e;
-		}
-
-        return result;
 	}
 
 	/* (non-Javadoc)
@@ -338,72 +310,33 @@ public class ContractServiceJdbcSpring implements ContractService {
 
 		Map result = new HashMap();
 
-		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		// In case an exception is thrown and we do not get so far below to set 
+		// the result error code.
+		result.put("ErrorCode", -1);
+		result.put("ErrorMessage", "");
 
-			logger.debug("Changing to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+		MapSqlParameterSource in = new MapSqlParameterSource()
+				.addValue("ip_ClientNumber", (clientNumber >= 0) ? clientNumber : null)
+				.addValue("ip_AccountNumber", (accountNumber >= 0) ? accountNumber : null)
+				.addValue("ip_SystemActorID", (systemActorID >= 0) ? systemActorID : null)
+				.addValue("ip_PaymentMethodID", (paymentMethodID >= 0) ? paymentMethodID : null)
+				.addValue("ip_Username", username)
+				.addValue("ip_Password", password)
+				.addValue("ip_InvoiceNumber", invoiceNumber);
 
-			logger.info("Creating statement to execute qp_WSC_PaymentMethodUpdate: username[{}] password[{}]",
-					username,
-					password);
-			try (CallableStatement cs = dbConnection
-					.prepareCall("{ call qp_WSC_PaymentMethodUpdate }, ?, ?, ?, ?, ?, ?, ?, ?, ?")) {
-            
-			if (clientNumber >= 0) {
-				cs.setInt("@ip_ClientNumber", clientNumber);
-            }
-            else {
-                cs.setNull("@ip_ClientNumber", Types.NUMERIC);
-            }
-            
-			if (accountNumber >= 0) {
-				cs.setInt("@ip_AccountNumber", accountNumber);
-            }
-            else {
-                cs.setNull("@ip_AccountNumber", Types.NUMERIC);
-            }
-            
-			if (systemActorID >= 0) {
-				cs.setInt("@ip_SystemActorID", systemActorID);
-            }
-            else {
-                cs.setNull("@ip_SystemActorID", Types.NUMERIC);
-            }
-            
-			if (paymentMethodID >= 0) {
-				cs.setInt("@ip_PaymentMethodID", paymentMethodID);
-			}
-			else {
-				cs.setNull("@ip_PaymentMethodID", Types.TINYINT);
-			}
+		// I add entries for the output parameters in the input parameter
+		// map. It works without this, but warnings are logged that these
+		// parameters do not appear in the input parameter map.
+		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
-			cs.setString("@ip_Username", username);
-			cs.setString("@ip_Password", password);
-			cs.setString("@ip_InvoiceNumber", invoiceNumber);
+		logger.debug("Calling procPaymentMethodUpdate with input parameters:\n{}", in.getValues());
+		Map out = procPaymentMethodUpdate.execute(in);	// run stored procedure
+		logger.debug("Stored procedure output : {}", out);
 
-            cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-            cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-            
-            cs.execute();
-            
-            result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-			result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
+		result.put("ErrorCode", out.get("op_ErrorCode"));
+		result.put("ErrorMessage", out.get("op_ErrorMessage"));
 
-			} catch (SQLException e) {
-				logger.error(
-						"An exception was thrown preparing, executing or processing results from qp_WSC_PaymentMethodUpdate. Rethrowing",
-						e);
-				throw e;
-        }
-        
-		} catch (SQLException e) {
-			logger.error(
-					"An exception was creating or using the conection for qp_WSC_PaymentMethodUpdate. Rethrowing...", e);
-			throw e;
-		}
-
-        return result;
+		return result;
 	}
 
 	private String getConnectionString() {

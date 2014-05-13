@@ -146,7 +146,9 @@ public class RootConfig {
 		return new ContractServiceJdbcSpring(
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"));
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodGet"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodUpdate"));
 	}
 
 	@Bean
