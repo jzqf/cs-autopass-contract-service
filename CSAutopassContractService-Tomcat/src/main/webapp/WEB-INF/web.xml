@@ -2,6 +2,8 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
 	<display-name>CSAutopassContractService-Tomcat</display-name>
 
+	<!-- Not Spring: 
+	-->
 	<!-- <listener>
 		<listener-class>
 			com.sun.xml.ws.transport.http.servlet.WSServletContextListener
@@ -14,7 +16,9 @@
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet> -->
-	
+
+	<!-- Spring: 
+	-->	
 	<servlet>
 		<servlet-name>ContractService</servlet-name>
 		<servlet-class>
@@ -22,18 +26,6 @@
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-  
-	<servlet-mapping>
-		<servlet-name>ContractService</servlet-name>
-		<url-pattern>/ContractService</url-pattern>
-	</servlet-mapping>
-	
-	<session-config>
-		<session-timeout>30</session-timeout>
-	</session-config>
-
-	<!-- Add Support for Spring: 
-	-->
 	<!-- This is the bootstrap listener to start up and shut down Spring's root 
 		 WebApplicationContext. It creates the Spring container shared by all 
 		 servlets and filters. -->
@@ -59,9 +51,20 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			com.qfree.cs.autopass.spring.config.RootConfig
-			
-		</param-value>	<!-- com.qfree.cs.autopass.ws.ContractWs -->
+		</param-value>
 	</context-param>
+
+
+	<!-- The rest of this file is independent of whether Spring is used or not -->
+  
+	<servlet-mapping>
+		<servlet-name>ContractService</servlet-name>
+		<url-pattern>/ContractService</url-pattern>
+	</servlet-mapping>
+	
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
 
 	<!-- The webAppRootKey is a context parameter that exposes the webapp root 
 		 as a system property that can be used elsewhere. It will have a value 

@@ -11,7 +11,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import com.qfree.cs.autopass.ws.ContractWs;
 import com.qfree.cs.autopass.ws.ContractWsSEI;
-import com.qfree.cs.autopass.ws.service.SpringInjectionTest;
+import com.qfree.cs.autopass.ws.config.AppConfigParams;
+import com.qfree.cs.autopass.ws.service.ContractService;
+import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -32,6 +34,9 @@ public class RootConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
 
+	// Load application configuration parameters so they can be injected into
+	// beans below where necessary.
+
 	@Value("${db.server}")
 	private String dbServer;
 
@@ -43,6 +48,12 @@ public class RootConfig {
 
 	@Value("${db.password}")
 	private String dbPassword;
+
+	@Value("${db.concurrent-call.maxcalls}")
+	private int dbConcurrentCallsMaxCalls;
+
+	@Value("${db.concurrent-call.waitsecs}")
+	private long dbConcurrentCallsWaitSecs;
 
     /**
      * This bean must be declared if any beans associated with this Spring
@@ -87,20 +98,27 @@ public class RootConfig {
 	//    }
 
 	@Bean
-	public SpringInjectionTest springInjectionTest() {
-		final SpringInjectionTest s = new SpringInjectionTest();
+	public AppConfigParams appConfigParams() {
+		final AppConfigParams object = new AppConfigParams();
+		object.setServer(this.dbServer);
+		object.setPort(this.dbPort);
+		object.setDbUsername(this.dbUsername);
+		object.setDbPassword(this.dbPassword);
+		object.setConcurrentCalls_permits(this.dbConcurrentCallsMaxCalls);
+		object.setConcurrentCalls_timeoutsecs(this.dbConcurrentCallsWaitSecs);
+		return object;
+	}
 
-		logger.info("this.dbServer = {}", this.dbServer);	// this works
-
-		s.setDbServer(this.dbServer);
-		return s;
+	@Bean
+	public ContractService contractService() {
+		return new ContractServiceJdbcRaw(this.appConfigParams());
 	}
 
 	@Bean
 	public ContractWsSEI contractWs() {
-		final ContractWsSEI c = new ContractWs();
-		//		c.setDbServer(this.dbServer);
-		return c;
+		final ContractWsSEI object = new ContractWs();
+		object.setContractService(this.contractService());
+		return object;
 	}
 
 }
