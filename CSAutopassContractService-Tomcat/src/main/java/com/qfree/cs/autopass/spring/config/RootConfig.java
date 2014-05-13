@@ -1,5 +1,7 @@
 package com.qfree.cs.autopass.spring.config;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,12 +10,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.qfree.cs.autopass.ws.ContractWs;
 import com.qfree.cs.autopass.ws.ContractWsSEI;
 import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.service.ContractService;
-import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
+import com.qfree.cs.autopass.ws.service.ContractServiceJdbcSpring;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -48,6 +53,12 @@ public class RootConfig {
 
 	@Value("${db.password}")
 	private String dbPassword;
+
+	@Value("${db.jdbc.driverclass}")
+	private String jdbcDriverClass;
+
+	@Value("${db.jdbc.url}")
+	private String jdbcUrl;
 
 	@Value("${db.concurrent-call.maxcalls}")
 	private int dbConcurrentCallsMaxCalls;
@@ -110,8 +121,32 @@ public class RootConfig {
 	}
 
 	@Bean
+	public DataSource dataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		dataSource.setDriverClassName(this.jdbcDriverClass);
+		dataSource.setUrl(this.jdbcUrl);
+		dataSource.setUsername(this.dbUsername);
+		dataSource.setPassword(this.dbPassword);
+		return dataSource;
+	}
+
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(this.dataSource());
+	}
+
+	//	@Bean
+	//	public SimpleJdbcCall procContractCreateTest() {
+	//		return new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest");
+	//	}
+
+	@Bean
 	public ContractService contractService() {
-		return new ContractServiceJdbcRaw(this.appConfigParams());
+		//		return new ContractServiceJdbcRaw(this.appConfigParams());
+		return new ContractServiceJdbcSpring(
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"));
 	}
 
 	@Bean

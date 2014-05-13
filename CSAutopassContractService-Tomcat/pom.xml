@@ -105,6 +105,17 @@
 				 </exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
 		<!-- spring-core and spring-beans are dependences of spring-context, so 
 			 it should not be necessary to explicitly specify them here.  However,
 			 the jax-spring artifact (specified above) depends transitively on:
@@ -167,7 +178,14 @@
 				 </exclusion>
 			</exclusions>
 		</dependency>
-				
+
+		<!-- @Inject --> 
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+            
 		<!-- AspectJ -->
 		<!-- <dependency>
 			<groupId>org.aspectj</groupId>

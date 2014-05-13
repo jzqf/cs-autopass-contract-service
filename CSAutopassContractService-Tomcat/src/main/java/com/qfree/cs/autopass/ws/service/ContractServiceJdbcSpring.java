@@ -1,98 +1,42 @@
 
 package com.qfree.cs.autopass.ws.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
 import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
-public class ContractServiceJdbcRaw implements ContractService {
+public class ContractServiceJdbcSpring implements ContractService {
 
-	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcSpring.class);
 
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
-	/**
-	 * Can be eliminated if we specialize this application such that it can only
-	 * run in a Spring container. For the time being, it will be best to retain
-	 * this member to keep all options available,
-	 */
-	private static volatile AppConfigParams staticAppConfigParams;
+	@Inject
+	private JdbcTemplate jdbcTemplate;
 
-	// Initialize staticAppConfigParams.
-	static {
-		Properties configProps = new Properties();
-		staticAppConfigParams = new AppConfigParams();
-		try (InputStream in = ContractServiceJdbcRaw.class.getResourceAsStream("/config.properties")) {
-			configProps.load(in);
-			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
-			staticAppConfigParams.setPort(configProps.getProperty("db.port"));
-			staticAppConfigParams.setDbUsername(configProps.getProperty("db.username"));
-			staticAppConfigParams.setDbPassword(configProps.getProperty("db.password"));
-			staticAppConfigParams.setConcurrentCalls_permits(Integer.parseInt(configProps
-					.getProperty("db.concurrent-call.maxcalls")));
-			staticAppConfigParams.setConcurrentCalls_timeoutsecs(Long.parseLong(configProps
-					.getProperty("db.concurrent-call.waitsecs")));
-		} catch (IOException e) {
-			logger.error("An exception was thrown loading config.properties. Rethrowing...", e);
-			try {
-				throw e;
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		}
-		logger.info("Loaded config.properties: {}", staticAppConfigParams);
-	}
-
-	// This static initialization block ensures that the JDBC driver is loaded 
-	// and registered only once.
-	static {
-		try {
-
-			logger.info("Loading jConnect JDBC driver so it can be registered.");
-			final SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
-
-			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
-			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);	// probably not necessary
-
-			logger.info("Registering jConnect JDBC driver.");
-			DriverManager.registerDriver(sybDriver);
-
-			// Test to check how Java exceptions are logged:
-			/*try {
-				String s = null;
-				if (s.equals("anything")) {			
-				}
-			} 
-			catch(Exception e) {      
-				logger.error("An exception was thrown on purpose (s is null):", e);
-			}*/
-
-		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
-			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
-			try {
-				throw e;
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-
-	}
+	private SimpleJdbcCall procContractCreateTest;
+	private SimpleJdbcCall procContractCreate;
+	private SimpleJdbcCall procServiceTest;
 
 	private AppConfigParams appConfigParams;
 
@@ -101,7 +45,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * container and we need to create a ContractServiceJdbcRaw object 
 	 * explicitly there.
 	 */
-	public ContractServiceJdbcRaw() {
+	public ContractServiceJdbcSpring() {
 		super();
 	}
 
@@ -111,32 +55,26 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * 
 	 * @param appConfigParams
 	 */
-	public ContractServiceJdbcRaw(AppConfigParams appConfigParams) {
+	public ContractServiceJdbcSpring(AppConfigParams appConfigParams) {
 		super();
 		this.appConfigParams = appConfigParams;
 	}
-
-	public static AppConfigParams getStaticAppConfigParams() {
-		return staticAppConfigParams;
-	}
-
-	public static void setStaticAppConfigParams(AppConfigParams staticAppConfigParams) {
-		ContractServiceJdbcRaw.staticAppConfigParams = staticAppConfigParams;
+	
+	public ContractServiceJdbcSpring(
+			SimpleJdbcCall procContractCreateTest,
+			SimpleJdbcCall procContractCreate,
+			SimpleJdbcCall procServiceTest) {
+		super();
+		this.procContractCreateTest = procContractCreateTest;
+		this.procContractCreate = procContractCreate;
+		this.procServiceTest = procServiceTest;
 	}
 
 	/* (non-Javadoc)
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
 	 */
 	private AppConfigParams getAppConfigParams() {
-		if (appConfigParams != null) {
-			// We are running in a Spring container.
-			logger.debug("Using this.appConfigParams injected by Spring.");
-			return this.appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
-		} else {
-			// We are *not* running in a Spring container.
-			logger.debug("Returning static field staticAppConfigParams");
-			return staticAppConfigParams;	// defined in a static initialization block above.
-		}
+		return this.appConfigParams;	// will be injected by Spring
 	}
 
 	/* (non-Javadoc)
@@ -164,57 +102,24 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		MapSqlParameterSource in = new MapSqlParameterSource()
+				.addValue("ip_Username", username)
+				.addValue("ip_Password", password)
+				.addValue("ip_OBUID", obuID)
+				.addValue("ip_LicencePlate", licencePlate)
+				.addValue("ip_LicencePlateCountryID", (licencePlateCountryID >= 0) ? licencePlateCountryID : null);
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+		// I add entries for the output parameters in the input parameter
+		// map. It works without this, but warnings are logged that these
+		// parameters do not appear in the input parameter map.
+		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			// Any ResultSet objects opened for the statement will also be closed by this try block.
-			try (CallableStatement cs = dbConnection
-					.prepareCall("{call qp_WSC_ContractCreateTest(?, ?, ?, ?, ?, ?, ?)}")) {
+		logger.debug("Calling qp_WSC_ContractCreateTest with input parameters:\n{}", in.getValues());
+		Map out = procContractCreateTest.execute(in);	// run stored procedure
+		logger.debug("Stored procedure output : {}", out);
 
-				logger.info("Attempting to execute qp_WSC_ContractCreateTest: with input parameters:\n" +
-						" @ip_Username = {}\n" +
-						" @ip_Password = {}\n" +
-						" @ip_OBUID = {}\n" +
-						" @ip_LicencePlate = {}\n" +
-						" @ip_LicencePlateCountryID = {}",
-						new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
-
-				cs.setString("@ip_Username", username);
-				cs.setString("@ip_Password", password);
-				cs.setString("@ip_OBUID", obuID);
-				cs.setString("@ip_LicencePlate", licencePlate);
-				if (licencePlateCountryID >= 0) {
-					cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
-				}
-				else {
-					cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
-				}
-				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-
-				logger.debug("Executing stored procedure qp_WSC_ContractCreateTest on server...");
-				cs.execute();
-				logger.debug("...Done. No exception thrown.");
-
-				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-
-			} catch (SQLException e) {
-				logger.error(
-						"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreateTest. Rethrowing...",
-						e);
-				throw e;
-			}
-
-		} catch (SQLException e) {
-			logger.error(
-					"An exception was creating or using the conection for qp_WSC_ContractCreateTest. Rethrowing...", e);
-			throw e;
-		}
+		result.put("ErrorCode", out.get("op_ErrorCode"));
+		result.put("ErrorMessage", out.get("op_ErrorMessage"));
 
 		return result;
 	}
@@ -252,145 +157,60 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
-
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
-
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			// Any ResultSet objects opened for the statement will also be closed by this try block.
-			try (CallableStatement cs = dbConnection
-					.prepareCall(
-					"{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
-
-				logger.info("Attempting to execute qp_WSC_ContractCreate: with input parameters:\n" +
-						" @ip_Username = {}\n" +
-						" @ip_Password = {}\n" +
-						" @ip_ClientTypeID = {}\n" +
-						" @ip_FirstName = {}\n" +
-						" @ip_LastName = {}\n" +
-						" @ip_BirthDate = {}\n" +
-						" @ip_Company = {}\n" +
-						" @ip_CompanyNumber = {}\n" +
-						" @ip_Address1 = {}\n" +
-						" @ip_Address2 = {}\n" +
-						" @ip_PostCode = {}\n" +
-						" @ip_PostOffice = {}\n" +
-						" @ip_CountryID = {}\n" +
-						" @ip_EMail = {}\n" +
-						" @ip_Phone = {}\n" +
-						" @ip_ValidFrom = {}\n" +
-						" @ip_OBUID = {}\n" +
-						" @ip_VehicleClassID tinyint = {}\n" +
-						" @ip_LicencePlate = {}\n" +
-						" @ip_LicencePlateCountryID = {}",
-						new Object[] {
-								username,
-								password,
-								new Integer(clientTypeID),
-								firstName,
-								lastName,
-								birthDate,
-								company,
-								companyNumber,
-								address1,
-								address2,
-								postCode,
-								postOffice,
-								new Integer(countryID),
-								eMail,
-								phone,
-								validFrom,
-								obuID,
-								new Integer(vehicleClassID),
-								licencePlate,
-								new Integer(licencePlateCountryID) });
-
-				cs.setString("@ip_Username", username);
-				cs.setString("@ip_Password", password);
-				if (clientTypeID >= 0) {
-					cs.setInt("@ip_ClientTypeID", clientTypeID);
-				}
-				else {
-					cs.setNull("@ip_ClientTypeID", Types.NUMERIC);
-				}
-				cs.setString("@ip_FirstName", firstName);
-				cs.setString("@ip_LastName", lastName);
-				try {
-					cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd"));
-				} catch (ParseException e) {
-					result.put("ErrorCode", VALIDATION_ERRORCODE);
-					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
-					return result;
-				}
-				//cs.setString("@ip_BirthDate", birthDate);
-				cs.setString("@ip_Company", company);
-				cs.setString("@ip_CompanyNumber", companyNumber);
-				cs.setString("@ip_Address1", address1);
-				cs.setString("@ip_Address2", address2);
-				cs.setString("@ip_PostCode", postCode);
-				cs.setString("@ip_PostOffice", postOffice);
-				if (countryID >= 0) {
-					cs.setInt("@ip_CountryID", countryID);
-				}
-				else {
-					cs.setNull("@ip_CountryID", Types.NUMERIC);
-				}
-				cs.setString("@ip_EMail", eMail);
-				cs.setString("@ip_Phone", phone);
-
-				// This supports multiple datetime formats. The does not seem to be any simple
-				// way to implement this with a single format.
-				try {
-					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd"));
-				} catch (ParseException e) {
-					result.put("ErrorCode", VALIDATION_ERRORCODE);
-					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
-					return result;
-				}
-				//cs.setString("@ip_ValidFrom", validFrom);
-
-				cs.setString("@ip_OBUID", obuID);
-				if (vehicleClassID >= 0) {
-					cs.setInt("@ip_VehicleClassID", vehicleClassID);
-				}
-				else {
-					cs.setNull("@ip_VehicleClassID", Types.NUMERIC);
-				}
-				cs.setString("@ip_LicencePlate", licencePlate);
-				if (licencePlateCountryID >= 0) {
-					cs.setInt("@ip_LicencePlateCountryID", licencePlateCountryID);
-				}
-				else {
-					cs.setNull("@ip_LicencePlateCountryID", Types.NUMERIC);
-				}
-
-				cs.registerOutParameter("@op_ClientNumber", Types.NUMERIC);		// @op_ClientNumber has Sybase type numeric(12)
-				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-
-				logger.debug("Executing stored procedure qp_WSC_ContractCreate on server...");
-				cs.execute();
-				logger.debug("...Done. No exception thrown.");
-
-				result.put("ClientNumber", Long.toString(cs.getLong("@op_ClientNumber")));		// @op_ClientNumber has Sybase type numeric(12)
-				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-
-			} catch (SQLException e) {
-				logger.error(
-						"An exception was thrown preparing, executing or processing results from qp_WSC_ContractCreate. Rethrowing...",
-						e);
-				throw e;
-			}
-
-		} catch (SQLException e) {
-			logger.error(
-					"An exception was creating or using the conection for qp_WSC_ContractCreate. Rethrowing...", e);
-			throw e;
+		Date sqlBirthDate;
+		try {
+			sqlBirthDate = WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd");
+		} catch (ParseException e) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+			return result;
 		}
 
+		Timestamp sqlValidFrom;
+		try {
+			sqlValidFrom = WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd");
+		} catch (ParseException e) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+			return result;
+		}
+
+		MapSqlParameterSource in = new MapSqlParameterSource()
+				.addValue("ip_Username", username)
+				.addValue("ip_Password", password)
+				.addValue("ip_ClientTypeID", (clientTypeID >= 0) ? clientTypeID : null)
+				.addValue("ip_FirstName", firstName)
+				.addValue("ip_LastName", lastName)
+				.addValue("ip_BirthDate", sqlBirthDate)
+				.addValue("ip_Company", company)
+				.addValue("ip_CompanyNumber", companyNumber)
+				.addValue("ip_Address1", address1)
+				.addValue("ip_Address2", address2)
+				.addValue("ip_PostCode", postCode)
+				.addValue("ip_PostOffice", postOffice)
+				.addValue("ip_CountryID", (countryID >= 0) ? countryID : null)
+				.addValue("ip_EMail", eMail)
+				.addValue("ip_Phone", phone)
+				.addValue("ip_ValidFrom", sqlValidFrom)
+				.addValue("ip_OBUID", obuID)
+				.addValue("ip_VehicleClassID", (vehicleClassID >= 0) ? vehicleClassID : null)
+				.addValue("ip_LicencePlate", licencePlate)
+				.addValue("ip_LicencePlateCountryID", (licencePlateCountryID >= 0) ? licencePlateCountryID : null);
+
+		// I add entries for the output parameters in the input parameter
+		// map. It works without this, but warnings are logged that these
+		// parameters do not appear in the input parameter map.
+		in.addValue("op_ClientNumber", null).addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
+
+		logger.debug("Calling qp_WSC_ContractCreate with input parameters:\n{}", in.getValues());
+		Map out = procContractCreate.execute(in);	// run stored procedure
+		logger.debug("Stored procedure output : {}", out);
+
+		//		result.put("ClientNumber", Long.toString(out.get("op_ClientNumber")));
+		result.put("ClientNumber", out.get("op_ClientNumber"));		// @op_ClientNumber has Sybase type numeric(12)
+		result.put("ErrorCode", out.get("op_ErrorCode"));
+		result.put("ErrorMessage", out.get("op_ErrorMessage"));
+		
 		return result;
 	}
 
@@ -406,46 +226,21 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		MapSqlParameterSource in = new MapSqlParameterSource()
+				.addValue("ip_Username", username)
+				.addValue("ip_Password", password);
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+		// I add entries for the output parameters in the input parameter
+		// map. It works without this, but warnings are logged that these
+		// parameters do not appear in the input parameter map.
+		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
-			// Here, we need one "?" for each input AND output parameter of the stored procedure.
-			// Any ResultSet objects opened for the statement will also be closed by this try block.
-			try (CallableStatement cs = dbConnection.prepareCall("{call qp_WSC_ServiceTest(?, ?, ?, ?,)}");) {
+		logger.debug("Calling qp_WSC_ServiceTest with input parameters:\n{}", in.getValues());
+		Map out = procServiceTest.execute(in);	// run stored procedure
+		logger.debug("Stored procedure output : {}", out);
 
-				logger.info("Attempting to execute qp_WSC_ServiceTest: with input parameters:\n" +
-						" @ip_Username = {}\n" +
-						" @ip_Password = {}",
-						new Object[] { username, password });
-
-				cs.setString("@ip_Username", username);
-				cs.setString("@ip_Password", password);
-
-				cs.registerOutParameter("@op_ErrorCode", Types.INTEGER);
-				cs.registerOutParameter("@op_ErrorMessage", Types.VARCHAR, 255);
-
-				logger.debug("Executing stored procedure qp_WSC_ServiceTest on server...");
-				cs.execute();
-				logger.debug("...Done. No exception thrown.");
-
-				result.put("ErrorCode", cs.getInt("@op_ErrorCode"));
-				result.put("ErrorMessage", cs.getString("@op_ErrorMessage"));
-
-			} catch (SQLException e) {
-				logger.error(
-						"An exception was thrown preparing, executing or processing results from qp_WSC_ServiceTest. Rethrowing",
-						e);
-				throw e;
-			}
-
-		} catch (SQLException e) {
-			logger.error(
-					"An exception was creating or using the conection for qp_WSC_ServiceTest. Rethrowing...", e);
-			throw e;
-		}
+		result.put("ErrorCode", out.get("op_ErrorCode"));
+		result.put("ErrorMessage", out.get("op_ErrorMessage"));
 
 		return result;
 	}
