@@ -40,8 +40,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 		staticAppConfigParams = new AppConfigParams();
 		try (InputStream in = ContractServiceJdbcRaw.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
-			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
-			staticAppConfigParams.setPort(configProps.getProperty("db.port"));
+			staticAppConfigParams.setJdbcDriverClass(configProps.getProperty("db.jdbc.driverclass"));
+			staticAppConfigParams.setJdbcUrl(configProps.getProperty("db.jdbc.url"));
 			staticAppConfigParams.setDbUsername(configProps.getProperty("db.username"));
 			staticAppConfigParams.setDbPassword(configProps.getProperty("db.password"));
 			staticAppConfigParams.setConcurrentCalls_permits(Integer.parseInt(configProps
@@ -151,6 +151,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
+		AppConfigParams appConfigParams = getAppConfigParams();
+
 		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
@@ -159,10 +161,12 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorMessage", "");
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(
+				appConfigParams.getJdbcUrl(), appConfigParams.getDbUsername(), appConfigParams.getDbPassword())) {
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.debug("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			// Here, we need one "?" for each input AND output parameter of the stored procedure.
 			// Any ResultSet objects opened for the statement will also be closed by this try block.
@@ -239,6 +243,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
+		AppConfigParams appConfigParams = getAppConfigParams();
+
 		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
@@ -247,10 +253,12 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorMessage", "");
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(
+				appConfigParams.getJdbcUrl(), appConfigParams.getDbUsername(), appConfigParams.getDbPassword())) {
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.debug("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			// Here, we need one "?" for each input AND output parameter of the stored procedure.
 			// Any ResultSet objects opened for the statement will also be closed by this try block.
@@ -394,6 +402,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 	@Override
 	public Map<String, Object> ServiceTest(String username, String password) throws SQLException {
 
+		AppConfigParams appConfigParams = getAppConfigParams();
+
 		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
@@ -402,10 +412,12 @@ public class ContractServiceJdbcRaw implements ContractService {
 		result.put("ErrorMessage", "");
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(
+				appConfigParams.getJdbcUrl(), appConfigParams.getDbUsername(), appConfigParams.getDbPassword())) {
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.debug("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			// Here, we need one "?" for each input AND output parameter of the stored procedure.
 			// Any ResultSet objects opened for the statement will also be closed by this try block.
@@ -457,13 +469,17 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String username,
 			String password) throws SQLException {
 
+		AppConfigParams appConfigParams = getAppConfigParams();
+
 		Map<String, Object> result = new HashMap<>();
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(
+				appConfigParams.getJdbcUrl(), appConfigParams.getDbUsername(), appConfigParams.getDbPassword())) {
 
-			logger.debug("Setting catalog to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.debug("Setting catalog to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("creating stateent to execute qp_WSC_PaymentMethodGet: username[{}] password[{}]", username,
 					password);
@@ -536,13 +552,17 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String username,
 			String password) throws SQLException {
 
+		AppConfigParams appConfigParams = getAppConfigParams();
+
 		Map<String, Object> result = new HashMap<>();
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
-		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		//		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
+		try (Connection dbConnection = java.sql.DriverManager.getConnection(
+				appConfigParams.getJdbcUrl(), appConfigParams.getDbUsername(), appConfigParams.getDbPassword())) {
 
-			logger.debug("Changing to ServerCommon");
-			dbConnection.setCatalog("ServerCommon");
+			//			logger.debug("Changing to ServerCommon");
+			//			dbConnection.setCatalog("ServerCommon");
 
 			logger.info("Creating statement to execute qp_WSC_PaymentMethodUpdate: username[{}] password[{}]",
 					username,
@@ -606,126 +626,98 @@ public class ContractServiceJdbcRaw implements ContractService {
         return result;
 	}
 
-	private String getConnectionString() {
+//	private String getConnectionString() {
+//
+//		logger.debug("Executing getAppConfigParams() to get the application configuration parameters.");
+//		AppConfigParams appConfigParams = getAppConfigParams();
+//
+//		logger.debug("appConfigParams: {}", appConfigParams);
+//
+//		String connectionString =
+//				"jdbc:sybase:Tds:" + appConfigParams.getServer() + ":" + appConfigParams.getPort()
+//						+ "?USER=" + appConfigParams.getDbUsername()
+//						+ "&PASSWORD=" + appConfigParams.getDbPassword();
+//
+//		logger.debug("connectionString = {}", connectionString);
+//
+//		return connectionString;
+//
+//	}
 
-		logger.debug("Executing getAppConfigParams() to get the application configuration parameters.");
-		AppConfigParams appConfigParams = getAppConfigParams();
+//	/**
+//	 * This method is not currently used because I have inlined this code, but I
+//	 * will keep this method for now in case it is useful in the future.
+//	 * 
+//	 * @param connectionString
+//	 * @return
+//	 * @throws SQLException
+//	 */
+//	private Connection getConnection(String connectionString) throws SQLException {
+//
+//		Connection dbConnection = null;
+//
+//		try {
+//			logger.info("Establishing a database connection for connection string: {}.", connectionString);
+//			// Instead of including the user name and password in the connection
+//			// string, as we do here, it is also possible to pass a second
+//			// parameter that is a Properties object that contains those 
+//			// details, and possibly additional details such as "proxy".  See
+//			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
+//			//details.
+//			dbConnection = java.sql.DriverManager.getConnection(connectionString);
+//		} catch (SQLException e) {
+//			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
+//			throw e;
+//		}
+//
+//		return dbConnection;
+//	}
 
-		logger.debug("appConfigParams: {}", appConfigParams);
+//	/**
+//	 * Not used - this is from Roy's old code.
+//	 * 
+//	 * @throws IllegalAccessException
+//	 * @throws InstantiationException
+//	 * @throws ClassNotFoundException
+//	 * @throws SQLException
+//	 */
+//	private void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
+//			SQLException {
+//		try {
+//
+//			logger.info("Loading jConnect JDBC driver so it can be registered.");
+//
+//			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
+//			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
+//
+//			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
+//			logger.info("Registering jConnect JDBC driver.");
+//
+//			DriverManager.registerDriver(sybDriver);
+//
+//		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
+//			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
+//			throw e;
+//		}
+//	}
 
-		//		Properties configProps = new Properties();
-		//
-		//		String server = null;
-		//		String port = null;
-		//		String dbUsername = null;
-		//		String dbPassword = null;
-		//
-		//		try (InputStream in = this.getClass().getResourceAsStream("/config.properties")) {
-		//			configProps.load(in);
-		//			server = configProps.getProperty("db.server");
-		//			port = configProps.getProperty("db.port");
-		//			dbUsername = configProps.getProperty("db.username");
-		//			dbPassword = configProps.getProperty("db.password");
-		//		} catch (IOException e) {
-		//			logger.error("An exception was thrown loading config.properties:", e);
-		//		}
-		//
-		//		//		server = "csnt02.csautopass.no";
-		//		//		port = "5000";
-		//		//		usernameDB = "adam";
-		//		//		passwordDB = "qfreet02";
-		//
-		//		logger.info("Loaded config.properties:\n server = {}\n port = {}\n dbUsername = {}\n dbPassword = {}",
-		//				new Object[] { server, port, dbUsername, dbPassword });
-		//
-		//		String connectionString = "jdbc:sybase:Tds:" + server + ":" + port + "?USER=" + dbUsername + "&PASSWORD="
-		//				+ dbPassword;
-
-		String connectionString =
-				"jdbc:sybase:Tds:" + appConfigParams.getServer() + ":" + appConfigParams.getPort()
-						+ "?USER=" + appConfigParams.getDbUsername()
-						+ "&PASSWORD=" + appConfigParams.getDbPassword();
-
-		logger.debug("connectionString = {}", connectionString);
-
-		return connectionString;
-
-	}
-
-	/**
-	 * This method is not currently used because I have inlined this code, but I
-	 * will keep this method for now in case it is useful in the future.
-	 * 
-	 * @param connectionString
-	 * @return
-	 * @throws SQLException
-	 */
-	private Connection getConnection(String connectionString) throws SQLException {
-
-		Connection dbConnection = null;
-
-		try {
-			logger.info("Establishing a database connection for connection string: {}.", connectionString);
-			// Instead of including the user name and password in the connection
-			// string, as we do here, it is also possible to pass a second
-			// parameter that is a Properties object that contains those 
-			// details, and possibly additional details such as "proxy".  See
-			// pg 11 of the jConnect 7.0 Programmers Reference PDF file for more
-			//details.
-			dbConnection = java.sql.DriverManager.getConnection(connectionString);
-		} catch (SQLException e) {
-			logger.error("An exception was thrown getting a connection. Rethrowing...", e);
-			throw e;
-		}
-
-		return dbConnection;
-	}
-
-	/**
-	 * Not used - this is from Roy's old code.
-	 * 
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
-	 */
-	private void registerDriver() throws IllegalAccessException, InstantiationException, ClassNotFoundException,
-			SQLException {
-		try {
-
-			logger.info("Loading jConnect JDBC driver so it can be registered.");
-
-			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
-			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
-
-			logger.info("jConnect version: {}.{}", sybDriver.getMajorVersion(), sybDriver.getMinorVersion());
-			logger.info("Registering jConnect JDBC driver.");
-
-			DriverManager.registerDriver(sybDriver);
-
-		} catch (IllegalAccessException | InstantiationException | ClassNotFoundException | SQLException e) {
-			logger.error("An exception was thrown registering the JDBC driver. Rethrowing...", e);
-			throw e;
-		}
-	}
-
-	/**
-	 * Not used - this is from Roy's old code.
-	 */
-	private void deregisterDriver() {
-		try {
-
-			logger.info("Loading jConnect JDBC driver so it can be deregistered.");
-
-			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
-			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
-
-			logger.info("Deregistering jConnect JDBC driver.");
-			DriverManager.deregisterDriver(sybDriver);
-
-		} catch (Exception e) {
-			logger.error("An exception was thrown deregistering the JDBC driver:", e);
-		}
-	}
+//	/**
+//	 * Not used - this is from Roy's old code.
+//	 */
+//	private void deregisterDriver() {
+//		try {
+//
+//			logger.info("Loading jConnect JDBC driver so it can be deregistered.");
+//
+//			SybDriver sybDriver = (SybDriver) Class.forName("com.sybase.jdbc4.jdbc.SybDriver").newInstance();
+//			sybDriver.setVersion(com.sybase.jdbcx.SybDriver.VERSION_7);
+//
+//			logger.info("Deregistering jConnect JDBC driver.");
+//			DriverManager.deregisterDriver(sybDriver);
+//
+//		} catch (Exception e) {
+//			logger.error("An exception was thrown deregistering the JDBC driver:", e);
+//		}
+//	}
 
 }

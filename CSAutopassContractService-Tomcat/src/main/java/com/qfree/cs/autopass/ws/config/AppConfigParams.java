@@ -2,27 +2,27 @@ package com.qfree.cs.autopass.ws.config;
 
 public class AppConfigParams {
 
-	private String server;
-	private String port;
+	private String jdbcDriverClass;
+	private String jdbcUrl;
 	private String dbUsername;
 	private String dbPassword;
 	private int concurrentCalls_permits;
 	private long concurrentCalls_timeoutsecs;
 
-	public String getServer() {
-		return server;
+	public String getJdbcDriverClass() {
+		return jdbcDriverClass;
 	}
 
-	public void setServer(String server) {
-		this.server = server;
+	public void setJdbcDriverClass(String jdbcDriverClass) {
+		this.jdbcDriverClass = jdbcDriverClass;
 	}
 
-	public String getPort() {
-		return port;
+	public String getJdbcUrl() {
+		return jdbcUrl;
 	}
 
-	public void setPort(String port) {
-		this.port = port;
+	public void setJdbcUrl(String jdbcUrl) {
+		this.jdbcUrl = jdbcUrl;
 	}
 
 	public String getDbUsername() {
@@ -63,8 +63,6 @@ public class AppConfigParams {
 		String NEW_LINE = System.getProperty("line.separator");
 
 		result.append(this.getClass().getName() + " object {" + NEW_LINE);
-		result.append(" server: " + server + NEW_LINE);
-		result.append(" port: " + port + NEW_LINE);
 		result.append(" dbUsername: " + dbUsername + NEW_LINE);
 		result.append(" dbPassword: " + dbPassword + NEW_LINE);
 		result.append(" concurrentCalls_permits: " + concurrentCalls_permits + NEW_LINE);

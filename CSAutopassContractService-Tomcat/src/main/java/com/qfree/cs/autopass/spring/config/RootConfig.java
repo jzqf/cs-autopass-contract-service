@@ -11,13 +11,12 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
 import com.qfree.cs.autopass.ws.ContractWs;
 import com.qfree.cs.autopass.ws.ContractWsSEI;
 import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.service.ContractService;
-import com.qfree.cs.autopass.ws.service.ContractServiceJdbcSpring;
+import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -40,12 +39,6 @@ public class RootConfig {
 
 	// Load application configuration parameters so they can be injected into
 	// beans below where necessary.
-
-	@Value("${db.server}")
-	private String dbServer;
-
-	@Value("${db.port}")
-	private String dbPort;
 
 	@Value("${db.username}")
 	private String dbUsername;
@@ -111,8 +104,8 @@ public class RootConfig {
 	@Bean
 	public AppConfigParams appConfigParams() {
 		final AppConfigParams object = new AppConfigParams();
-		object.setServer(this.dbServer);
-		object.setPort(this.dbPort);
+		object.setJdbcDriverClass(this.jdbcDriverClass);
+		object.setJdbcUrl(this.jdbcUrl);
 		object.setDbUsername(this.dbUsername);
 		object.setDbPassword(this.dbPassword);
 		object.setConcurrentCalls_permits(this.dbConcurrentCallsMaxCalls);
@@ -155,13 +148,13 @@ public class RootConfig {
 
 	@Bean
 	public ContractService contractService() {
-		//		return new ContractServiceJdbcRaw(this.appConfigParams());
-		return new ContractServiceJdbcSpring(
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"),
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodGet"),
-				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodUpdate"));
+		return new ContractServiceJdbcRaw(this.appConfigParams());
+		//		return new ContractServiceJdbcSpring(
+		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
+		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
+		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"),
+		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodGet"),
+		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodUpdate"));
 	}
 
 	@Bean
