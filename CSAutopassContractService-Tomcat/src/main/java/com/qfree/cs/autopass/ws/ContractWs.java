@@ -109,7 +109,7 @@ public class ContractWs implements ContractWsSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
@@ -239,7 +239,7 @@ public class ContractWs implements ContractWsSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();
 
 		ContractCreateResult response = new ContractCreateResult();
 
@@ -328,7 +328,7 @@ public class ContractWs implements ContractWsSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();
 
 		ServiceTestResult response = new ServiceTestResult();
 
@@ -401,7 +401,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();
 
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
@@ -447,7 +447,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();
 
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 

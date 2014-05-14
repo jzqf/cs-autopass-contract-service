@@ -3,6 +3,7 @@ package com.qfree.cs.autopass.spring.config;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+//import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -138,6 +139,12 @@ public class RootConfig {
 		dataSource.setUrl(this.jdbcUrl);
 		dataSource.setUsername(this.dbUsername);
 		dataSource.setPassword(this.dbPassword);
+		dataSource.setDefaultCatalog("ServerCommon");
+		dataSource.setInitialSize(0);
+		dataSource.setMaxActive(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v1.4
+		//		dataSource.setMaxTotal(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v2.0 (API change)
+		dataSource.setMaxIdle(this.dbConcurrentCallsMaxCalls / 2 + 8);
+		dataSource.setMinIdle(0);
 		return dataSource;
 	}
 
