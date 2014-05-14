@@ -8,15 +8,11 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
-import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 public class ContractServiceJdbcSpring implements ContractService {
@@ -26,16 +22,14 @@ public class ContractServiceJdbcSpring implements ContractService {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
-	@Inject
-	private JdbcTemplate jdbcTemplate;
+	//	@Inject
+	//	private JdbcTemplate jdbcTemplate;
 
 	private SimpleJdbcCall procContractCreateTest;
 	private SimpleJdbcCall procContractCreate;
 	private SimpleJdbcCall procServiceTest;
 	private SimpleJdbcCall procPaymentMethodGet;
 	private SimpleJdbcCall procPaymentMethodUpdate;
-
-	private AppConfigParams appConfigParams;
 
 	/**
 	 * This constructor is used in ContractWS if we are not running in a Spring
@@ -61,31 +55,17 @@ public class ContractServiceJdbcSpring implements ContractService {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
-	 */
-	private AppConfigParams getAppConfigParams() {
-		return this.appConfigParams;	// will be injected by Spring
-	}
-
-	/* (non-Javadoc)
-	 * @see com.qfree.cs.autopass.ws.service.ContractService#setAppConfigParams(com.qfree.cs.autopass.ws.config.AppConfigParams)
-	 */
-	private void setAppConfigParams(AppConfigParams appConfigParams) {
-		this.appConfigParams = appConfigParams;
-	}
-
-	/* (non-Javadoc)
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreateTest(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	@Override
-	public Map contractCreateTest(
+	public Map<String, Object> contractCreateTest(
 			String username,
 			String password,
 			String obuID,
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -105,7 +85,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling qp_WSC_ContractCreateTest with input parameters:\n{}", in.getValues());
-		Map out = procContractCreateTest.execute(in);	// run stored procedure
+		Map<String, Object> out = procContractCreateTest.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
 		result.put("ErrorCode", out.get("op_ErrorCode"));
@@ -118,7 +98,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreate(java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, int)
 	 */
 	@Override
-	public Map contractCreate(
+	public Map<String, Object> contractCreate(
 			String username,
 			String password,
 			int clientTypeID,
@@ -140,7 +120,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -193,7 +173,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 		in.addValue("op_ClientNumber", null).addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling qp_WSC_ContractCreate with input parameters:\n{}", in.getValues());
-		Map out = procContractCreate.execute(in);	// run stored procedure
+		Map<String, Object> out = procContractCreate.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
 		//		result.put("ClientNumber", Long.toString(out.get("op_ClientNumber")));
@@ -208,8 +188,9 @@ public class ContractServiceJdbcSpring implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#ServiceTest(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map ServiceTest(String username, String password) throws SQLException {
-		Map result = new HashMap();
+	public Map<String, Object> ServiceTest(String username, String password) throws SQLException {
+
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -226,7 +207,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling qp_WSC_ServiceTest with input parameters:\n{}", in.getValues());
-		Map out = procServiceTest.execute(in);	// run stored procedure
+		Map<String, Object> out = procServiceTest.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
 		result.put("ErrorCode", out.get("op_ErrorCode"));
@@ -239,7 +220,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodGet(int, int, java.lang.String, int, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map paymentMethodGet(
+	public Map<String, Object> paymentMethodGet(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -247,7 +228,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 			String username,
 			String password) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -269,7 +250,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 				.addValue("op_ErrorMessage", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling procPaymentMethodGet with input parameters:\n{}", in.getValues());
-		Map out = procPaymentMethodGet.execute(in);	// run stored procedure
+		Map<String, Object> out = procPaymentMethodGet.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
 		result.put("PaymentMethodID", out.get("op_PaymentMethodID"));
@@ -285,7 +266,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodUpdate(int, int, java.lang.String, int, int, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map paymentMethodUpdate(
+	public Map<String, Object> paymentMethodUpdate(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -294,7 +275,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 			String username,
 			String password) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -316,7 +297,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 		in.addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling procPaymentMethodUpdate with input parameters:\n{}", in.getValues());
-		Map out = procPaymentMethodUpdate.execute(in);	// run stored procedure
+		Map<String, Object> out = procPaymentMethodUpdate.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
 		result.put("ErrorCode", out.get("op_ErrorCode"));

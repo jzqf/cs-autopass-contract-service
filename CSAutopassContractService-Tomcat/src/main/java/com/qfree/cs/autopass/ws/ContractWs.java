@@ -127,7 +127,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = contractService.contractCreateTest(
+				Map<String, Object> result = contractService.contractCreateTest(
 						username,
 						password,
 						obuID,
@@ -257,7 +257,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = contractService.contractCreate(
+				Map<String, Object> result = contractService.contractCreate(
 						username,
 						password,
 						clientTypeID,
@@ -346,7 +346,7 @@ public class ContractWs implements ContractWsSEI {
 
 			try {
 
-				Map result = contractService.ServiceTest(username, password);
+				Map<String, Object> result = contractService.ServiceTest(username, password);
 
 				if (result.get("ErrorCode").toString().equals("0")) {
 					response.setErrorCode(0);
@@ -407,8 +407,9 @@ public class ContractWs implements ContractWsSEI {
 
 		try {
 		 
-			Map result;
-			result = contractService.paymentMethodGet(clientNumber, accountNumber, invoiceNumber, systemActorID,
+			Map<String, Object> result = contractService.paymentMethodGet(
+					clientNumber, accountNumber,
+					invoiceNumber, systemActorID,
 					username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {
@@ -452,8 +453,9 @@ public class ContractWs implements ContractWsSEI {
 
 		try {
 		 
-			Map result;
-			result = contractService.paymentMethodUpdate(clientNumber, accountNumber, invoiceNumber, paymentMethodID,
+			Map<String, Object> result = contractService.paymentMethodUpdate(
+					clientNumber, accountNumber,
+					invoiceNumber, paymentMethodID,
 					systemActorID, username, password);
 
 			if (result.get("ErrorCode").toString().equals("0")) {

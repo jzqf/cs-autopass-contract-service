@@ -130,7 +130,7 @@ public interface ContractWsSEI {
 	 * @param invoiceNumber
 	 * @return
 	 */
-	@WebMethod(operationName = "PaymentMethodGet", exclude = false)
+	@WebMethod(operationName = "PaymentMethodGet", exclude = true)
 	public PaymentMethodGetResult paymentMethodGet(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
 			@XmlElement(required = true) @WebParam(name = "Password") String password,
@@ -155,7 +155,7 @@ public interface ContractWsSEI {
 	 * @param paymentMethodID
 	 * @return
 	 */
-	@WebMethod(operationName = "PaymentMethodUpdate", exclude = false)
+	@WebMethod(operationName = "PaymentMethodUpdate", exclude = true)
 	public PaymentMethodUpdateResult paymentMethodUpdate(
 			@XmlElement(required = true) @WebParam(name = "Username") String username,
 			@XmlElement(required = true) @WebParam(name = "Password") String password,

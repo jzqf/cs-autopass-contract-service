@@ -124,9 +124,6 @@ public class ContractServiceJdbcRaw implements ContractService {
 		ContractServiceJdbcRaw.staticAppConfigParams = staticAppConfigParams;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
-	 */
 	private AppConfigParams getAppConfigParams() {
 		if (appConfigParams != null) {
 			// We are running in a Spring container.
@@ -139,25 +136,22 @@ public class ContractServiceJdbcRaw implements ContractService {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.qfree.cs.autopass.ws.service.ContractService#setAppConfigParams(com.qfree.cs.autopass.ws.config.AppConfigParams)
-	 */
-	private void setAppConfigParams(AppConfigParams appConfigParams) {
-		this.appConfigParams = appConfigParams;
-	}
+	//	private void setAppConfigParams(AppConfigParams appConfigParams) {
+	//		this.appConfigParams = appConfigParams;
+	//	}
 
 	/* (non-Javadoc)
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreateTest(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	@Override
-	public Map contractCreateTest(
+	public Map<String, Object> contractCreateTest(
 			String username,
 			String password,
 			String obuID,
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -223,7 +217,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#contractCreate(java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, int)
 	 */
 	@Override
-	public Map contractCreate(
+	public Map<String, Object> contractCreate(
 			String username,
 			String password,
 			int clientTypeID,
@@ -245,7 +239,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -398,8 +392,9 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#ServiceTest(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map ServiceTest(String username, String password) throws SQLException {
-		Map result = new HashMap();
+	public Map<String, Object> ServiceTest(String username, String password) throws SQLException {
+
+		Map<String, Object> result = new HashMap<>();
 
 		// In case an exception is thrown and we do not get so far below to set 
 		// the result error code.
@@ -454,7 +449,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodGet(int, int, java.lang.String, int, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map paymentMethodGet(
+	public Map<String, Object> paymentMethodGet(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -462,7 +457,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String username,
 			String password) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
 		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
@@ -532,7 +527,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#paymentMethodUpdate(int, int, java.lang.String, int, int, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Map paymentMethodUpdate(
+	public Map<String, Object> paymentMethodUpdate(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -541,7 +536,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String username,
 			String password) throws SQLException {
 
-		Map result = new HashMap();
+		Map<String, Object> result = new HashMap<>();
 
 		//		try (Connection dbConnection = getConnection(getConnectionString())) {
 		try (Connection dbConnection = java.sql.DriverManager.getConnection(getConnectionString())) {
@@ -718,9 +713,6 @@ public class ContractServiceJdbcRaw implements ContractService {
 	 * Not used - this is from Roy's old code.
 	 */
 	private void deregisterDriver() {
-		if (true) {
-			return;
-		}
 		try {
 
 			logger.info("Loading jConnect JDBC driver so it can be deregistered.");

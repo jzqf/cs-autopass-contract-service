@@ -5,14 +5,14 @@ import java.util.Map;
 
 public interface ContractService {
 
-	public abstract Map contractCreateTest(
+	public abstract Map<String, Object> contractCreateTest(
 			String username,
 			String password,
 			String obuID,
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException;
 
-	public abstract Map contractCreate(
+	public abstract Map<String, Object> contractCreate(
 			String username,
 			String password,
 			int clientTypeID,
@@ -34,9 +34,9 @@ public interface ContractService {
 			String licencePlate,
 			int licencePlateCountryID) throws SQLException;
 
-	public abstract Map ServiceTest(String username, String password) throws SQLException;
+	public abstract Map<String, Object> ServiceTest(String username, String password) throws SQLException;
 
-	public abstract Map paymentMethodGet(
+	public abstract Map<String, Object> paymentMethodGet(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
@@ -44,7 +44,7 @@ public interface ContractService {
 			String username,
 			String password) throws SQLException;
 
-	public abstract Map paymentMethodUpdate(
+	public abstract Map<String, Object> paymentMethodUpdate(
 			int clientNumber,
 			int accountNumber,
 			String invoiceNumber,
