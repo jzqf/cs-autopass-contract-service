@@ -3,8 +3,6 @@ package com.qfree.cs.autopass.spring.config;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +35,7 @@ import com.qfree.cs.autopass.ws.service.ContractServiceJdbcSpring;
 //})
 public class RootConfig {
 
-	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
+	//	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
 
 	// Load application configuration parameters so they can be injected into
 	// beans below where necessary.
@@ -121,6 +119,8 @@ public class RootConfig {
 		return object;
 	}
 
+	// This is a simple DataSource provided by Spring. Not suitable for
+	// production, but can be used for testing.
 	//	@Bean
 	//	public DataSource dataSource() {
 	//		DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -146,14 +146,9 @@ public class RootConfig {
 		return new JdbcTemplate(this.dataSource());
 	}
 
-	//	@Bean
-	//	public SimpleJdbcCall procContractCreateTest() {
-	//		return new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest");
-	//	}
-
 	@Bean
 	public ContractService contractService() {
-		//		return new ContractServiceJdbcRaw(this.appConfigParams())	// only for ContractServiceJdbcRaw
+		//		return new ContractServiceJdbcRaw(this.appConfigParams());
 		return new ContractServiceJdbcSpring(
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
 				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
