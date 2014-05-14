@@ -12,6 +12,7 @@ import com.qfree.cs.autopass.ws.domain.ContractCreateTestResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
+import com.qfree.cs.autopass.ws.service.ContractService;
 
 /**
  * This is the SEI (Service Endpoint Interface) for the web service.
@@ -163,5 +164,11 @@ public interface ContractWsSEI {
 			@XmlElement(required = false) @WebParam(name = "AccountNumber") int accountNumber,
 			@XmlElement(required = false) @WebParam(name = "InvoiceNumber") String invoiceNumber,
 			@XmlElement(required = true) @WebParam(name = "PaymentMethodID") int paymentMethodID);
+
+	@WebMethod(exclude = true)
+	public ContractService getContractService();
+
+	@WebMethod(exclude = true)
+	public void setContractService(ContractService contractService);
 
 }

@@ -19,7 +19,6 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodGetResult;
 import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
 import com.qfree.cs.autopass.ws.service.ContractService;
-import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 
 /*
@@ -82,14 +81,16 @@ public class ContractWs implements ContractWsSEI {
 		ContractWs.concurrentCalls_semaphore = new Semaphore(ContractWs.concurrentCalls_permits, true);  // to control number of concurrent database connections
 	}
 
-	ContractService contractService;	// to be injected by Spring
+	private ContractService contractService;
 
+	@Override
 	public ContractService getContractService() {
-		return contractService;
+		return this.contractService;
 	}
 
+	@Override
 	public void setContractService(ContractService contractService) {
-		this.contractService = contractService;
+		this.contractService = contractService;		// injected by Spring as a singleton
 	}
 
 	@Override
@@ -108,14 +109,7 @@ public class ContractWs implements ContractWsSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		ContractService contractService;
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			contractService = this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			contractService = new ContractServiceJdbcRaw();
-		}
+		ContractService contractService = getContractService();
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
@@ -245,14 +239,7 @@ public class ContractWs implements ContractWsSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		ContractService contractService;
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			contractService = this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			contractService = new ContractServiceJdbcRaw();
-		}
+		ContractService contractService = getContractService();
 
 		ContractCreateResult response = new ContractCreateResult();
 
@@ -341,14 +328,7 @@ public class ContractWs implements ContractWsSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		ContractService contractService;
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			contractService = this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			contractService = new ContractServiceJdbcRaw();
-		}
+		ContractService contractService = getContractService();
 
 		ServiceTestResult response = new ServiceTestResult();
 
@@ -421,14 +401,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		ContractService contractService;
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			contractService = this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			contractService = new ContractServiceJdbcRaw();
-		}
+		ContractService contractService = getContractService();
 
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
@@ -473,14 +446,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		ContractService contractService;
-		if (this.contractService != null) {
-			logger.debug("Using this.contractService injected by Spring.");
-			contractService = this.contractService;		// injected by Spring as a singleton
-		} else {
-			logger.debug("Creating new ContractServiceJdbcRaw() instance (no dependency injection detected)");
-			contractService = new ContractServiceJdbcRaw();
-		}
+		ContractService contractService = getContractService();
 
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 

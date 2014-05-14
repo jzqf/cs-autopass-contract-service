@@ -27,12 +27,17 @@ public class ContractServiceJdbcRaw implements ContractService {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
+	/**
+	 * Can be eliminated if we specialize this application such that it can only
+	 * run in a Spring container. For the time being, it will be best to retain
+	 * this member to keep all options available,
+	 */
 	private static volatile AppConfigParams staticAppConfigParams;
 
+	// Initialize staticAppConfigParams.
 	static {
 		Properties configProps = new Properties();
 		staticAppConfigParams = new AppConfigParams();
-
 		try (InputStream in = ContractServiceJdbcRaw.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			staticAppConfigParams.setServer(configProps.getProperty("db.server"));
@@ -51,7 +56,6 @@ public class ContractServiceJdbcRaw implements ContractService {
 				e1.printStackTrace();
 			}
 		}
-
 		logger.info("Loaded config.properties: {}", staticAppConfigParams);
 	}
 
@@ -92,6 +96,26 @@ public class ContractServiceJdbcRaw implements ContractService {
 
 	private AppConfigParams appConfigParams;
 
+	/**
+	 * This constructor is used in ContractWS if we are not running in a Spring
+	 * container and we need to create a ContractServiceJdbcRaw object 
+	 * explicitly there.
+	 */
+	public ContractServiceJdbcRaw() {
+		super();
+	}
+
+	/**
+	 * This constructor is used to create a ContractServiceJdbcRaw bean in 
+	 * RootConfig if we are running in a Spring container.
+	 * 
+	 * @param appConfigParams
+	 */
+	public ContractServiceJdbcRaw(AppConfigParams appConfigParams) {
+		super();
+		this.appConfigParams = appConfigParams;
+	}
+
 	public static AppConfigParams getStaticAppConfigParams() {
 		return staticAppConfigParams;
 	}
@@ -103,12 +127,13 @@ public class ContractServiceJdbcRaw implements ContractService {
 	/* (non-Javadoc)
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#getAppConfigParams()
 	 */
-	@Override
-	public AppConfigParams getAppConfigParams() {
+	private AppConfigParams getAppConfigParams() {
 		if (appConfigParams != null) {
-			logger.debug("Returning instance field appConfigParams");
-			return appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
+			// We are running in a Spring container.
+			logger.debug("Using this.appConfigParams injected by Spring.");
+			return this.appConfigParams;		// will be injected by Spring when we use Spring; otherwise, it will be null 
 		} else {
+			// We are *not* running in a Spring container.
 			logger.debug("Returning static field staticAppConfigParams");
 			return staticAppConfigParams;	// defined in a static initialization block above.
 		}
@@ -117,8 +142,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 	/* (non-Javadoc)
 	 * @see com.qfree.cs.autopass.ws.service.ContractService#setAppConfigParams(com.qfree.cs.autopass.ws.config.AppConfigParams)
 	 */
-	@Override
-	public void setAppConfigParams(AppConfigParams appConfigParams) {
+	private void setAppConfigParams(AppConfigParams appConfigParams) {
 		this.appConfigParams = appConfigParams;
 	}
 
