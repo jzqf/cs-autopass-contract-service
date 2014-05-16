@@ -35,10 +35,11 @@
 	url:		The JDBC connection url for connecting to the Sybase AutoPASS
 				database.
 	-->
-	<Resource name="jdbc/autopass" auth="Container" type="javax.sql.DataSource"
+<!-- 	<Resource name="jdbc/autopass" auth="Container" type="javax.sql.DataSource"
 			maxActive="30" maxIdle="20" maxWait="10000"
+			removeAbandoned="true" removeAbandonedTimeout="300"
 			username="adam" password="qfreet02"
 			driverClassName="com.sybase.jdbc4.jdbc.SybDriver"
 			url="jdbc:sybase:Tds:csnt02.csautopass.no:5000/ServerCommon"/>
-
+ -->
 </Context>
