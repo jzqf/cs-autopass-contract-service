@@ -20,6 +20,13 @@ import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.util.WsUtils;
 import com.sybase.jdbcx.SybDriver;
 
+/**
+ * This class is not used and can be ignored if the contractService() Spring 
+ * bean in RootConfig.java is configured to use ContractServiceJdbcSpring instead.
+ * 
+ * @author jeffreyz
+ *
+ */
 public class ContractServiceJdbcRaw implements ContractService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);

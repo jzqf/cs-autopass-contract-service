@@ -1,22 +1,27 @@
 package com.qfree.cs.autopass.spring.config;
 
+//import org.apache.commons.dbcp.BasicDataSource;
+//import org.apache.commons.dbcp2.BasicDataSource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
-//import org.apache.commons.dbcp2.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
 import com.qfree.cs.autopass.ws.ContractWs;
 import com.qfree.cs.autopass.ws.ContractWsSEI;
 import com.qfree.cs.autopass.ws.config.AppConfigParams;
 import com.qfree.cs.autopass.ws.service.ContractService;
-import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
+import com.qfree.cs.autopass.ws.service.ContractServiceJdbcSpring;
 
 //import com.borgsoftware.springmvc.spring.web.PropertyTest;
 
@@ -35,7 +40,7 @@ import com.qfree.cs.autopass.ws.service.ContractServiceJdbcRaw;
 //})
 public class RootConfig {
 
-	//	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(RootConfig.class);
 
 	// Load application configuration parameters so they can be injected into
 	// beans below where necessary.
@@ -113,8 +118,9 @@ public class RootConfig {
 		return object;
 	}
 
-	// This is a simple DataSource provided by Spring. Not suitable for
-	// production, but can be used for testing.
+	/* This is a simple DataSource provided by Spring. Not suitable for 
+	 * production, but can be used for testing.
+	 */
 	//	@Bean
 	//	public DataSource dataSource() {
 	//		DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -125,36 +131,83 @@ public class RootConfig {
 	//		return dataSource;
 	//	}
 
+	/* This bean is for creating a pooled "dbcp" Datasource from the Maven 
+	 * dependencies:
+	 * 
+	 *		<groupId>com.sybase</groupId>
+	 *		<artifactId>jconn</artifactId>
+	 *		<version>4.0.0</version>
+	 *		<scope>compiled</scope> or <scope>provided</scope>
+	 *
+	 *		<groupId>commons-dbcp</groupId>
+	 *		<artifactId>commons-dbcp</artifactId>
+	 *		<version>1.4</version>
+	 *		<scope>compiled</scope>		
+	 */
+	//	@Bean
+	//	public DataSource dataSource() {
+	//		BasicDataSource dataSource = new BasicDataSource();
+	//		dataSource.setDriverClassName(this.jdbcDriverClass);
+	//		dataSource.setUrl(this.jdbcUrl);
+	//		dataSource.setUsername(this.dbUsername);
+	//		dataSource.setPassword(this.dbPassword);
+	//		dataSource.setDefaultCatalog("ServerCommon");
+	//		dataSource.setInitialSize(0);
+	//		dataSource.setMaxActive(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v1.4
+	//		//dataSource.setMaxTotal(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v2.0 (API change)
+	//		dataSource.setMaxIdle(this.dbConcurrentCallsMaxCalls / 2 + 8);
+	//		dataSource.setMinIdle(0);
+	//		//dataSource.setRemoveAbandoned(true);		// Can help to reduce chance of memory leaks
+	//		//dataSource.setRemoveAbandonedTimeout(300);	// this is the default (5 minutes)
+	//		return dataSource;
+	//	}
+
+	/* This bean is for creating a pooled "dbcp" JNDI Datasource.  It requires
+	 * only the single Maven dependency:
+	 * 
+	 *		<groupId>com.sybase</groupId>
+	 *		<artifactId>jconn</artifactId>
+	 *		<version>4.0.0</version>
+	 *		<scope>provided</scope>
+	 *
+	 * The Sybase JDBC driver (jconn-4.0.0) must be present in the local Maven
+	 * repository as well as in the application server, e.g., the Tomcat 
+	 * $CATALINA_HOME/lib directory.  The Datasource object is created by the 
+	 * container, e.g., Tomcat.  Tomcat has, by default, the Apache Commons 
+	 * "dbcp" & "pool" libraries installed in 
+	 * $CATALINA_HOME/lib/tomcat-dbcp.jar.
+	 *		
+	 */
 	@Bean
 	public DataSource dataSource() {
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(this.jdbcDriverClass);
-		dataSource.setUrl(this.jdbcUrl);
-		dataSource.setUsername(this.dbUsername);
-		dataSource.setPassword(this.dbPassword);
-		dataSource.setDefaultCatalog("ServerCommon");
-		dataSource.setInitialSize(0);
-		dataSource.setMaxActive(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v1.4
-		//		dataSource.setMaxTotal(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v2.0 (API change)
-		dataSource.setMaxIdle(this.dbConcurrentCallsMaxCalls / 2 + 8);
-		dataSource.setMinIdle(0);
+		DataSource dataSource = null;
+		//			JndiTemplate jndi = new JndiTemplate();
+		try {
+			//			dataSource = (DataSource) jndi.lookup("java:comp/env/jdbc/autopass");
+			Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:comp/env");
+			dataSource = (DataSource) envContext.lookup("jdbc/autopass");
+		} catch (NamingException e) {
+			logger.error("NamingException for java:comp/env/jdbc/autopass", e);
+		}
 		return dataSource;
 	}
 
-	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(this.dataSource());
-	}
+	//	@Bean
+	//	public JdbcTemplate jdbcTemplate() {
+	//		//		return new JdbcTemplate(this.ds);
+	//		return new JdbcTemplate(this.dataSource());
+	//	}
 
 	@Bean
 	public ContractService contractService() {
-		return new ContractServiceJdbcRaw(this.appConfigParams());
-		//		return new ContractServiceJdbcSpring(
-		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
-		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
-		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"),
-		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodGet"),
-		//				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodUpdate"));
+		//		return new ContractServiceJdbcRaw(this.appConfigParams());
+		return new ContractServiceJdbcSpring(
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreateTest"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ContractCreate"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_ServiceTest"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodGet"),
+				new SimpleJdbcCall(this.dataSource()).withProcedureName("qp_WSC_PaymentMethodUpdate"));
 	}
 
 	@Bean

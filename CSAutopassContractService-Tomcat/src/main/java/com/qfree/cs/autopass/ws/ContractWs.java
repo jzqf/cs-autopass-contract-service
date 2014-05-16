@@ -28,12 +28,13 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
  * 					URL for accessing the web service that comes after the 
  * 					context root of the application. The default is to use the 
  * 					name of the service's implementation class. Not allowed on 
- * 					the SEI.
+ * 					the SEI - it must be used on the concrete web service class.
  *
  * portName:		Specifies the name of the endpoint at which the service is 
  * 					published. This property is mapped to the name attribute of 
  * 					the wsdl:port element that specifies the endpoint details for 
- * 					a published service. Not allowed on the SEI
+ * 					a published service. Not allowed on the SEI - it must be 
+ * 					used on the concrete web service class.
  */
 @WebService(
 		serviceName = "ContractService",
@@ -60,7 +61,8 @@ public class ContractWs implements ContractWsSEI {
 	private static volatile Semaphore concurrentCalls_semaphore;  // to control number of concurrent database connections
 
 	// Create the counting semaphore that will limit the number of simultaneous
-	// database connections.
+	// database connections. It is created only once in this static 
+	// initialization block.
 	static {
 		Properties configProps = new Properties();
 		// In case the try block does not successfully set these static members:
@@ -69,10 +71,12 @@ public class ContractWs implements ContractWsSEI {
 		try (InputStream in = ContractWs.class.getResourceAsStream("/config.properties")) {
 			configProps.load(in);
 			ContractWs.concurrentCalls_permits = Integer.parseInt(configProps
-					.getProperty("db.concurrent-call.maxcalls"));
+					.getProperty("db.concurrent-call.maxcalls").trim());
 			ContractWs.concurrentCalls_timeoutsecs = Long.parseLong(configProps
-					.getProperty("db.concurrent-call.waitsecs"));
+					.getProperty("db.concurrent-call.waitsecs").trim());
 		} catch (IOException e) {
+			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
+		} catch (Exception e) {
 			logger.error("An exception was thrown loading config.properties for creating semaphore:", e);
 		}
 		logger.info(
@@ -81,6 +85,7 @@ public class ContractWs implements ContractWsSEI {
 		ContractWs.concurrentCalls_semaphore = new Semaphore(ContractWs.concurrentCalls_permits, true);  // to control number of concurrent database connections
 	}
 
+	// Provides database-related services. Injected by Spring via its setter.
 	private ContractService contractService;
 
 	@Override
@@ -109,7 +114,7 @@ public class ContractWs implements ContractWsSEI {
 				" LicencePlateCountryID = {}",
 				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
-		//		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
 		ContractCreateTestResult response = new ContractCreateTestResult();
 
@@ -239,7 +244,7 @@ public class ContractWs implements ContractWsSEI {
 						licencePlate,
 						new Integer(licencePlateCountryID) });
 
-		//		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
 		ContractCreateResult response = new ContractCreateResult();
 
@@ -328,7 +333,7 @@ public class ContractWs implements ContractWsSEI {
 				" Password = {}",
 				new Object[] { username, password });
 
-		//		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
 		ServiceTestResult response = new ServiceTestResult();
 
@@ -401,7 +406,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("Avtalenummer[{}]", accountNumber);
 		logger.info("SystemActorID[{}]", systemActorID);
 
-		//		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
 		PaymentMethodGetResult response = new PaymentMethodGetResult();
 
@@ -447,7 +452,7 @@ public class ContractWs implements ContractWsSEI {
 		logger.info("SystemActorID[{}]", systemActorID);
 		logger.info("PaymentMethodID[{}]", paymentMethodID);
 		
-		//		ContractService contractService = getContractService();
+		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
 		PaymentMethodUpdateResult response = new PaymentMethodUpdateResult();
 
@@ -497,7 +502,7 @@ public class ContractWs implements ContractWsSEI {
 	 * 
 	 * @return always true in the current version.
 	 */
-	public boolean releaseAccess() {
+	private boolean releaseAccess() {
 		concurrentCalls_semaphore.release();
 		return true;
 	}

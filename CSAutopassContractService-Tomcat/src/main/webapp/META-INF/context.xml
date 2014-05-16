@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+
+	<!-- Container-managed JNDI Datasource:
+	
+	name:		Must match the name of a resource made available to the 
+				application by a <resource-ref> element in web.xml.
+				
+	type:		Must match the type of a resource made available to the 
+				application by a <resource-ref> element in web.xml.
+	
+	maxActive:	The maximum number of active connections that can be allocated 
+				from this pool at the same time, or negative for no limit.
+
+	maxIdle:	The maximum number of connections that can remain idle in the 
+				pool, without extra ones being released, or negative for no 
+				limit.  See also the DBCP documentation on this and the 
+				minEvictableIdleTimeMillis configuration parameter.
+				
+	maxWait:	The maximum number of milliseconds that the pool will wait (when
+				there are no available connections) for a connection to be 
+				returned before throwing an exception, or -1 to wait 
+				indefinitely.  This should probably be set to be at least as
+				long as the maximum amount of time that garbage collection will
+				take in the container (e.g., Tomcat). 10 seconds is probably a 
+				reasonable choice.
+
+	username:	Sybase user name for database connections
+	
+	password:	Sybase password for database connections
+
+	driverClassName:	The fully qualified Java class name of the JDBC driver
+						to be used.
+
+	url:		The JDBC connection url for connecting to the Sybase AutoPASS
+				database.
+	-->
+	<Resource name="jdbc/autopass" auth="Container" type="javax.sql.DataSource"
+			maxActive="30" maxIdle="20" maxWait="10000"
+			username="adam" password="qfreet02"
+			driverClassName="com.sybase.jdbc4.jdbc.SybDriver"
+			url="jdbc:sybase:Tds:csnt02.csautopass.no:5000/ServerCommon"/>
+
+</Context>
