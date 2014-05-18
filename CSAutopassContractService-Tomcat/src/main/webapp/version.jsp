@@ -7,6 +7,9 @@
 <title>Web Service</title>
 </head>
 <body>
-OK
+
+<jsp:useBean id="appVersion" class="com.qfree.cs.autopass.ws.AppVersion" scope="session"/>
+v<%= appVersion.getAppVersion() %><br />
+
 </body>
 </html>
