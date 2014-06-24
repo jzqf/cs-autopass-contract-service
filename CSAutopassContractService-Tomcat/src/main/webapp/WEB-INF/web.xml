@@ -84,7 +84,7 @@
 			<url-pattern>/ContractService</url-pattern>
 		</web-resource-collection>
 		<user-data-constraint>
-			<transport-guarantee>CONFIDENTIAL</transport-guarantee>  <!-- CONFIDENTIAL / NONE -->
+			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL / NONE -->
 		</user-data-constraint>
 	</security-constraint>
 	<security-constraint>
