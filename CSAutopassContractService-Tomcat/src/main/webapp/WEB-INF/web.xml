@@ -84,7 +84,7 @@
 			<url-pattern>/ContractService</url-pattern>
 		</web-resource-collection>
 		<user-data-constraint>
-			<transport-guarantee>CONFIDENTIAL</transport-guarantee>  <!-- CONFIDENTIAL / NONE -->
+			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL / NONE -->
 		</user-data-constraint>
 	</security-constraint>
 	<security-constraint>
@@ -101,12 +101,12 @@
 	
 	<!-- Container-managed JNDI Datasource.
 	     This declares the name under which we will look up the Datasource. -->
-	<resource-ref>
+	<!-- <resource-ref>
 		<description>Datasource for AutoPASS ContractService web service</description>
 		<res-ref-name>jdbc/autopass</res-ref-name>
 		<res-type>javax.sql.DataSource</res-type>
 		<res-auth>Container</res-auth>
-	</resource-ref>
+	</resource-ref> -->
 	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

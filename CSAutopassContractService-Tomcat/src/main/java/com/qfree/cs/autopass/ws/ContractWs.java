@@ -20,6 +20,7 @@ import com.qfree.cs.autopass.ws.domain.PaymentMethodUpdateResult;
 import com.qfree.cs.autopass.ws.domain.ServiceTestResult;
 import com.qfree.cs.autopass.ws.service.ContractService;
 import com.qfree.cs.autopass.ws.util.WsUtils;
+import com.sun.xml.ws.developer.SchemaValidation;
 
 /*
  * serviceName:		Specifies the name of the published service. This property is 
@@ -40,6 +41,13 @@ import com.qfree.cs.autopass.ws.util.WsUtils;
 		serviceName = "ContractService",
 		portName = "ContractServicePort",
 		endpointInterface = "com.qfree.cs.autopass.ws.ContractWsSEI")
+/* 
+ * Without the @SchemaValidation annotiation, the JAX-WS Metro RI generates an 
+ * XML schema for input and output parameters, but it is not used.  Therefore,
+ * this annotation is required if you want, for example, the "required" 
+ * attribute ij @XmlElement(required = true) to have its intended effect.
+ */
+@SchemaValidation
 public class ContractWs implements ContractWsSEI {
    
 	private static final Logger logger = LoggerFactory.getLogger(ContractWs.class);

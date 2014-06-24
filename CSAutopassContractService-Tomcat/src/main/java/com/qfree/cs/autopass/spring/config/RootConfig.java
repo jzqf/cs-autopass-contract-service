@@ -1,12 +1,12 @@
 package com.qfree.cs.autopass.spring.config;
 
-//import org.apache.commons.dbcp.BasicDataSource;
 //import org.apache.commons.dbcp2.BasicDataSource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+//import javax.naming.Context;
+//import javax.naming.InitialContext;
+//import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -144,23 +144,23 @@ public class RootConfig {
 	 *		<version>1.4</version>
 	 *		<scope>compiled</scope>		
 	 */
-	//	@Bean
-	//	public DataSource dataSource() {
-	//		BasicDataSource dataSource = new BasicDataSource();
-	//		dataSource.setDriverClassName(this.jdbcDriverClass);
-	//		dataSource.setUrl(this.jdbcUrl);
-	//		dataSource.setUsername(this.dbUsername);
-	//		dataSource.setPassword(this.dbPassword);
-	//		dataSource.setDefaultCatalog("ServerCommon");
-	//		dataSource.setInitialSize(0);
-	//		dataSource.setMaxActive(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v1.4
-	//		//dataSource.setMaxTotal(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v2.0 (API change)
-	//		dataSource.setMaxIdle(this.dbConcurrentCallsMaxCalls / 2 + 8);
-	//		dataSource.setMinIdle(0);
-	//		//dataSource.setRemoveAbandoned(true);		// Can help to reduce chance of memory leaks
-	//		//dataSource.setRemoveAbandonedTimeout(300);	// this is the default (5 minutes)
-	//		return dataSource;
-	//	}
+	@Bean
+	public DataSource dataSource() {
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(this.jdbcDriverClass);
+		dataSource.setUrl(this.jdbcUrl);
+		dataSource.setUsername(this.dbUsername);
+		dataSource.setPassword(this.dbPassword);
+		dataSource.setDefaultCatalog("ServerCommon");
+		dataSource.setInitialSize(0);
+		dataSource.setMaxActive(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v1.4
+		//dataSource.setMaxTotal(this.dbConcurrentCallsMaxCalls + 8);	// This is for DBCB v2.0 (API change)
+		dataSource.setMaxIdle(this.dbConcurrentCallsMaxCalls / 2 + 8);
+		dataSource.setMinIdle(0);
+		dataSource.setRemoveAbandoned(true);		// Can help to reduce chance of memory leaks
+		dataSource.setRemoveAbandonedTimeout(300);	// this is the default (5 minutes)
+		return dataSource;
+	}
 
 	/* This bean is for creating a pooled "dbcp" JNDI Datasource.  It requires
 	 * only the single Maven dependency:
@@ -178,20 +178,20 @@ public class RootConfig {
 	 * $CATALINA_HOME/lib/tomcat-dbcp.jar.
 	 *		
 	 */
-	@Bean
-	public DataSource dataSource() {
-		DataSource dataSource = null;
-		//			JndiTemplate jndi = new JndiTemplate();
-		try {
-			//			dataSource = (DataSource) jndi.lookup("java:comp/env/jdbc/autopass");
-			Context initContext = new InitialContext();
-			Context envContext = (Context) initContext.lookup("java:comp/env");
-			dataSource = (DataSource) envContext.lookup("jdbc/autopass");
-		} catch (NamingException e) {
-			logger.error("NamingException for java:comp/env/jdbc/autopass", e);
-		}
-		return dataSource;
-	}
+	//	@Bean
+	//	public DataSource dataSource() {
+	//		DataSource dataSource = null;
+	//		//			JndiTemplate jndi = new JndiTemplate();
+	//		try {
+	//			//			dataSource = (DataSource) jndi.lookup("java:comp/env/jdbc/autopass");
+	//			Context initContext = new InitialContext();
+	//			Context envContext = (Context) initContext.lookup("java:comp/env");
+	//			dataSource = (DataSource) envContext.lookup("jdbc/autopass");
+	//		} catch (NamingException e) {
+	//			logger.error("NamingException for java:comp/env/jdbc/autopass", e);
+	//		}
+	//		return dataSource;
+	//	}
 
 	//	@Bean
 	//	public JdbcTemplate jdbcTemplate() {
