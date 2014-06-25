@@ -22,6 +22,9 @@ public class ContractServiceJdbcSpring implements ContractService {
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
 
+	private static final int CLIENTTYPE_ID_PERSONAL = 2;
+	private static final int CLIENTTYPE_ID_COMPANY = 4;
+
 	//	@Inject
 	//	private JdbcTemplate jdbcTemplate;
 
@@ -63,7 +66,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) throws SQLException {
+			Integer licencePlateCountryID) throws SQLException {
 
 		Map<String, Object> result = new HashMap<>();
 
@@ -72,12 +75,43 @@ public class ContractServiceJdbcSpring implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
+		// Validation:
+		//
+		// We must explicitly check for empty strings because "required = true"
+		// in JAB @XmlElement annotations does not enforce that strings are not
+		// empty.
+
+		if (username == null || username.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
+			return result;
+		}
+
+		if (password == null || password.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			return result;
+		}
+
+		if (obuID == null || obuID.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
+			return result;
+		}
+
+		//		if (licencePlateCountryID != null) {
+		//			logger.debug("licencePlateCountryID = {}", licencePlateCountryID);
+		//		} else {
+		//			logger.debug("licencePlateCountryID is null");
+		//		}
+
 		MapSqlParameterSource in = new MapSqlParameterSource()
 				.addValue("ip_Username", username)
 				.addValue("ip_Password", password)
 				.addValue("ip_OBUID", obuID)
 				.addValue("ip_LicencePlate", licencePlate)
-				.addValue("ip_LicencePlateCountryID", (licencePlateCountryID >= 0) ? licencePlateCountryID : null);
+				.addValue("ip_LicencePlateCountryID", licencePlateCountryID);
+		//		.addValue("ip_LicencePlateCountryID", (licencePlateCountryID >= 0) ? licencePlateCountryID : null);
 
 		// I add entries for the output parameters in the input parameter
 		// map. It works without this, but warnings are logged that these
@@ -127,21 +161,106 @@ public class ContractServiceJdbcSpring implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		Date sqlBirthDate;
-		try {
-			sqlBirthDate = WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd");
-		} catch (ParseException e) {
+		// Validation:
+		//
+		// We must explicitly check for empty strings because "required = true"
+		// in JAB @XmlElement annotations does not enforce that strings are not
+		// empty.
+
+		if (username == null || username.isEmpty()) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
 			return result;
 		}
 
+		if (password == null || password.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			return result;
+		}
+
+		if (firstName == null || firstName.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  FirstName er påkrevd");
+			return result;
+		}
+
+		if (lastName == null || lastName.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  LastName er påkrevd");
+			return result;
+		}
+
+		Date sqlBirthDate = null;
+		if (clientTypeID == CLIENTTYPE_ID_PERSONAL) {
+			if (birthDate == null || birthDate.isEmpty()) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate er påkrevd for privatkunder");
+				return result;
+			}
+			try {
+				sqlBirthDate = WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd");
+			} catch (ParseException e) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+				return result;
+			}
+		}
+
+		if (clientTypeID == CLIENTTYPE_ID_COMPANY) {
+			if (company == null || company.isEmpty()) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Company er påkrevd for firmakunder");
+				return result;
+			}
+			if (companyNumber == null || companyNumber.isEmpty()) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  CompanyNumber er påkrevd for firmakunder");
+				return result;
+			}
+		}
+
+		if (address1 == null || address1.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Address1 er påkrevd");
+			return result;
+		}
+
+		if (postCode == null || postCode.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  PostCode er påkrevd");
+			return result;
+		}
+
+		if (postOffice == null || postOffice.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  PostOffice er påkrevd");
+			return result;
+		}
+
+		if (validFrom == null || validFrom.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom er påkrevd");
+			return result;
+		}
 		Timestamp sqlValidFrom;
 		try {
 			sqlValidFrom = WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd");
 		} catch (ParseException e) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
 			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+			return result;
+		}
+
+		if (obuID == null || obuID.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
+			return result;
+		}
+
+		if (licencePlate == null || licencePlate.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  LicencePlate er påkrevd");
 			return result;
 		}
 
@@ -196,6 +315,24 @@ public class ContractServiceJdbcSpring implements ContractService {
 		// the result error code.
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
+
+		// Validation:
+		//
+		// We must explicitly check for empty strings because "required = true"
+		// in JAB @XmlElement annotations does not enforce that strings are not
+		// empty.
+
+		if (username == null || username.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
+			return result;
+		}
+
+		if (password == null || password.isEmpty()) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			return result;
+		}
 
 		MapSqlParameterSource in = new MapSqlParameterSource()
 				.addValue("ip_Username", username)

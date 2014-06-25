@@ -156,7 +156,7 @@ public class ContractServiceJdbcRaw implements ContractService {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) throws SQLException {
+			Integer licencePlateCountryID) throws SQLException {
 
 		AppConfigParams appConfigParams = getAppConfigParams();
 

@@ -53,7 +53,13 @@ public interface ContractWsSEI {
 			@XmlElement(required = true) @WebParam(name = "Password") String password,
 			@XmlElement(required = true) @WebParam(name = "OBUID") String obuID,
 			@XmlElement(required = false) @WebParam(name = "LicencePlate") String licencePlate,
-			@XmlElement(required = false) @WebParam(name = "LicencePlateCountryID") int licencePlateCountryID);
+			// Here we use type Integer for licencePlateCountryID, not "int". This is because
+			// this parameter is optional (required = false). If we used "int", then it is 
+			// not possible for null to be passed as the value for this parameter to this
+			// method by the JAX-WS framework for the case where this parameter is not
+			//supplied by the SOAP client. In contractCreate, licencePlateCountryID is of
+			// type "int", which is OK because that parameter is required for that method.
+			@XmlElement(required = false) @WebParam(name = "LicencePlateCountryID") Integer licencePlateCountryID);
 
 	/**
 	 * Web service operation to create a new Client agreement.

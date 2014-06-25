@@ -112,7 +112,7 @@ public class ContractWs implements ContractWsSEI {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) {
+			Integer licencePlateCountryID) {
 
 		logger.info("Input parameters:\n" +
 				" Username = {}\n" +
@@ -120,7 +120,8 @@ public class ContractWs implements ContractWsSEI {
 				" OBUID = {}\n" +
 				" LicencePlate = {}\n" +
 				" LicencePlateCountryID = {}",
-				new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
+				new Object[] { username, password, obuID, licencePlate, licencePlateCountryID });
+		//		new Object[] { username, password, obuID, licencePlate, new Integer(licencePlateCountryID) });
 
 		//		ContractService contractService = getContractService();	// pre-Spring code - keep for now
 
