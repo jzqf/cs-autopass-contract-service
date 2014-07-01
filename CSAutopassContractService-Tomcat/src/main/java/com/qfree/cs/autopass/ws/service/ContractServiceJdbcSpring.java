@@ -99,6 +99,10 @@ public class ContractServiceJdbcSpring implements ContractService {
 			return result;
 		}
 
+		if (licencePlate != null && licencePlate.isEmpty()) {
+			licencePlate = null;
+		}
+
 		//		if (licencePlateCountryID != null) {
 		//			logger.debug("licencePlateCountryID = {}", licencePlateCountryID);
 		//		} else {
@@ -218,12 +222,19 @@ public class ContractServiceJdbcSpring implements ContractService {
 				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  CompanyNumber er påkrevd for firmakunder");
 				return result;
 			}
+			//		} else {
+			//			company = null;
+			//			companyNumber = null;
 		}
 
 		if (address1 == null || address1.isEmpty()) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
 			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Address1 er påkrevd");
 			return result;
+		}
+
+		if (address2 != null && address2.isEmpty()) {
+			address2 = null;	// qp_WSC_ContractCreate requires null for this case
 		}
 
 		if (postCode == null || postCode.isEmpty()) {
@@ -238,12 +249,20 @@ public class ContractServiceJdbcSpring implements ContractService {
 			return result;
 		}
 
+		if (eMail != null && eMail.isEmpty()) {
+			eMail = null;	// qp_WSC_ContractCreate requires null for this case
+		}
+
+		if (phone != null && phone.isEmpty()) {
+			phone = null;	// qp_WSC_ContractCreate requires null for this case
+		}
+
 		if (validFrom == null || validFrom.isEmpty()) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
 			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom er påkrevd");
 			return result;
 		}
-		Timestamp sqlValidFrom;
+		Timestamp sqlValidFrom = null;
 		try {
 			sqlValidFrom = WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd");
 		} catch (ParseException e) {
