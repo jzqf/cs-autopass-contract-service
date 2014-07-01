@@ -126,8 +126,11 @@ public class ContractServiceJdbcSpring implements ContractService {
 		Map<String, Object> out = procContractCreateTest.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
+		logger.debug("ErrorMessage stripped of stored proc name: {}",
+				WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
+
 		result.put("ErrorCode", out.get("op_ErrorCode"));
-		result.put("ErrorMessage", out.get("op_ErrorMessage"));
+		result.put("ErrorMessage", WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
 
 		return result;
 	}
@@ -314,10 +317,13 @@ public class ContractServiceJdbcSpring implements ContractService {
 		Map<String, Object> out = procContractCreate.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
+		logger.debug("ErrorMessage stripped of stored proc name: {}",
+				WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
+
 		//		result.put("ClientNumber", Long.toString(out.get("op_ClientNumber")));
 		result.put("ClientNumber", out.get("op_ClientNumber"));		// @op_ClientNumber has Sybase type numeric(12)
 		result.put("ErrorCode", out.get("op_ErrorCode"));
-		result.put("ErrorMessage", out.get("op_ErrorMessage"));
+		result.put("ErrorMessage", WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
 		
 		return result;
 	}
@@ -366,8 +372,11 @@ public class ContractServiceJdbcSpring implements ContractService {
 		Map<String, Object> out = procServiceTest.execute(in);	// run stored procedure
 		logger.debug("Stored procedure output : {}", out);
 
+		logger.debug("ErrorMessage stripped of stored proc name: {}",
+				WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
+
 		result.put("ErrorCode", out.get("op_ErrorCode"));
-		result.put("ErrorMessage", out.get("op_ErrorMessage"));
+		result.put("ErrorMessage", WsUtils.stripSybaseProcName(out.get("op_ErrorMessage")));
 
 		return result;
 	}
