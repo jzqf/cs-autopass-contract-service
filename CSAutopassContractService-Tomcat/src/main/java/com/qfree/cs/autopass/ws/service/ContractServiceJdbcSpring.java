@@ -99,8 +99,26 @@ public class ContractServiceJdbcSpring implements ContractService {
 			return result;
 		}
 
+		if (licencePlate != null && !licencePlate.isEmpty()) {
+			if (licencePlateCountryID == null || licencePlateCountryID.intValue() == 0) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE
+						+ ":  LicencePlateCountryID er påkrevd hvis LicencePlate angitt");
+				return result;
+			}
+		}
+
+		if (licencePlateCountryID != null && licencePlateCountryID.intValue() != 0) {
+			if (licencePlate == null || licencePlate.isEmpty()) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE
+						+ ":  LicencePlate er påkrevd hvis LicencePlateCountryID angitt");
+				return result;
+			}
+		}
+
 		if (licencePlate != null && licencePlate.isEmpty()) {
-			licencePlate = null;
+			licencePlate = null;	// to avoid error in Sybase stored procedure
 		}
 
 		//		if (licencePlateCountryID != null) {
@@ -277,6 +295,13 @@ public class ContractServiceJdbcSpring implements ContractService {
 		if (obuID == null || obuID.isEmpty()) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
 			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
+			return result;
+		}
+
+		if (vehicleClassID != 1 && vehicleClassID != 2) {
+			result.put("ErrorCode", VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  VehicleClassID = " + vehicleClassID
+					+ ". Må være 1 eller 2.");
 			return result;
 		}
 
