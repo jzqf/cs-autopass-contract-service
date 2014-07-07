@@ -10,7 +10,7 @@ public interface ContractService {
 			String password,
 			String obuID,
 			String licencePlate,
-			int licencePlateCountryID) throws SQLException;
+			Integer licencePlateCountryID) throws SQLException;
 
 	public abstract Map<String, Object> contractCreate(
 			String username,

@@ -13,7 +13,10 @@ public class ContractCreateResult {
 	// empty XML element will be returned to the webservice client if no error
 	// occurs. Currently, the accepted behaviour is that *no* error message XML
 	// element be returned at all for this case (just the error code = 0).
-	private static final String NOERRORCODEASSIGNED_ERRORMESSAGE = null;
+	//
+	// 2014.07.01: Kjetil asked for this to be changed so that an empty string
+	// is returned instead.
+	private static final String NOERRORCODEASSIGNED_ERRORMESSAGE = "";	// null;
 
 	private String clientNumber;
 	private int	errorCode;
