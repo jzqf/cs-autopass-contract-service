@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://service.ws.autopass.cs.qfree.com" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://service.ws.autopass.cs.qfree.com" xmlns:intf="http://service.ws.autopass.cs.qfree.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+ <wsdl:types>
+  <schema elementFormDefault="qualified" targetNamespace="http://service.ws.autopass.cs.qfree.com" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://xml.apache.org/xml-soap"/>
+   <element name="contractCreateTest">
+    <complexType>
+     <sequence>
+      <element name="username" type="xsd:string"/>
+      <element name="password" type="xsd:string"/>
+      <element name="obuID" type="xsd:string"/>
+      <element name="licencePlate" type="xsd:string"/>
+      <element name="licencePlateCountryID" type="xsd:int"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="contractCreateTestResponse">
+    <complexType>
+     <sequence>
+      <element name="contractCreateTestReturn" type="apachesoap:Map"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="contractCreate">
+    <complexType>
+     <sequence>
+      <element name="username" type="xsd:string"/>
+      <element name="password" type="xsd:string"/>
+      <element name="clientTypeID" type="xsd:int"/>
+      <element name="firstName" type="xsd:string"/>
+      <element name="lastName" type="xsd:string"/>
+      <element name="birthDate" type="xsd:string"/>
+      <element name="company" type="xsd:string"/>
+      <element name="companyNumber" type="xsd:string"/>
+      <element name="address1" type="xsd:string"/>
+      <element name="address2" type="xsd:string"/>
+      <element name="postCode" type="xsd:string"/>
+      <element name="postOffice" type="xsd:string"/>
+      <element name="countryID" type="xsd:int"/>
+      <element name="eMail" type="xsd:string"/>
+      <element name="phone" type="xsd:string"/>
+      <element name="validFrom" type="xsd:string"/>
+      <element name="obuID" type="xsd:string"/>
+      <element name="vehicleClassID" type="xsd:int"/>
+      <element name="licencePlate" type="xsd:string"/>
+      <element name="licencePlateCountryID" type="xsd:int"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="contractCreateResponse">
+    <complexType>
+     <sequence>
+      <element name="contractCreateReturn" type="apachesoap:Map"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="ServiceTest">
+    <complexType>
+     <sequence>
+      <element name="username" type="xsd:string"/>
+      <element name="password" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="ServiceTestResponse">
+    <complexType>
+     <sequence>
+      <element name="ServiceTestReturn" type="apachesoap:Map"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="paymentMethodGet">
+    <complexType>
+     <sequence>
+      <element name="clientNumber" type="xsd:int"/>
+      <element name="accountNumber" type="xsd:int"/>
+      <element name="invoiceNumber" type="xsd:string"/>
+      <element name="systemActorID" type="xsd:int"/>
+      <element name="username" type="xsd:string"/>
+      <element name="password" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="paymentMethodGetResponse">
+    <complexType>
+     <sequence>
+      <element name="paymentMethodGetReturn" type="apachesoap:Map"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="paymentMethodUpdate">
+    <complexType>
+     <sequence>
+      <element name="clientNumber" type="xsd:int"/>
+      <element name="accountNumber" type="xsd:int"/>
+      <element name="invoiceNumber" type="xsd:string"/>
+      <element name="paymentMethodID" type="xsd:int"/>
+      <element name="systemActorID" type="xsd:int"/>
+      <element name="username" type="xsd:string"/>
+      <element name="password" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="paymentMethodUpdateResponse">
+    <complexType>
+     <sequence>
+      <element name="paymentMethodUpdateReturn" type="apachesoap:Map"/>
+     </sequence>
+    </complexType>
+   </element>
+  </schema>
+  <schema elementFormDefault="qualified" targetNamespace="http://xml.apache.org/xml-soap" xmlns="http://www.w3.org/2001/XMLSchema">
+   <complexType name="mapItem">
+    <sequence>
+     <element name="key" nillable="true" type="xsd:anyType"/>
+     <element name="value" nillable="true" type="xsd:anyType"/>
+    </sequence>
+   </complexType>
+   <complexType name="Map">
+    <sequence>
+     <element maxOccurs="unbounded" minOccurs="0" name="item" type="apachesoap:mapItem"/>
+    </sequence>
+   </complexType>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="paymentMethodGetRequest">
+
+      <wsdl:part element="impl:paymentMethodGet" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="contractCreateRequest">
+
+      <wsdl:part element="impl:contractCreate" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="ServiceTestRequest">
+
+      <wsdl:part element="impl:ServiceTest" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="contractCreateTestRequest">
+
+      <wsdl:part element="impl:contractCreateTest" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="paymentMethodGetResponse">
+
+      <wsdl:part element="impl:paymentMethodGetResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="ServiceTestResponse">
+
+      <wsdl:part element="impl:ServiceTestResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="paymentMethodUpdateRequest">
+
+      <wsdl:part element="impl:paymentMethodUpdate" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="contractCreateTestResponse">
+
+      <wsdl:part element="impl:contractCreateTestResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="paymentMethodUpdateResponse">
+
+      <wsdl:part element="impl:paymentMethodUpdateResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="contractCreateResponse">
+
+      <wsdl:part element="impl:contractCreateResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:portType name="ContractServiceJdbcSpring">
+
+      <wsdl:operation name="contractCreateTest">
+
+         <wsdl:input message="impl:contractCreateTestRequest" name="contractCreateTestRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:contractCreateTestResponse" name="contractCreateTestResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="contractCreate">
+
+         <wsdl:input message="impl:contractCreateRequest" name="contractCreateRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:contractCreateResponse" name="contractCreateResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ServiceTest">
+
+         <wsdl:input message="impl:ServiceTestRequest" name="ServiceTestRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:ServiceTestResponse" name="ServiceTestResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="paymentMethodGet">
+
+         <wsdl:input message="impl:paymentMethodGetRequest" name="paymentMethodGetRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:paymentMethodGetResponse" name="paymentMethodGetResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="paymentMethodUpdate">
+
+         <wsdl:input message="impl:paymentMethodUpdateRequest" name="paymentMethodUpdateRequest">
+
+       </wsdl:input>
+
+         <wsdl:output message="impl:paymentMethodUpdateResponse" name="paymentMethodUpdateResponse">
+
+       </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="ContractServiceJdbcSpringSoapBinding" type="impl:ContractServiceJdbcSpring">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="contractCreateTest">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="contractCreateTestRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="contractCreateTestResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="contractCreate">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="contractCreateRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="contractCreateResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ServiceTest">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="ServiceTestRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="ServiceTestResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="paymentMethodGet">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="paymentMethodGetRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="paymentMethodGetResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="paymentMethodUpdate">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="paymentMethodUpdateRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="paymentMethodUpdateResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="ContractServiceJdbcSpringService">
+
+      <wsdl:port binding="impl:ContractServiceJdbcSpringSoapBinding" name="ContractServiceJdbcSpring">
+
+         <wsdlsoap:address location="http://localhost:8081/soap/services/ContractServiceJdbcSpring"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

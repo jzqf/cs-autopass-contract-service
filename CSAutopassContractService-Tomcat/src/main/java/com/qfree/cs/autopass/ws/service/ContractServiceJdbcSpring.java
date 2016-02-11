@@ -1,6 +1,9 @@
 
 package com.qfree.cs.autopass.ws.service;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -19,8 +22,18 @@ public class ContractServiceJdbcSpring implements ContractService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcSpring.class);
 
+	private static final CharsetEncoder iso8859Encoder = Charset.forName("ISO-8859-1").newEncoder()
+			.onUnmappableCharacter(CodingErrorAction.IGNORE);
+	//.onUnmappableCharacter(CodingErrorAction.REPLACE).replaceWith("X".getBytes());
+
 	private static final int VALIDATION_ERRORCODE = 100;
 	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
+
+	private static final int CANNOT_ENCODE_CHARACTER_ERRORCODE = 103;
+	private static final String CANNOT_ENCODE_CHARACTER_ERRORMESSAGE = "Forespørsel inneholder tegn som ikke er støttet.";
+
+	private static final int DATABASE_ERROR_ERRORCODE = 104;
+	private static final String DATABASE_ERROR_ERRORMESSAGE = "";
 
 	private static final int CLIENTTYPE_ID_PERSONAL = 2;
 	private static final int CLIENTTYPE_ID_COMPANY = 4;
@@ -186,12 +199,100 @@ public class ContractServiceJdbcSpring implements ContractService {
 		result.put("ErrorCode", -1);
 		result.put("ErrorMessage", "");
 
-		// Validation:
-		//
-		// We must explicitly check for empty strings because "required = true"
-		// in JAB @XmlElement annotations does not enforce that strings are not
-		// empty.
+		//	/*
+		//	 *  Validation:
+		//	 *  
+		//	 *  The stored procedure ServerCommon.dbo.qp_WSC_ContractCreate returns
+		//	 *  an error code if nearly any of the parameters contain a question 
+		//	 *  mark character "?". This is due to the following code block:
+		//	 *  
+		//	 *      if (   @ip_Address1 like '%?%'
+		//	 *          or @ip_Address2 like '%?%'
+		//	 *          or @ip_FirstName like '%?%'
+		//	 *          or @ip_LastName like '%?%'
+		//	 *          or @ip_Company like '%?%'
+		//	 *          or @ip_CompanyNumber like '%?%'
+		//	 *          or @ip_PostCode like '%?%'
+		//	 *          or @ip_PostOffice like '%?%'
+		//	 *          or @ip_EMail like '%?%'
+		//	 *          or @ip_Phone like '%?%'
+		//	 *          or @ip_OBUID like '%?%'
+		//	 *          or @ip_LicencePlate like '%?%' )
+		//	 *      begin
+		//	 *      
+		//	 *          select @tmp_RetCode = @tmp_BaseErrorNumber + 900 --Unhandled character in string. Only iso8859-1 characters are allowed. (128)
+		//	 *          goto ExitDoor
+		//	 *      
+		//	 *      end
+		//	 */
+		//	if (address1 != null && address1.contains("?")) {
+		//		logger.warn("Question mark character found in 'address1'. It will be stripped. Original text = {}",
+		//				address1);
+		//		address1 = address1.replace("?", "");
+		//	}
+		//	if (address2 != null && address2.contains("?")) {
+		//		logger.warn("Question mark character found in 'address2'. It will be stripped. Original text = {}",
+		//				address2);
+		//		address2 = address2.replace("?", "");
+		//	}
+		//	if (firstName != null && firstName.contains("?")) {
+		//		logger.warn("Question mark character found in 'firstName'. It will be stripped. Original text = {}",
+		//				firstName);
+		//		firstName = firstName.replace("?", "");
+		//	}
+		//	if (lastName != null && lastName.contains("?")) {
+		//		logger.warn("Question mark character found in 'lastName'. It will be stripped. Original text = {}",
+		//				lastName);
+		//		lastName = lastName.replace("?", "");
+		//	}
+		//	if (company != null && company.contains("?")) {
+		//		logger.warn("Question mark character found in 'company'. It will be stripped. Original text = {}",
+		//				company);
+		//		company = company.replace("?", "");
+		//	}
+		//	if (companyNumber != null && companyNumber.contains("?")) {
+		//		logger.warn("Question mark character found in 'companyNumber'. It will be stripped. Original text = {}",
+		//				companyNumber);
+		//		companyNumber = companyNumber.replace("?", "");
+		//	}
+		//	if (postCode != null && postCode.contains("?")) {
+		//		logger.warn("Question mark character found in 'postCode'. It will be stripped. Original text = {}",
+		//				postCode);
+		//		postCode = postCode.replace("?", "");
+		//	}
+		//	if (postOffice != null && postOffice.contains("?")) {
+		//		logger.warn("Question mark character found in 'postOffice'. It will be stripped. Original text = {}",
+		//				postOffice);
+		//		postOffice = postOffice.replace("?", "");
+		//	}
+		//	if (eMail != null && eMail.contains("?")) {
+		//		logger.warn("Question mark character found in 'eMail'. It will be stripped. Original text = {}",
+		//				eMail);
+		//		eMail = eMail.replace("?", "");
+		//	}
+		//	if (phone != null && phone.contains("?")) {
+		//		logger.warn("Question mark character found in 'phone'. It will be stripped. Original text = {}",
+		//				phone);
+		//		phone = phone.replace("?", "");
+		//	}
+		//	if (obuID != null && obuID.contains("?")) {
+		//		logger.warn("Question mark character found in 'obuID'. It will be stripped. Original text = {}",
+		//				obuID);
+		//		obuID = postOffice.replace("?", "");
+		//	}
+		//	if (licencePlate != null && licencePlate.contains("?")) {
+		//		logger.warn("Question mark character found in 'licencePlate'. It will be stripped. Original text = {}",
+		//				licencePlate);
+		//		licencePlate = licencePlate.replace("?", "");
+		//	}
 
+		/*
+		 *  More validation:
+		 *  
+		 *  We must also explicitly check for empty strings because 
+		 *  "required = true" in JAB @XmlElement annotations does not enforce
+		 *  that strings are not empty.
+		 */
 		if (username == null || username.isEmpty()) {
 			result.put("ErrorCode", VALIDATION_ERRORCODE);
 			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
@@ -311,6 +412,147 @@ public class ContractServiceJdbcSpring implements ContractService {
 			return result;
 		}
 
+		/*
+		 * More validation:
+		 * 
+		 * The Sybase database which this application connects to stores data
+		 * using the ISO-8859-1 character set. Java Strings, of course, use a
+		 * Unicode encoding (some sort of UTF-16, I believe), so that have not
+		 * problem representing any conceivable characters that it receives
+		 * via this application's web service endpoints. However, if a string is
+		 * passed to the database that contains characters that cannot be 
+		 * represented in the character encoding used bythe database, the JDBC
+		 * driver throws an exception of the form:
+		 * 
+		 *   org.springframework.jdbc.UncategorizedSQLException: CallableStatementCallback; 
+		 *   uncategorized SQLException for SQL [{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, 
+		 *   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}]; SQL state [ZZZZZ]; 
+		 *   error code [2402]; Error converting characters into server's character set. 
+		 *   Some character(s) could not be converted.
+		 *   
+		 *     ...
+		 * 
+		 * To avoid this exception, we have perhaps 3 choices:
+		 * 
+		 * 1. Detect this situation and then return an error without attempting
+		 *    to run the stored procedure.
+		 * 
+		 * 2. Replace offending characters with another character which *can* be
+		 *    represented in the server's character set. We cannot use "?"
+		 *    because of how the stored procedure qp_WSC_ContractCreate checks
+		 *    for question mark characters in its arguments and then returns an
+		 *    error itself if it detects one. Perhaps a good choice would be the
+		 *    empty string "", i.e., we just *remove* such characters.
+		 * 
+		 * 3. We run the stored procedure qp_WSC_ContractCreate in a try block
+		 *    and then return an error if an exception is thrown, using the
+		 *    exception's message text as the error message.
+		 * 
+		 * We have chosen to use approach #1:
+		 */
+
+		/*
+		 * username & password ARE ALSO SUBJECT TO THIS PROBLEM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		 */
+		if (username != null && !iso8859Encoder.canEncode(username)) {
+			logger.warn("username = {}, iso8859Encoder.canEncode(username) = {}", username,
+					iso8859Encoder.canEncode(username));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (password != null && !iso8859Encoder.canEncode(password)) {
+			logger.warn("password = {}, iso8859Encoder.canEncode(password) = {}", password,
+					iso8859Encoder.canEncode(password));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (firstName != null && !iso8859Encoder.canEncode(firstName)) {
+			logger.warn("firstName = {}, iso8859Encoder.canEncode(firstName) = {}", firstName,
+					iso8859Encoder.canEncode(firstName));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (lastName != null && !iso8859Encoder.canEncode(lastName)) {
+			logger.warn("lastName = {}, iso8859Encoder.canEncode(lastName) = {}", lastName,
+					iso8859Encoder.canEncode(lastName));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (company != null && !iso8859Encoder.canEncode(company)) {
+			logger.warn("company = {}, iso8859Encoder.canEncode(company) = {}", company,
+					iso8859Encoder.canEncode(company));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (companyNumber != null && !iso8859Encoder.canEncode(companyNumber)) {
+			logger.warn("companyNumber = {}, iso8859Encoder.canEncode(companyNumber) = {}", companyNumber,
+					iso8859Encoder.canEncode(companyNumber));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (address1 != null && !iso8859Encoder.canEncode(address1)) {
+			logger.warn("address1 = {}, iso8859Encoder.canEncode(address1) = {}", address1,
+					iso8859Encoder.canEncode(address1));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (address2 != null && !iso8859Encoder.canEncode(address2)) {
+			logger.warn("address2 = {}, iso8859Encoder.canEncode(address2) = {}", address2,
+					iso8859Encoder.canEncode(address2));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (postCode != null && !iso8859Encoder.canEncode(postCode)) {
+			logger.warn("postCode = {}, iso8859Encoder.canEncode(postCode) = {}", postCode,
+					iso8859Encoder.canEncode(postCode));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (postOffice != null && !iso8859Encoder.canEncode(postOffice)) {
+			logger.warn("postOffice = {}, iso8859Encoder.canEncode(postOffice) = {}", postOffice,
+					iso8859Encoder.canEncode(postOffice));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (eMail != null && !iso8859Encoder.canEncode(eMail)) {
+			logger.warn("eMail = {}, iso8859Encoder.canEncode(eMail) = {}", eMail,
+					iso8859Encoder.canEncode(eMail));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (phone != null && !iso8859Encoder.canEncode(phone)) {
+			logger.warn("phone = {}, iso8859Encoder.canEncode(phone) = {}", phone,
+					iso8859Encoder.canEncode(phone));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (obuID != null && !iso8859Encoder.canEncode(obuID)) {
+			logger.warn("obuID = {}, iso8859Encoder.canEncode(obuID) = {}", obuID,
+					iso8859Encoder.canEncode(obuID));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (licencePlate != null && !iso8859Encoder.canEncode(licencePlate)) {
+			logger.warn("licencePlate = {}, iso8859Encoder.canEncode(licencePlate) = {}", licencePlate,
+					iso8859Encoder.canEncode(licencePlate));
+			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+
 		MapSqlParameterSource in = new MapSqlParameterSource()
 				.addValue("ip_Username", username)
 				.addValue("ip_Password", password)
@@ -339,7 +581,28 @@ public class ContractServiceJdbcSpring implements ContractService {
 		in.addValue("op_ClientNumber", null).addValue("op_ErrorCode", null).addValue("op_ErrorMessage", null);
 
 		logger.debug("Calling qp_WSC_ContractCreate with input parameters:\n{}", in.getValues());
-		Map<String, Object> out = procContractCreate.execute(in);	// run stored procedure
+		Map<String, Object> out = null;
+		//	try {
+		out = procContractCreate.execute(in); // run stored procedure
+		//	} catch (Exception e) {
+		//		logger.warn("firstName = {}, iso8859Encoder.canEncode(firstName) = {}", firstName,
+		//				iso8859Encoder.canEncode(firstName));
+		//		/*
+		//		 * Work through the chain of exceptions to reach the "root" cause.
+		//		 */
+		//		Throwable cause = e;
+		//		Throwable rootCause = cause;
+		//		while (cause != null) {
+		//			rootCause = cause;
+		//			//	logger.debug("cause.getMessage() = {}", cause.getMessage());
+		//			//	logger.debug("cause.getClass() = {}", cause.getClass());
+		//			cause = cause.getCause();
+		//		}
+		//		result.put("ErrorCode", DATABASE_ERROR_ERRORCODE);
+		//		result.put("ErrorMessage", DATABASE_ERROR_ERRORMESSAGE + rootCause.getMessage());
+		//		//result.put("ErrorMessage", DATABASE_ERROR_ERRORMESSAGE + e.getMessage());
+		//		return result;
+		//	}
 		logger.debug("Stored procedure output : {}", out);
 
 		logger.debug("ErrorMessage stripped of stored proc name: {}",

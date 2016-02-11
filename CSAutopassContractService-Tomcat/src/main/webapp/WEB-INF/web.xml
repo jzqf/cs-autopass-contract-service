@@ -1,120 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
-	<display-name>CSAutopassContractService-Tomcat</display-name>
-
-	<!-- Not Spring: 
-	-->
-	<!-- <listener>
-		<listener-class>
-			com.sun.xml.ws.transport.http.servlet.WSServletContextListener
-		</listener-class>
-	</listener>
-	<servlet>
-		<servlet-name>ContractService</servlet-name>
-		<servlet-class>
-			com.sun.xml.ws.transport.http.servlet.WSServlet
-		</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet> -->
-
-	<!-- Spring: 
-	-->	
-	<servlet>
-		<servlet-name>ContractService</servlet-name>
-		<servlet-class>
+  <display-name>CSAutopassContractService-Tomcat</display-name>
+  <servlet>
+    <servlet-name>ContractService</servlet-name>
+    <servlet-class>
 			com.sun.xml.ws.transport.http.servlet.WSSpringServlet
 		</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<!-- This is the bootstrap listener to start up and shut down Spring's root 
-		 WebApplicationContext. It creates the Spring container shared by all 
-		 servlets and filters. -->
-	<listener>
-		<listener-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <listener>
+    <listener-class>
 			org.springframework.web.context.ContextLoaderListener
 		</listener-class>
-	</listener>
-	<!-- Configure ContextLoaderListener to use AnnotationConfigWebApplicationContext
-		 instead of the default XmlWebApplicationContext. This enables "JavaConfig". -->
-	<context-param>
-		<param-name>contextClass</param-name>
-		<param-value>
+  </listener>
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>
 			org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 		</param-value>
-	</context-param>
-	<!-- Configuration location for the root Spring container shared by all servlets
-		 and filters. I also specify ContractService so that its annotations will be
-		 processed by Spring. I could also specify a package and all classes within
-		 it will be candidates for Spring processing (I think the classes need to be
-		 annotated with @Component or a similar stereotype annotation. -->
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
+  </context-param>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
 			com.qfree.cs.autopass.spring.config.RootConfig
 		</param-value>
-	</context-param>
-
-
-	<!-- The rest of this file is independent of whether Spring is used or not -->
-  
-	<servlet-mapping>
-		<servlet-name>ContractService</servlet-name>
-		<url-pattern>/ContractService</url-pattern>
-	</servlet-mapping>
-	
-	<session-config>
-		<session-timeout>30</session-timeout>
-	</session-config>
-
-	<!-- The webAppRootKey is a context parameter that exposes the webapp root 
-		 as a system property that can be used elsewhere. It will have a value 
-		 of ${CATALINA_HOME}/webapp/<webapp-name> on Tomcat. -->
-	<context-param>
-		<param-name>webAppRootKey</param-name>
-		<param-value>contractservice.root</param-value>
-	</context-param>
-
-	<!-- A transport-guarantee of CONFIDENTIAL means that if a web request comes
-		 in on an application server's HTTP Connector (defined in server.xml for
-		 Tomcat), then the request will be redirected to the TCP port specified
-		 by the "redirectPort" attribute for that connector, e.g., "8443".  -->
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>HTTPSOnly</web-resource-name>
-			<url-pattern>/ContractService</url-pattern>
-		</web-resource-collection>
-		<user-data-constraint>
-			<transport-guarantee>NONE</transport-guarantee>  <!-- CONFIDENTIAL / NONE -->
-		</user-data-constraint>
-	</security-constraint>
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>HTTPSOrHTTP</web-resource-name>
-			<url-pattern>*.ico</url-pattern>
-			<url-pattern>/img/*</url-pattern>
-			<url-pattern>/css/*</url-pattern>
-		</web-resource-collection>
-		<user-data-constraint>
-			<transport-guarantee>NONE</transport-guarantee>
-		</user-data-constraint>
-	</security-constraint>
-	
-	<!-- Container-managed JNDI Datasource.
-	     This declares the name under which we will look up the Datasource. -->
-	<!-- <resource-ref>
-		<description>Datasource for AutoPASS ContractService web service</description>
-		<res-ref-name>jdbc/autopass</res-ref-name>
-		<res-type>javax.sql.DataSource</res-type>
-		<res-auth>Container</res-auth>
-	</resource-ref> -->
-	
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
-		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>default.html</welcome-file>
-		<welcome-file>default.htm</welcome-file>
-		<welcome-file>default.jsp</welcome-file>
-	</welcome-file-list>
-
+  </context-param>
+  <servlet-mapping>
+    <servlet-name>ContractService</servlet-name>
+    <url-pattern>/ContractService</url-pattern>
+  </servlet-mapping>
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>contractservice.root</param-value>
+  </context-param>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>HTTPSOnly</web-resource-name>
+      <url-pattern>/ContractService</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>HTTPSOrHTTP</web-resource-name>
+      <url-pattern>*.ico</url-pattern>
+      <url-pattern>/img/*</url-pattern>
+      <url-pattern>/css/*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <display-name>Apache-Axis Servlet</display-name>
+    <servlet-name>AxisServlet</servlet-name>
+    <servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/servlet/AxisServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>*.jws</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <display-name>Axis Admin Servlet</display-name>
+    <servlet-name>AdminServlet</servlet-name>
+    <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminServlet</servlet-name>
+    <url-pattern>/servlet/AdminServlet</url-pattern>
+  </servlet-mapping>
 </web-app>
