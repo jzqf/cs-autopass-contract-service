@@ -52,12 +52,6 @@ public class ContractWs implements ContractWsSEI {
    
 	private static final Logger logger = LoggerFactory.getLogger(ContractWs.class);
 
-	private static final int DBACCESSPROBLEM_ERRORCODE = 101;
-	private static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig. Prøv senere.";
-
-	private static final int MAXCONNECTIONS_ERRORCODE = 102;
-	private static final String MAXCONNECTIONS_ERRORMESSAGE = "Maksimalt antall samtidige tilkoblinger overskredet. Prøv senere.";
-
 	// "concurrentCalls_semaphore" is used to limit the number of simultaneous 
 	// web service calls to a maximum that is set in the configuration 
 	// properties file for this application. 
@@ -168,16 +162,16 @@ public class ContractWs implements ContractWsSEI {
 				//						+ "*************************************************************");
 
 			} catch (Exception e) {
-				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
-				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
+				response.setErrorCode(WsUtils.DBACCESSPROBLEM_ERRORCODE);
+				response.setErrorMessage(WsUtils.DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
 			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
 		} else {
-			response.setErrorCode(MAXCONNECTIONS_ERRORCODE);
-			response.setErrorMessage(MAXCONNECTIONS_ERRORMESSAGE);
+			response.setErrorCode(WsUtils.MAXCONNECTIONS_ERRORCODE);
+			response.setErrorMessage(WsUtils.MAXCONNECTIONS_ERRORMESSAGE);
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
@@ -315,16 +309,16 @@ public class ContractWs implements ContractWsSEI {
 				//						+ "*************************************************************");
 
 			} catch (Exception e) {
-				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
-				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
+				response.setErrorCode(WsUtils.DBACCESSPROBLEM_ERRORCODE);
+				response.setErrorMessage(WsUtils.DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
 			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
 		} else {
-			response.setErrorCode(MAXCONNECTIONS_ERRORCODE);
-			response.setErrorMessage(MAXCONNECTIONS_ERRORMESSAGE);
+			response.setErrorCode(WsUtils.MAXCONNECTIONS_ERRORCODE);
+			response.setErrorMessage(WsUtils.MAXCONNECTIONS_ERRORMESSAGE);
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 
@@ -382,16 +376,16 @@ public class ContractWs implements ContractWsSEI {
 				//						+ "*************************************************************");
 
 			} catch (Exception e) {
-				response.setErrorCode(DBACCESSPROBLEM_ERRORCODE);
-				response.setErrorMessage(DBACCESSPROBLEM_ERRORMESSAGE);
+				response.setErrorCode(WsUtils.DBACCESSPROBLEM_ERRORCODE);
+				response.setErrorMessage(WsUtils.DBACCESSPROBLEM_ERRORMESSAGE);
 				logger.error("An exception was thrown accessing the database:", e);
 			} finally {
 				this.releaseAccess();  // release semaphore permit to increase number of available simultaneous web service calls by one
 			}
 
 		} else {
-			response.setErrorCode(MAXCONNECTIONS_ERRORCODE);
-			response.setErrorMessage(MAXCONNECTIONS_ERRORMESSAGE);
+			response.setErrorCode(WsUtils.MAXCONNECTIONS_ERRORCODE);
+			response.setErrorMessage(WsUtils.MAXCONNECTIONS_ERRORMESSAGE);
 			logger.warn("Call disallowed. Maximum concurrent call limit reached: {}", concurrentCalls_permits);
 		}
 

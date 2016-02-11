@@ -26,15 +26,6 @@ public class ContractServiceJdbcSpring implements ContractService {
 			.onUnmappableCharacter(CodingErrorAction.IGNORE);
 	//.onUnmappableCharacter(CodingErrorAction.REPLACE).replaceWith("X".getBytes());
 
-	private static final int VALIDATION_ERRORCODE = 100;
-	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
-
-	private static final int CANNOT_ENCODE_CHARACTER_ERRORCODE = 103;
-	private static final String CANNOT_ENCODE_CHARACTER_ERRORMESSAGE = "Forespørsel inneholder tegn som ikke er støttet.";
-
-	private static final int DATABASE_ERROR_ERRORCODE = 104;
-	private static final String DATABASE_ERROR_ERRORMESSAGE = "";
-
 	private static final int CLIENTTYPE_ID_PERSONAL = 2;
 	private static final int CLIENTTYPE_ID_COMPANY = 4;
 
@@ -95,27 +86,27 @@ public class ContractServiceJdbcSpring implements ContractService {
 		// empty.
 
 		if (username == null || username.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
 			return result;
 		}
 
 		if (password == null || password.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
 			return result;
 		}
 
 		if (obuID == null || obuID.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
 			return result;
 		}
 
 		if (licencePlate != null && !licencePlate.isEmpty()) {
 			if (licencePlateCountryID == null || licencePlateCountryID.intValue() == 0) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE
 						+ ":  LicencePlateCountryID er påkrevd hvis LicencePlate angitt");
 				return result;
 			}
@@ -123,8 +114,8 @@ public class ContractServiceJdbcSpring implements ContractService {
 
 		if (licencePlateCountryID != null && licencePlateCountryID.intValue() != 0) {
 			if (licencePlate == null || licencePlate.isEmpty()) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE
 						+ ":  LicencePlate er påkrevd hvis LicencePlateCountryID angitt");
 				return result;
 			}
@@ -294,54 +285,56 @@ public class ContractServiceJdbcSpring implements ContractService {
 		 *  that strings are not empty.
 		 */
 		if (username == null || username.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
 			return result;
 		}
 
 		if (password == null || password.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
 			return result;
 		}
 
 		if (firstName == null || firstName.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  FirstName er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  FirstName er påkrevd");
 			return result;
 		}
 
 		if (lastName == null || lastName.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  LastName er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  LastName er påkrevd");
 			return result;
 		}
 
 		Date sqlBirthDate = null;
 		if (clientTypeID == CLIENTTYPE_ID_PERSONAL) {
 			if (birthDate == null || birthDate.isEmpty()) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate er påkrevd for privatkunder");
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage",
+						WsUtils.VALIDATION_ERRORMESSAGE + ":  BirthDate er påkrevd for privatkunder");
 				return result;
 			}
 			try {
 				sqlBirthDate = WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd");
 			} catch (ParseException e) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
 				return result;
 			}
 		}
 
 		if (clientTypeID == CLIENTTYPE_ID_COMPANY) {
 			if (company == null || company.isEmpty()) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Company er påkrevd for firmakunder");
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Company er påkrevd for firmakunder");
 				return result;
 			}
 			if (companyNumber == null || companyNumber.isEmpty()) {
-				result.put("ErrorCode", VALIDATION_ERRORCODE);
-				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  CompanyNumber er påkrevd for firmakunder");
+				result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+				result.put("ErrorMessage",
+						WsUtils.VALIDATION_ERRORMESSAGE + ":  CompanyNumber er påkrevd for firmakunder");
 				return result;
 			}
 			//		} else {
@@ -350,8 +343,8 @@ public class ContractServiceJdbcSpring implements ContractService {
 		}
 
 		if (address1 == null || address1.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Address1 er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Address1 er påkrevd");
 			return result;
 		}
 
@@ -360,14 +353,14 @@ public class ContractServiceJdbcSpring implements ContractService {
 		}
 
 		if (postCode == null || postCode.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  PostCode er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  PostCode er påkrevd");
 			return result;
 		}
 
 		if (postOffice == null || postOffice.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  PostOffice er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  PostOffice er påkrevd");
 			return result;
 		}
 
@@ -380,35 +373,35 @@ public class ContractServiceJdbcSpring implements ContractService {
 		}
 
 		if (validFrom == null || validFrom.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  ValidFrom er påkrevd");
 			return result;
 		}
 		Timestamp sqlValidFrom = null;
 		try {
 			sqlValidFrom = WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd");
 		} catch (ParseException e) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
 			return result;
 		}
 
 		if (obuID == null || obuID.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  OBUID er påkrevd");
 			return result;
 		}
 
 		if (vehicleClassID != 1 && vehicleClassID != 2) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  VehicleClassID = " + vehicleClassID
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  VehicleClassID = " + vehicleClassID
 					+ ". Må være 1 eller 2.");
 			return result;
 		}
 
 		if (licencePlate == null || licencePlate.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  LicencePlate er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  LicencePlate er påkrevd");
 			return result;
 		}
 
@@ -457,99 +450,99 @@ public class ContractServiceJdbcSpring implements ContractService {
 		if (username != null && !iso8859Encoder.canEncode(username)) {
 			logger.warn("username = {}, iso8859Encoder.canEncode(username) = {}", username,
 					iso8859Encoder.canEncode(username));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (password != null && !iso8859Encoder.canEncode(password)) {
 			logger.warn("password = {}, iso8859Encoder.canEncode(password) = {}", password,
 					iso8859Encoder.canEncode(password));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (firstName != null && !iso8859Encoder.canEncode(firstName)) {
 			logger.warn("firstName = {}, iso8859Encoder.canEncode(firstName) = {}", firstName,
 					iso8859Encoder.canEncode(firstName));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (lastName != null && !iso8859Encoder.canEncode(lastName)) {
 			logger.warn("lastName = {}, iso8859Encoder.canEncode(lastName) = {}", lastName,
 					iso8859Encoder.canEncode(lastName));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (company != null && !iso8859Encoder.canEncode(company)) {
 			logger.warn("company = {}, iso8859Encoder.canEncode(company) = {}", company,
 					iso8859Encoder.canEncode(company));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (companyNumber != null && !iso8859Encoder.canEncode(companyNumber)) {
 			logger.warn("companyNumber = {}, iso8859Encoder.canEncode(companyNumber) = {}", companyNumber,
 					iso8859Encoder.canEncode(companyNumber));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (address1 != null && !iso8859Encoder.canEncode(address1)) {
 			logger.warn("address1 = {}, iso8859Encoder.canEncode(address1) = {}", address1,
 					iso8859Encoder.canEncode(address1));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (address2 != null && !iso8859Encoder.canEncode(address2)) {
 			logger.warn("address2 = {}, iso8859Encoder.canEncode(address2) = {}", address2,
 					iso8859Encoder.canEncode(address2));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (postCode != null && !iso8859Encoder.canEncode(postCode)) {
 			logger.warn("postCode = {}, iso8859Encoder.canEncode(postCode) = {}", postCode,
 					iso8859Encoder.canEncode(postCode));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (postOffice != null && !iso8859Encoder.canEncode(postOffice)) {
 			logger.warn("postOffice = {}, iso8859Encoder.canEncode(postOffice) = {}", postOffice,
 					iso8859Encoder.canEncode(postOffice));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (eMail != null && !iso8859Encoder.canEncode(eMail)) {
 			logger.warn("eMail = {}, iso8859Encoder.canEncode(eMail) = {}", eMail,
 					iso8859Encoder.canEncode(eMail));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (phone != null && !iso8859Encoder.canEncode(phone)) {
 			logger.warn("phone = {}, iso8859Encoder.canEncode(phone) = {}", phone,
 					iso8859Encoder.canEncode(phone));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (obuID != null && !iso8859Encoder.canEncode(obuID)) {
 			logger.warn("obuID = {}, iso8859Encoder.canEncode(obuID) = {}", obuID,
 					iso8859Encoder.canEncode(obuID));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 		if (licencePlate != null && !iso8859Encoder.canEncode(licencePlate)) {
 			logger.warn("licencePlate = {}, iso8859Encoder.canEncode(licencePlate) = {}", licencePlate,
 					iso8859Encoder.canEncode(licencePlate));
-			result.put("ErrorCode", CANNOT_ENCODE_CHARACTER_ERRORCODE);
-			result.put("ErrorMessage", CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
 			return result;
 		}
 
@@ -636,14 +629,14 @@ public class ContractServiceJdbcSpring implements ContractService {
 		// empty.
 
 		if (username == null || username.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Username er påkrevd");
 			return result;
 		}
 
 		if (password == null || password.isEmpty()) {
-			result.put("ErrorCode", VALIDATION_ERRORCODE);
-			result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
+			result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  Password er påkrevd");
 			return result;
 		}
 
