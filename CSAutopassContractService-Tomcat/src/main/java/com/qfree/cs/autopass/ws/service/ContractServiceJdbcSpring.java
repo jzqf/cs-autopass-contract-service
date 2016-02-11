@@ -24,7 +24,7 @@ public class ContractServiceJdbcSpring implements ContractService {
 
 	private static final CharsetEncoder iso8859Encoder = Charset.forName("ISO-8859-1").newEncoder()
 			.onUnmappableCharacter(CodingErrorAction.IGNORE);
-	//.onUnmappableCharacter(CodingErrorAction.REPLACE).replaceWith("X".getBytes());
+	//		.onUnmappableCharacter(CodingErrorAction.REPLACE).replaceWith("X".getBytes());
 
 	private static final int CLIENTTYPE_ID_PERSONAL = 2;
 	private static final int CLIENTTYPE_ID_COMPANY = 4;
@@ -130,6 +130,73 @@ public class ContractServiceJdbcSpring implements ContractService {
 		//		} else {
 		//			logger.debug("licencePlateCountryID is null");
 		//		}
+
+		/*
+		 * More validation:
+		 * 
+		 * The Sybase database which this application connects to stores data
+		 * using the ISO-8859-1 character set. Java Strings, of course, use a
+		 * Unicode encoding (some sort of UTF-16, I believe), so that have not
+		 * problem representing any conceivable characters that it receives
+		 * via this application's web service endpoints. However, if a string is
+		 * passed to the database that contains characters that cannot be 
+		 * represented in the character encoding used bythe database, the JDBC
+		 * driver throws an exception of the form:
+		 * 
+		 *   org.springframework.jdbc.UncategorizedSQLException: CallableStatementCallback; 
+		 *   uncategorized SQLException for SQL [{call qp_WSC_ContractCreate(?, ?, ?, ?, ?, 
+		 *   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}]; SQL state [ZZZZZ]; 
+		 *   error code [2402]; Error converting characters into server's character set. 
+		 *   Some character(s) could not be converted.
+		 *   
+		 *     ...
+		 * 
+		 * To avoid this exception, we have perhaps 3 choices:
+		 * 
+		 * 1. Detect this situation and then return an error without attempting
+		 *    to run the stored procedure.
+		 * 
+		 * 2. Replace offending characters with another character which *can* be
+		 *    represented in the server's character set. We cannot use "?"
+		 *    because of how the stored procedure qp_WSC_ContractCreate checks
+		 *    for question mark characters in its arguments and then returns an
+		 *    error itself if it detects one. Perhaps a good choice would be the
+		 *    empty string "", i.e., we just *remove* such characters.
+		 * 
+		 * 3. We run the stored procedure qp_WSC_ContractCreate in a try block
+		 *    and then return an error if an exception is thrown, using the
+		 *    exception's message text as the error message.
+		 * 
+		 * We have chosen to use approach #1:
+		 */
+		if (username != null && !iso8859Encoder.canEncode(username)) {
+			logger.warn("username = {}, iso8859Encoder.canEncode(username) = {}", username,
+					iso8859Encoder.canEncode(username));
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (password != null && !iso8859Encoder.canEncode(password)) {
+			logger.warn("password = {}, iso8859Encoder.canEncode(password) = {}", password,
+					iso8859Encoder.canEncode(password));
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (obuID != null && !iso8859Encoder.canEncode(obuID)) {
+			logger.warn("obuID = {}, iso8859Encoder.canEncode(obuID) = {}", obuID,
+					iso8859Encoder.canEncode(obuID));
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
+		if (licencePlate != null && !iso8859Encoder.canEncode(licencePlate)) {
+			logger.warn("licencePlate = {}, iso8859Encoder.canEncode(licencePlate) = {}", licencePlate,
+					iso8859Encoder.canEncode(licencePlate));
+			result.put("ErrorCode", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORCODE);
+			result.put("ErrorMessage", WsUtils.CANNOT_ENCODE_CHARACTER_ERRORMESSAGE);
+			return result;
+		}
 
 		MapSqlParameterSource in = new MapSqlParameterSource()
 				.addValue("ip_Username", username)
@@ -442,10 +509,6 @@ public class ContractServiceJdbcSpring implements ContractService {
 		 *    exception's message text as the error message.
 		 * 
 		 * We have chosen to use approach #1:
-		 */
-
-		/*
-		 * username & password ARE ALSO SUBJECT TO THIS PROBLEM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		 */
 		if (username != null && !iso8859Encoder.canEncode(username)) {
 			logger.warn("username = {}, iso8859Encoder.canEncode(username) = {}", username,
