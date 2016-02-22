@@ -15,6 +15,32 @@ import java.util.regex.Pattern;
 
 public class WsUtils {
 
+	public static final int NOERRORCODEASSIGNED_ERRORCODE = -2;
+	/* We do not initialize the error message to "" because if we do that, an 
+	 * empty XML element will be returned to the webservice client if no error 
+	 * occurs. Currently, the accepted behaviour is that *no* error message XML 
+	 * element be returned at all for this case (just the error code = 0).
+	 * 
+	 *  2014.07.01: Kjetil asked for this to be changed so that an empty string
+	 *  is returned instead.
+	 */
+	public static final String NOERRORCODEASSIGNED_ERRORMESSAGE = ""; // null;
+
+	public static final int VALIDATION_ERRORCODE = 100;
+	public static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
+
+	public static final int DBACCESSPROBLEM_ERRORCODE = 101;
+	public static final String DBACCESSPROBLEM_ERRORMESSAGE = "Tjeneste er utilgjengelig. Prøv senere.";
+
+	public static final int MAXCONNECTIONS_ERRORCODE = 102;
+	public static final String MAXCONNECTIONS_ERRORMESSAGE = "Maksimalt antall samtidige tilkoblinger overskredet. Prøv senere.";
+
+	public static final int CANNOT_ENCODE_CHARACTER_ERRORCODE = 103;
+	public static final String CANNOT_ENCODE_CHARACTER_ERRORMESSAGE = "Forespørsel inneholder tegn som ikke er støttet.";
+
+	//	private static final int DATABASE_ERROR_ERRORCODE = 104;
+	//	private static final String DATABASE_ERROR_ERRORMESSAGE = "";
+
 	// pattern for a Q-Free stored procedure name appearing at the start of a string,
 	// e.g., "qp_WSC_CoreContractCreateTest : Brikke er allerede aktiv på en kontrakt (56)".
 	// The regex backslash needs to be escaped here.  The effective regex is:

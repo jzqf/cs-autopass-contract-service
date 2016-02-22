@@ -31,9 +31,6 @@ public class ContractServiceJdbcRaw implements ContractService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ContractServiceJdbcRaw.class);
 
-	private static final int VALIDATION_ERRORCODE = 100;
-	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
-
 	/**
 	 * Can be eliminated if we specialize this application such that it can only
 	 * run in a Spring container. For the time being, it will be best to retain
@@ -329,8 +326,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 				try {
 					cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd"));
 				} catch (ParseException e) {
-					result.put("ErrorCode", VALIDATION_ERRORCODE);
-					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+					result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+					result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
 					return result;
 				}
 				//cs.setString("@ip_BirthDate", birthDate);
@@ -354,8 +351,8 @@ public class ContractServiceJdbcRaw implements ContractService {
 				try {
 					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd"));
 				} catch (ParseException e) {
-					result.put("ErrorCode", VALIDATION_ERRORCODE);
-					result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+					result.put("ErrorCode", WsUtils.VALIDATION_ERRORCODE);
+					result.put("ErrorMessage", WsUtils.VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
 					return result;
 				}
 				//cs.setString("@ip_ValidFrom", validFrom);
