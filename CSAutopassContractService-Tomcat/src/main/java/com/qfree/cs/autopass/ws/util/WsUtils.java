@@ -5,6 +5,8 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //import java.io.BufferedWriter;
 //import java.io.File;
@@ -13,11 +15,18 @@ import java.text.SimpleDateFormat;
 
 public class WsUtils {
 
+	// pattern for a Q-Free stored procedure name appearing at the start of a string,
+	// e.g., "qp_WSC_CoreContractCreateTest : Brikke er allerede aktiv på en kontrakt (56)".
+	// The regex backslash needs to be escaped here.  The effective regex is:
+	//     ^qp_.+\s*:\s*
+	private static final String QP_STORED_PROC_PREFIX_REGEX = "^qp_.+\\s*:\\s*";
+
+	private static final Pattern qp_stored_proc_prefix_pattern = Pattern.compile(QP_STORED_PROC_PREFIX_REGEX);
 
 	/**
 	 * Returns True if the object is null or is an "empty" string.
 	 * 
-	 * This method should be use to test if an object tht representsa a Sybase
+	 * This method should be use to test if an object that represents a a Sybase
 	 * string is empty. Sybase replaces empty strings "" with strings of a 
 	 * single character " ". I believe Sybase does this to avoid having truly
 	 * empty strings "" interpreted as null strings.
@@ -40,8 +49,17 @@ public class WsUtils {
 	 * @return java.sql.Date object corresponding to dateString and format
 	 * @throws ParseException
 	 */
-	public static Date parseStringToSqlDate(String dateString, String format) throws ParseException {
-		return new Date((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
+	public static Date parseStringToSqlDate(String dateString, String formatString) throws ParseException {
+		SimpleDateFormat format = new SimpleDateFormat(formatString);
+		// If we do not set "lenient" to false here, then the dateString "1958-05-06"
+		// will be parsed without throwing an exception even if formatString is set
+		// to "yyyyMMdd". However, in this case it will not be parsed to the correct
+		// date!  This is terrible, because no error will be raised and execution will
+		// continue as if a different date was specified.  The setLenient(false) call
+		// here ensures that the date string strictly adheres to the specified format
+		// string.
+		format.setLenient(false);
+		return new Date(format.parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
 	}
 
 	/**
@@ -53,10 +71,33 @@ public class WsUtils {
 	 * @return java.sql.Date object corresponding to dateString and format
 	 * @throws ParseException
 	 */
-	public static Timestamp parseStringToSqlTimestamp(String dateString, String format) throws ParseException {
-		return new Timestamp((new SimpleDateFormat(format)).parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
+	public static Timestamp parseStringToSqlTimestamp(String dateString, String formatString) throws ParseException {
+		SimpleDateFormat format = new SimpleDateFormat(formatString);
+		// See above for why we call setLenient(false) here.
+		format.setLenient(false);
+		return new Timestamp(format.parse(dateString).getTime());	// convert java.util.Date to java.sql.Date
 	}
-       
+
+	/**
+	 * Strips the Sybase procedure name if it appears at the start of the string. 
+	 * 
+	 * This is used to remove the procedure name from error messages returned from 
+	 * database so that the customer does not see implementation details that they
+	 * don't need to see
+	 * 
+	 * @param errorMessage
+	 * @return
+	 */
+	public static Object stripSybaseProcName(Object errorMessage) {
+		Object cleanedErrorMessage = errorMessage;
+		if (cleanedErrorMessage != null && !cleanedErrorMessage.toString().isEmpty()) {
+			//			Pattern p = Pattern.compile(QP_STORED_PROC_PREFIX_REGEX);
+			Matcher m = qp_stored_proc_prefix_pattern.matcher(cleanedErrorMessage.toString());
+			cleanedErrorMessage = m.replaceFirst("");
+		}
+		return cleanedErrorMessage;
+	}
+
 /*    public static int tryParseInt(String value) {
         int test = -1;
         try {

@@ -1,0 +1,76 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from ContractServiceJdbcSpringService WSDL service -->
+
+  <service name="ContractServiceJdbcSpring" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://service.ws.autopass.cs.qfree.com"/>
+      <parameter name="wsdlServiceElement" value="ContractServiceJdbcSpringService"/>
+      <parameter name="schemaQualified" value="http://xml.apache.org/xml-soap,http://service.ws.autopass.cs.qfree.com"/>
+      <parameter name="wsdlServicePort" value="ContractServiceJdbcSpring"/>
+      <parameter name="className" value="com.qfree.cs.autopass.ws.service.ContractServiceJdbcSpringSoapBindingImpl"/>
+      <parameter name="wsdlPortType" value="ContractServiceJdbcSpring"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation name="contractCreateTest" qname="operNS:contractCreateTest" xmlns:operNS="http://service.ws.autopass.cs.qfree.com" returnQName="retNS:contractCreateTestReturn" xmlns:retNS="http://service.ws.autopass.cs.qfree.com" returnType="rtns:Map" xmlns:rtns="http://xml.apache.org/xml-soap" soapAction="" >
+        <parameter qname="pns:username" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:password" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:obuID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:licencePlate" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:licencePlateCountryID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="contractCreate" qname="operNS:contractCreate" xmlns:operNS="http://service.ws.autopass.cs.qfree.com" returnQName="retNS:contractCreateReturn" xmlns:retNS="http://service.ws.autopass.cs.qfree.com" returnType="rtns:Map" xmlns:rtns="http://xml.apache.org/xml-soap" soapAction="" >
+        <parameter qname="pns:username" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:password" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:clientTypeID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:firstName" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:lastName" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:birthDate" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:company" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:companyNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:address1" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:address2" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:postCode" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:postOffice" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:countryID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:eMail" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:phone" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:validFrom" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:obuID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:vehicleClassID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:licencePlate" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:licencePlateCountryID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="serviceTest" qname="operNS:ServiceTest" xmlns:operNS="http://service.ws.autopass.cs.qfree.com" returnQName="retNS:ServiceTestReturn" xmlns:retNS="http://service.ws.autopass.cs.qfree.com" returnType="rtns:Map" xmlns:rtns="http://xml.apache.org/xml-soap" soapAction="" >
+        <parameter qname="pns:username" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:password" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="paymentMethodGet" qname="operNS:paymentMethodGet" xmlns:operNS="http://service.ws.autopass.cs.qfree.com" returnQName="retNS:paymentMethodGetReturn" xmlns:retNS="http://service.ws.autopass.cs.qfree.com" returnType="rtns:Map" xmlns:rtns="http://xml.apache.org/xml-soap" soapAction="" >
+        <parameter qname="pns:clientNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:accountNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:invoiceNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:systemActorID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:username" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:password" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <operation name="paymentMethodUpdate" qname="operNS:paymentMethodUpdate" xmlns:operNS="http://service.ws.autopass.cs.qfree.com" returnQName="retNS:paymentMethodUpdateReturn" xmlns:retNS="http://service.ws.autopass.cs.qfree.com" returnType="rtns:Map" xmlns:rtns="http://xml.apache.org/xml-soap" soapAction="" >
+        <parameter qname="pns:clientNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:accountNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:invoiceNumber" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:paymentMethodID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:systemActorID" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:int" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:username" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+        <parameter qname="pns:password" xmlns:pns="http://service.ws.autopass.cs.qfree.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="contractCreate contractCreateTest paymentMethodUpdate serviceTest paymentMethodGet"/>
+
+  </service>
+</deployment>

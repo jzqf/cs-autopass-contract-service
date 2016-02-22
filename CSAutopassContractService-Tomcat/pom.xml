@@ -11,9 +11,9 @@
 	
 	<properties>
 		<java-version>1.7</java-version>
-		<org.springframework-version>4.0.0.RELEASE</org.springframework-version>
+		<org.springframework-version>4.0.3.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.7.4</org.aspectj-version>
-		<org.slf4j-version>1.7.5</org.slf4j-version>
+		<org.slf4j-version>1.7.7</org.slf4j-version>
 		<logback-version>1.0.13</logback-version>
 		<log4j-version>1.2.17</log4j-version>
 		<javax.inject-version>1</javax.inject-version>
@@ -33,9 +33,36 @@
 			<groupId>com.sybase</groupId>
 			<artifactId>jconn</artifactId>
 			<version>4.0.0</version>
+			<!-- <scope>provided</scope> -->
 		</dependency>
+		
+		<!-- We should choose either dbcp v2.0 or 1.4, but not both. 
+		     Brief testing indicates that v1.4 is faster than v2.0. -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+			<!-- <scope>provided</scope> -->
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>2.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency> -->
 
 		<!-- JAX-WS -->
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-rt</artifactId>
+			<version>2.2.8</version>
+		</dependency>
+		<!-- These dependencies are included in jaxws-rt so they can be omitted here:
 		<dependency>
 			<groupId>org.glassfish.gmbal</groupId>
 			<artifactId>gmbal-api-only</artifactId>
@@ -53,16 +80,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
-			<artifactId>jaxws-rt</artifactId>
-			<version>2.2.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.external</groupId>
-			<artifactId>management-api</artifactId>
-			<version>3.1.0-b001</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>policy</artifactId>
 			<version>2.3.1</version>
 		</dependency>
@@ -75,11 +92,30 @@
 			<groupId>com.sun.xml.stream.buffer</groupId>
 			<artifactId>streambuffer</artifactId>
 			<version>1.5.3</version>
-		</dependency>
+		</dependency> -->
+		<!-- It looks like this dependency can be removed, at least for Tomcat:
+		<dependency>
+			<groupId>org.glassfish.external</groupId>
+			<artifactId>management-api</artifactId>
+			<version>3.1.0-b001</version>
+		</dependency> -->
 		
-		<!-- Spring -->
-		<!-- The exclusion is to exclude Commons Logging in favor of SLF4j -->
-		<!-- <dependency>
+		<!-- com.sun.xml.ws.transport.http.servlet.WSSpringServlet -->
+		<dependency>
+			<groupId>org.jvnet.jax-ws-commons.spring</groupId>
+			<artifactId>jaxws-spring</artifactId>
+			<version>1.9</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+            
+		<!-- Spring:
+			 The exclusion elements below are to exclude Commons Logging in favor of SLF4j -->
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${org.springframework-version}</version>
@@ -92,17 +128,92 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<!-- spring-core and spring-beans are dependences of spring-context, so 
+			 it should not be necessary to explicitly specify them here.  However,
+			 the jax-spring artifact (specified above) depends transitively on:
+			 	spring-core 3.2.3.RELEASE 
+			 	spring-beans 3.2.3.RELEASE
+			 	spring-context 3.2.3.RELEASE
+			 	spring-web 3.2.3.RELEASE
+			 Therefore, if I do not explicitly add dependencies for these 4 
+			 spring artifacts, then version 3.2.3.RELEASE of these artifacts will
+			 be implicitly added. If I allow these transitive dependencies, the 
+			 application throws exceptions during startup that I do not really 
+			 understand. It probably has to do with incompatibilities when 
+			 combining v3.2.3.RELEASE with version ${org.springframework-version}
+			 of the spring libraries. The only way that I found that I can avoid
+			 this situation is to explicitly include these spring dependencies 
+			 and specify the appropriate versions I want. -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+		<!-- You can use spring-web or spring-webmvc, but not both.  If you 
+			 specify spring-webmvc, then spring-web is implicitly added.
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
 		</dependency> -->
-				
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				 </exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- @Inject --> 
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+            
 		<!-- AspectJ -->
 		<!-- <dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${org.aspectj-version}</version>
 		</dependency> -->
-		
+            
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -7,7 +7,7 @@
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>
-				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n
+				%d [%thread] %-5level %logger{32} - %msg%n
 			</pattern>
 		</encoder>
 	</appender>
@@ -33,16 +33,16 @@
 				<!-- Log file will be archived in "archive" directory at the beginning of each minute: -->
 				<!-- ${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM-dd_HH-mm}.log.zip -->
 				<!-- Default. Log file will be archived at midnight each day: -->
-				<!-- ${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM-dd}.log.zip -->
-				${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM}.log.zip
+				${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM-dd}.log.zip
+				<!-- ${catalina.base}/logs/contract-service/archive/logFile.%d{yyyy-MM}.log.zip -->
 			</FileNamePattern>
-			<maxHistory>12</maxHistory>	<!-- Maximum number of archive files to keep, deleting older files -->
+			<maxHistory>365</maxHistory>	<!-- Maximum number of archive files to keep, deleting older files -->
 		</rollingPolicy>
 		<encoder>
 			<Pattern>
 				<!-- %d{HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n -->
 				<!-- This pattern includes also the name of the method. This slows down logging. -->
-				%d{HH:mm:ss.SSS} [%thread] %-5level %logger{32} %M - %msg%n
+				%d [%thread] %-5level %logger{32} %M - %msg%n
 			</Pattern>
 		</encoder>
 	</appender>
@@ -51,12 +51,12 @@
 	<logger name="com.qfree.cs.autopass"><level value="DEBUG" /></logger>
 	
 	<!-- 3rdparty Loggers -->
-	<logger name="org.springframework.core"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.beans"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.context"><level value="DEBUG" /></logger>
-	<logger name="org.springframework.web"><level value="DEBUG" /></logger>
+	<logger name="org.springframework.core"><level value="INFO" /></logger>
+	<logger name="org.springframework.beans"><level value="INFO" /></logger>
+	<logger name="org.springframework.context"><level value="INFO" /></logger>
+	<logger name="org.springframework.web"><level value="INFO" /></logger>
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT"/>
 		<appender-ref ref="FILE"/>
 	</root>

@@ -20,6 +20,9 @@ public class Database {
 
 	private static final Logger logger = LoggerFactory.getLogger(Database.class);
 
+	private static final int VALIDATION_ERRORCODE = 100;
+	private static final String VALIDATION_ERRORMESSAGE = "Input parameter valideringsfeil";
+
 	public void registerDriver() {
     	
 		try {
@@ -250,7 +253,7 @@ public class Database {
 
 			cs.setString("@ip_Username", username);
 			cs.setString("@ip_Password", password);
-			if (vehicleClassID >= 0) {
+			if (clientTypeID >= 0) {
 				cs.setInt("@ip_ClientTypeID", clientTypeID);
 			}
 			else {
@@ -258,7 +261,13 @@ public class Database {
 			}
 			cs.setString("@ip_FirstName", firstName);
 			cs.setString("@ip_LastName", lastName);
-			cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyy-MM-dd"));
+			try {
+				cs.setDate("@ip_BirthDate", WsUtils.parseStringToSqlDate(birthDate, "yyyyMMdd"));
+			} catch (ParseException e) {
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  BirthDate = " + birthDate);
+				return result;
+			}
 			//cs.setString("@ip_BirthDate", birthDate);
 			cs.setString("@ip_Company", company);
 			cs.setString("@ip_CompanyNumber", companyNumber);
@@ -266,7 +275,7 @@ public class Database {
 			cs.setString("@ip_Address2", address2);
 			cs.setString("@ip_PostCode", postCode);
 			cs.setString("@ip_PostOffice", postOffice);
-			if (vehicleClassID >= 0) {
+			if (countryID >= 0) {
 				cs.setInt("@ip_CountryID", countryID);
 			}
 			else {
@@ -278,13 +287,11 @@ public class Database {
 			// This supports multiple datetime formats. The does not seem to be any simple
 			// way to implement this with a single format.
 			try {
-				cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd HH:mm:ss"));
+				cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyyMMdd"));
 			} catch (ParseException e) {
-				try {
-					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd HH:mm"));
-				} catch (ParseException ee) {
-					cs.setTimestamp("@ip_ValidFrom", WsUtils.parseStringToSqlTimestamp(validFrom, "yyyy-MM-dd"));
-				}
+				result.put("ErrorCode", VALIDATION_ERRORCODE);
+				result.put("ErrorMessage", VALIDATION_ERRORMESSAGE + ":  ValidFrom = " + validFrom);
+				return result;
 			}
 			//cs.setString("@ip_ValidFrom", validFrom);
 
